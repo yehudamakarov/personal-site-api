@@ -19,8 +19,8 @@ namespace PersonalSiteApi
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseSetting("HTTPS_PORT", "443")
-                .UseSetting("URLS", "http://+;https://+")
+                // .UseSetting("HTTPS_PORT", "443")
+                // .UseSetting("URLS", "http://* */;https://* */")
                 .UseStartup<Startup>();
     }
 }
