@@ -18,7 +18,12 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
 # ENV ASPNETCORE_URLS="https://+443;http://+80"
+# Must bind the certificate into the container at /root/.aspnet/https
+# And must give password for certificate as -e
 ENV Kestrel__Certificates__Default__Path=/root/.aspnet/https/PersonalSiteApi.pfx
-ENV Kestrel__Certificates__Default__Password=personalsiteapi
+# If someone generated their own certificate and their own password they would have to change this. shouldn't be here.
+# ENV Kestrel__Certificates__Default__Password=personalsiteapi
 ENTRYPOINT ["dotnet", "PersonalSiteApi.dll"]
+
+# docker run --rm -it -P -e Kestrel__Certificates__Default__Password=personalsiteapi -v ${HOME}/.aspnet/https:/root/.aspnet/https personalsiteapi:latest
 
