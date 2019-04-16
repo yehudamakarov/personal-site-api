@@ -17,6 +17,9 @@ RUN dotnet publish PersonalSiteApi.csproj -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+
+# MUST ADD AN ENV FOR GOOGLE_APPLICATION_CREDENTIALS --- AND --- A BIND MOUNT - this should be in kubernetes
+
 # ENV ASPNETCORE_URLS="https://*:443;http://*:80"
 # Must bind the certificate into the container at /root/.aspnet/https
 # And must give password for certificate as -e
