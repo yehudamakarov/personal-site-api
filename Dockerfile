@@ -17,15 +17,13 @@ RUN dotnet publish PersonalSiteApi.csproj -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-
-# MUST ADD AN ENV FOR GOOGLE_APPLICATION_CREDENTIALS --- AND --- A BIND MOUNT - this should be in kubernetes
-
-# ENV ASPNETCORE_URLS="https://*:443;http://*:80"
 # Must bind the certificate into the container at /root/.aspnet/https
 # And must give password for certificate as -e
-# ENV Kestrel__Certificates__Default__Path=/root/.aspnet/https/PersonalSiteApi.pfx
+ENV Kestrel__Certificates__Default__Path="/root/.aspnet/https/PersonalSiteApi.pfx"
 # If someone generated their own certificate and their own password they would have to change this. shouldn't be here.
-# ENV Kestrel__Certificates__Default__Password=personalsiteapi
+ENV Kestrel__Certificates__Default__Password="personalsiteapi"
+ENV ASPNETCORE_HTTPS_PORT="5001"
+ENV ASPNETCORE_URLS="https://*:5001;http://*:5000"
 # must also specify the https_port in env variable. because that's what the 307 redirect responds with, so it will be the address used from outside the container.
 ENTRYPOINT ["dotnet", "PersonalSiteApi.dll"]
 
