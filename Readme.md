@@ -11,8 +11,10 @@ A machine running anything local, whether through debug or through docker compos
 JSON file for the environment variable. (if we want to debug production data, we can technically
 get a production service key and set that for a local environment variable.)
 
+on how the secrets get added to use in the Configuration[] see [accessing secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-2.2&tabs=linux#access-a-secret)
+
 in regards to any other configuration, a connection string can be added with 
-`dotnet user-secrets set "ConnectionStrings:<keyname>" "<keyvalue>"`
+`dotnet user-secrets set "<keyname>" "<keyvalue>"`
 And when running the app in a container (in order that the same exact code works with a different 
-connection string (or the same,)) we can make an env variable `CUSTOMCONNSTR_<keyname>=<keyvalue>`.
+connection string (or the same,)) we can make an env variable `<keyname>=<keyvalue>`.
 

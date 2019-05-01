@@ -28,13 +28,20 @@ namespace PersonalSiteApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-            {
-                var signingKey = Encoding.UTF8.GetBytes(Configuration["tokenSiginingKey"]);
-                options.TokenValidationParameters = new TokenValidationParameters()
-                    { ValidateIssuerSigningKey = true, IssuerSigningKey = new SymmetricSecurityKey(signingKey) };
-            });
+            services
+                .AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    var signingKeyBytes = Convert.FromBase64String(Configuration["JWT_SIGNING_KEY"]);
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuerSigningKey = true, IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
