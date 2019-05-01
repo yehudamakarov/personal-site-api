@@ -21,12 +21,7 @@ namespace PersonalSiteApi.Controllers
 		[HttpPost]
 		public async Task<IActionResult> CreateAdmin( CreateAdminRequest createAdminRequest )
 		{
-			var createAdminResult = await _authenticationBL.HandleCreateAdmin(
-				createAdminRequest.FirstName,
-				createAdminRequest.LastName,
-				createAdminRequest.CreationCode,
-				createAdminRequest.Password
-			);
+			var createAdminResult = await _authenticationBL.HandleCreateAdmin(createAdminRequest);
 
 			switch (createAdminResult)
 			{
@@ -50,6 +45,12 @@ namespace PersonalSiteApi.Controllers
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		[HttpPost]
+		public Task<IActionResult> Login( AdminLoginRequest adminLoginRequest )
+		{
+			var loginResult = _authenticationBL.HandleAdminLogin(adminLoginRequest);
 		}
 	}
 }

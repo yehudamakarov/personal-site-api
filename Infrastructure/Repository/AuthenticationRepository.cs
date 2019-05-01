@@ -39,7 +39,7 @@ namespace Infrastructure.Repository
 			var updates = new Dictionary<FieldPath, object>
 			{
 				{
-					new FieldPath("passwordHash"), passwordHash
+					new FieldPath("PasswordHash"), passwordHash
 				}
 			};
 			await adminRef.UpdateAsync(updates);

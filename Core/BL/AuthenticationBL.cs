@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Core.Enums.Authentication;
 using Core.Interfaces;
+using Core.Requests.Authentication;
 using Core.Types;
 
 namespace Core.BL
@@ -17,27 +18,62 @@ namespace Core.BL
 		}
 
 		public async Task<CreateAdminResult> HandleCreateAdmin(
-			string firstName, string lastName, string creationCode, string password )
+			CreateAdminRequest createAdminRequest )
 		{
-			var admin = await _authenticationRepository.GetAdmin(firstName, lastName);
+			var admin = await _authenticationRepository.GetAdmin(createAdminRequest.FirstName, createAdminRequest.LastName);
 
 			if (admin == null)
 			{
 				return CreateAdminResult.NoAdminRecord;
 			}
 
-			if (creationCode != admin.CreationCode)
+			if (createAdminRequest.CreationCode != admin.CreationCode)
 			{
 				return CreateAdminResult.BadCreationCode;
 			}
 
-			if (admin.PasswordHash != null)
+			if (admin.PasswordHash != "")
 			{
 				return CreateAdminResult.AdminAlreadyExists;
 			}
 
-			var newAdmin = await CreateAdmin(admin, password);
+			var newAdmin = await CreateAdmin(admin, createAdminRequest.Password);
 			return CreateAdminResult.AdminCreated;
+		}
+
+		public async Task<LoginResult> HandleAdminLogin( AdminLoginRequest adminLoginRequest )
+		{
+			var admin = await _authenticationRepository.GetAdmin(
+				adminLoginRequest.FirstName,
+				adminLoginRequest.LastName
+			);
+
+			var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
+			// todo if password is correct, give JWT, if not, give forbidden
+		}
+
+		private bool ValidatePassword( string password, string passwordHash )
+		{
+			// Extract the bytes
+			var hashAndSaltFromDb = Convert.FromBase64String(passwordHash);
+			
+			// Get the salt we stored
+			var saltFromDb = new byte[16];
+			Array.Copy(hashAndSaltFromDb, 0, saltFromDb, 0, 16);
+			
+			// compute a hash from entered password
+			var pbkdf2 = new Rfc2898DeriveBytes(password, saltFromDb, 10000);
+			var hashThatResultsFromEnteredPassword = pbkdf2.GetBytes(20);
+
+			// compare this hash to the hash in the Db
+			for (var i = 0; i < hashAndSaltFromDb.Length; i++)
+			{
+				if (hashThatResultsFromEnteredPassword[i] != hashAndSaltFromDb[i + 16])
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 
 		private async Task<User> CreateAdmin( User admin, string password )
