@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.BL;
 using Core.Interfaces;
+using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,7 +47,7 @@ namespace PersonalSiteApi
                 });
 
             services.AddScoped<IAuthenticationBL, AuthenticationBL>();
-            services.AddScoped<IUserRepository, >()
+            services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
