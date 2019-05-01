@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Core.BL;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +44,9 @@ namespace PersonalSiteApi
                         ValidateIssuerSigningKey = true, IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
                     };
                 });
+
+            services.AddScoped<IAuthenticationBL, AuthenticationBL>();
+            services.AddScoped<IUserRepository, >()
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

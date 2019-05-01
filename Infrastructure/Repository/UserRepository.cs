@@ -1,3 +1,5 @@
+using Core.Interfaces;
+using Core.Types;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repository
