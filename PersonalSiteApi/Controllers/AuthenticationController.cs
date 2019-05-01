@@ -26,7 +26,7 @@ namespace PersonalSiteApi.Controllers
                 createAdminRequest.LastName,
                 createAdminRequest.CreationCode,
                 createAdminRequest.Password
-            );
+            ); 
         }
     }
 }
