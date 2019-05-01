@@ -15,15 +15,16 @@ namespace Infrastructure.Repository
 		public async Task<User> GetAdmin( string firstName, string lastName )
 		{
 			var adminSnapshot = await GetAdminSnapshot(firstName, lastName);
-
-			return adminSnapshot.ConvertTo<User>();
+			
+			// todo will be null if not found, and nullreferenceexception.
+			return adminSnapshot?.ConvertTo<User>();
 		}
 
 		private async Task<DocumentSnapshot> GetAdminSnapshot( string firstName, string lastName )
 		{
 			var adminQuery = Db.Collection("users")
-				.WhereEqualTo("firstName", firstName)
-				.WhereEqualTo("lastName", lastName);
+				.WhereEqualTo("FirstName", firstName)
+				.WhereEqualTo("LastName", lastName);
 
 			var querySnapshot = await adminQuery.GetSnapshotAsync();
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Core.Enums.Authentication;
 using Core.Interfaces;
 using Core.Requests.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
@@ -30,11 +31,20 @@ namespace PersonalSiteApi.Controllers
 			switch (createAdminResult)
 			{
 				case CreateAdminResult.NoAdminRecord:
-					return Forbid("There is no admin record to work with.");
+					return StatusCode(
+						StatusCodes.Status403Forbidden,
+						"There is no admin record to work with."
+					);
 				case CreateAdminResult.BadCreationCode:
-					return Forbid("There was a problem with your creation code.");
+					return StatusCode(
+						StatusCodes.Status403Forbidden,
+						"There was a problem with your creation code."
+					);
 				case CreateAdminResult.AdminAlreadyExists:
-					return Forbid("There is already an admin active.");
+					return StatusCode(
+						StatusCodes.Status403Forbidden,
+						"There was a problem with your creation code."
+					);
 				case CreateAdminResult.AdminCreated:
 					return Ok("The admin is now active.");
 				default:
