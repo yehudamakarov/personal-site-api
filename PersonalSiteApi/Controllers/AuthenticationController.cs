@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Core.Enums.Authentication;
 using Core.Interfaces;
 using Core.Requests.Authentication;
@@ -17,9 +18,9 @@ namespace PersonalSiteApi.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult CreateAdmin( CreateAdminRequest createAdminRequest )
+		public async Task<IActionResult> CreateAdmin( CreateAdminRequest createAdminRequest )
 		{
-			var createAdminResult = _authenticationBL.HandleCreateAdmin(
+			var createAdminResult = await _authenticationBL.HandleCreateAdmin(
 				createAdminRequest.FirstName,
 				createAdminRequest.LastName,
 				createAdminRequest.CreationCode,

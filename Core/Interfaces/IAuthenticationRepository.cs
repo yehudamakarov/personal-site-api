@@ -1,9 +1,11 @@
+using System.Threading.Tasks;
 using Core.Types;
 
 namespace Core.Interfaces
 {
     public interface IAuthenticationRepository
     {
-        User GetAdmin( string firstName, string lastName );
+        Task<User> GetAdmin( string firstName, string lastName );
+        User CreateAdmin( User admin );
     }
 }
