@@ -1,3 +1,5 @@
+using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Core.Enums.Authentication;
 using Core.Interfaces;
@@ -34,19 +36,34 @@ namespace Core.BL
 				return CreateAdminResult.AdminAlreadyExists;
 			}
 
-			CreateAdmin(admin, password);
+			var newAdmin = await CreateAdmin(admin, password);
 			return CreateAdminResult.AdminCreated;
 		}
 
-		private void CreateAdmin( User admin, string password )
+		private async Task<User> CreateAdmin( User admin, string password )
 		{
-			admin.PasswordHash = CreatePasswordHash(password);
-			var updatedAdmin = _authenticationRepository.CreateAdmin(admin);
+			var passwordHash = CreatePasswordHash(password);
+			return await _authenticationRepository.UpdateAdminPasswordHash(admin, passwordHash);
 		}
 
-		private string CreatePasswordHash( string password )
+		private static string CreatePasswordHash( string password )
 		{
-			throw new System.NotImplementedException();
+			// Create the salt value with a cryptographic PRNG
+			var salt = new byte[16];
+			new RNGCryptoServiceProvider().GetBytes(salt);
+
+			// Create the Rfc2898DeriveBytes and get the hash value
+			var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
+			var passwordHash = pbkdf2.GetBytes(20);
+
+			// Combine the salt and password bytes for later use
+			var hashAndSaltBytes = new byte[36];
+			Array.Copy(salt, 0, hashAndSaltBytes, 0, 16);
+			Array.Copy(passwordHash, 0, hashAndSaltBytes, 16, 20);
+
+			// Turn the combined salt+hash into a string for storage
+			var passwordHashString = Convert.ToBase64String(hashAndSaltBytes);
+			return passwordHashString;
 		}
 	}
 }

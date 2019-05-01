@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
+using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repository
@@ -12,16 +14,36 @@ namespace Infrastructure.Repository
 
 		public async Task<User> GetAdmin( string firstName, string lastName )
 		{
+			var adminSnapshot = await GetAdminSnapshot(firstName, lastName);
+
+			return adminSnapshot.ConvertTo<User>();
+		}
+
+		private async Task<DocumentSnapshot> GetAdminSnapshot( string firstName, string lastName )
+		{
 			var adminQuery = Db.Collection("users")
 				.WhereEqualTo("firstName", firstName)
 				.WhereEqualTo("lastName", lastName);
 
-			var snapshot = await adminQuery.GetSnapshotAsync();
+			var querySnapshot = await adminQuery.GetSnapshotAsync();
 
-			var admin = snapshot.FirstOrDefault(documentSnapshot => documentSnapshot.Exists)
-				?.ConvertTo<User>();
+			return querySnapshot.FirstOrDefault(documentSnapshot => documentSnapshot.Exists);
+		}
 
-			return admin;
+		public async Task<User> UpdateAdminPasswordHash( User admin, string passwordHash )
+		{
+			var adminSnapshot = await GetAdminSnapshot(admin.FirstName, admin.LastName);
+			var adminRef = adminSnapshot.Reference;
+
+			var updates = new Dictionary<FieldPath, object>
+			{
+				{
+					new FieldPath("passwordHash"), passwordHash
+				}
+			};
+			await adminRef.UpdateAsync(updates);
+			adminSnapshot = await adminRef.GetSnapshotAsync();
+			return adminSnapshot.ConvertTo<User>();
 		}
 	}
 }

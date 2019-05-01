@@ -6,6 +6,6 @@ namespace Core.Interfaces
     public interface IAuthenticationRepository
     {
         Task<User> GetAdmin( string firstName, string lastName );
-        User CreateAdmin( User admin );
+        Task<User> UpdateAdminPasswordHash( User admin, string passwordHash );
     }
 }
