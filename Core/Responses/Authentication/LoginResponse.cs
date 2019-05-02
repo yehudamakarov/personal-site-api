@@ -1,5 +1,5 @@
 using System;
-using Core.Enums.Authentication;
+using Core.Results.Authentication;
 
 namespace Core.Responses.Authentication
 {
@@ -24,6 +24,8 @@ namespace Core.Responses.Authentication
                     return "The password associated with this user was is not the same as you provided.";
                 case LoginResult.ResultReason.SuccessfulLogin:
                     return "Successfully logged in.";
+                case LoginResult.ResultReason.PasswordNotProvided:
+                    return "A password was not provided";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(loginResultReason), loginResultReason, null);
             }

@@ -34,17 +34,22 @@ namespace PersonalSiteApi
             services
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            
+
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    var signingKeyBytes = Convert.FromBase64String(Configuration["JWT_SIGNING_KEY"]);
-                    options.TokenValidationParameters = new TokenValidationParameters()
+                .AddJwtBearer(
+                    options =>
                     {
-                        ValidateIssuerSigningKey = true, IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
-                    };
-                });
+                        var signingKeyBytes = Convert.FromBase64String(Configuration["JWT_SIGNING_KEY"]);
+                        options.TokenValidationParameters = new TokenValidationParameters()
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
+                            ValidateIssuer = false,
+                            ValidateAudience = false
+                        };
+                    }
+                );
 
             services.AddScoped<IAuthenticationBL, AuthenticationBL>();
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();

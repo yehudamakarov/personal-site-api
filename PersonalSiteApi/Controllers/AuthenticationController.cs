@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using Core.Enums.Authentication;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Responses.Authentication;
 using Core.Results.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
@@ -18,6 +18,13 @@ namespace PersonalSiteApi.Controllers
         public AuthenticationController(IAuthenticationBL authenticationBL)
         {
             _authenticationBL = authenticationBL;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult TestAuthentication()
+        {
+            return Ok("Authenticated as Admin");
         }
 
         [HttpPost]

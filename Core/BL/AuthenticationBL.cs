@@ -4,7 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Core.Enums.Authentication;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Results.Authentication;
@@ -40,13 +39,10 @@ namespace Core.BL
 
             if (createAdminRequest.CreationCode != admin.CreationCode)
             {
-                return new CreateAdminResult()
-                {
-                    Reason = CreateAdminResult.ResultReason.BadCreationCode
-                };
+                return new CreateAdminResult() { Reason = CreateAdminResult.ResultReason.BadCreationCode };
             }
 
-            if (admin.PasswordHash != "")
+            if (admin.PasswordHash != null)
             {
                 return new CreateAdminResult() { Reason = CreateAdminResult.ResultReason.AdminAlreadyExists };
             }
@@ -63,20 +59,16 @@ namespace Core.BL
                 adminLoginRequest.LastName
             );
 
-            if (admin == null)
-            {
-                return new LoginResult() { Reason = LoginResult.ResultReason.UserNotFound };
-            }
+            if (admin == null) return new LoginResult() { Reason = LoginResult.ResultReason.UserNotFound };
+            
+            if (adminLoginRequest.Password == null)
+                return new LoginResult() { Reason = LoginResult.ResultReason.PasswordNotProvided };
 
             var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
+            if (!correctPassword) return new LoginResult() { Reason = LoginResult.ResultReason.PasswordIncorrect };
 
-            if (correctPassword)
-            {
-                var token = GenerateToken(admin);
-                return new LoginResult() { Token = token, Reason = LoginResult.ResultReason.SuccessfulLogin };
-            }
-
-            return new LoginResult() { Reason = LoginResult.ResultReason.PasswordIncorrect };
+            var token = GenerateToken(admin);
+            return new LoginResult() { Token = token, Reason = LoginResult.ResultReason.SuccessfulLogin };
         }
 
         private string GenerateToken(User admin)
@@ -88,7 +80,7 @@ namespace Core.BL
             {
                 Expires = DateTime.UtcNow.AddMinutes(expiryDurationMinutes),
                 Subject = new ClaimsIdentity(
-                    new List<Claim>() { new Claim("Role", "Administrator"), new Claim("UserId", admin.Id) }
+                    new List<Claim>() { new Claim("role", "Administrator"), new Claim("userId", admin.Id) }
                 ),
                 IssuedAt = DateTime.UtcNow,
                 NotBefore = DateTime.UtcNow,
@@ -103,7 +95,7 @@ namespace Core.BL
             return tokenHandler.WriteToken(tokenObject);
         }
 
-        private bool ValidatePassword(string password, string passwordHash)
+        private static bool ValidatePassword(string password, string passwordHash)
         {
             // Extract the bytes
             var hashAndSaltFromDb = Convert.FromBase64String(passwordHash);
@@ -117,7 +109,7 @@ namespace Core.BL
             var hashThatResultsFromEnteredPassword = pbkdf2.GetBytes(20);
 
             // compare this hash to the hash in the Db
-            for (var i = 0; i < hashAndSaltFromDb.Length; i++)
+            for (var i = 0; i < hashThatResultsFromEnteredPassword.Length; i++)
             {
                 if (hashThatResultsFromEnteredPassword[i] != hashAndSaltFromDb[i + 16])
                 {

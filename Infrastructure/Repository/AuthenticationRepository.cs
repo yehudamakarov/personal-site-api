@@ -17,20 +17,14 @@ namespace Infrastructure.Repository
         public async Task<User> GetAdmin(string firstName, string lastName)
         {
             var adminSnapshot = await GetAdminSnapshot(firstName, lastName);
+            if (adminSnapshot == null)
+            {
+                return null;
+            }
 
-            // todo will be null if not found, and nullreferenceexception.
-            return adminSnapshot?.ConvertTo<User>();
-        }
-
-        private async Task<DocumentSnapshot> GetAdminSnapshot(string firstName, string lastName)
-        {
-            var adminQuery = Db.Collection("users")
-                .WhereEqualTo("FirstName", firstName)
-                .WhereEqualTo("LastName", lastName);
-
-            var querySnapshot = await adminQuery.GetSnapshotAsync();
-
-            return querySnapshot.FirstOrDefault(documentSnapshot => documentSnapshot.Exists);
+            var admin = adminSnapshot.ConvertTo<User>();
+            admin.Id = adminSnapshot.Id;
+            return admin;
         }
 
         public async Task<User> UpdateAdminPasswordHash(User admin, string passwordHash)
@@ -46,7 +40,19 @@ namespace Infrastructure.Repository
             await adminRef.UpdateAsync(updates);
             adminSnapshot = await adminRef.GetSnapshotAsync();
             var user = adminSnapshot.ConvertTo<User>();
+            user.Id = adminSnapshot.Id;
             return user;
+        }
+
+        private async Task<DocumentSnapshot> GetAdminSnapshot(string firstName, string lastName)
+        {
+            var adminQuery = Db.Collection("users")
+                .WhereEqualTo("FirstName", firstName)
+                .WhereEqualTo("LastName", lastName);
+
+            var querySnapshot = await adminQuery.GetSnapshotAsync();
+
+            return querySnapshot.FirstOrDefault(documentSnapshot => documentSnapshot.Exists);
         }
     }
 }

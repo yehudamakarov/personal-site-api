@@ -1,4 +1,4 @@
-namespace Core.Enums.Authentication
+namespace Core.Results.Authentication
 {
 	public class LoginResult
 	{
@@ -8,7 +8,8 @@ namespace Core.Enums.Authentication
 		{
 			UserNotFound,
 			PasswordIncorrect,
-			SuccessfulLogin	
+			SuccessfulLogin,
+			PasswordNotProvided
 		}
 		
 	}
