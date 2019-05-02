@@ -8,43 +8,45 @@ using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repository
 {
-	public class AuthenticationRepository : RepositoryBase, IAuthenticationRepository
-	{
-		public AuthenticationRepository( IConfiguration configuration ) : base(configuration) { }
+    public class AuthenticationRepository : RepositoryBase, IAuthenticationRepository
+    {
+        public AuthenticationRepository(IConfiguration configuration) : base(configuration)
+        {
+        }
 
-		public async Task<User> GetAdmin( string firstName, string lastName )
-		{
-			var adminSnapshot = await GetAdminSnapshot(firstName, lastName);
-			
-			// todo will be null if not found, and nullreferenceexception.
-			return adminSnapshot?.ConvertTo<User>();
-		}
+        public async Task<User> GetAdmin(string firstName, string lastName)
+        {
+            var adminSnapshot = await GetAdminSnapshot(firstName, lastName);
 
-		private async Task<DocumentSnapshot> GetAdminSnapshot( string firstName, string lastName )
-		{
-			var adminQuery = Db.Collection("users")
-				.WhereEqualTo("FirstName", firstName)
-				.WhereEqualTo("LastName", lastName);
+            // todo will be null if not found, and nullreferenceexception.
+            return adminSnapshot?.ConvertTo<User>();
+        }
 
-			var querySnapshot = await adminQuery.GetSnapshotAsync();
+        private async Task<DocumentSnapshot> GetAdminSnapshot(string firstName, string lastName)
+        {
+            var adminQuery = Db.Collection("users")
+                .WhereEqualTo("FirstName", firstName)
+                .WhereEqualTo("LastName", lastName);
 
-			return querySnapshot.FirstOrDefault(documentSnapshot => documentSnapshot.Exists);
-		}
+            var querySnapshot = await adminQuery.GetSnapshotAsync();
 
-		public async Task<User> UpdateAdminPasswordHash( User admin, string passwordHash )
-		{
-			var adminSnapshot = await GetAdminSnapshot(admin.FirstName, admin.LastName);
-			var adminRef = adminSnapshot.Reference;
+            return querySnapshot.FirstOrDefault(documentSnapshot => documentSnapshot.Exists);
+        }
 
-			var updates = new Dictionary<FieldPath, object>
-			{
-				{
-					new FieldPath("PasswordHash"), passwordHash
-				}
-			};
-			await adminRef.UpdateAsync(updates);
-			adminSnapshot = await adminRef.GetSnapshotAsync();
-			return adminSnapshot.ConvertTo<User>();
-		}
-	}
+        public async Task<User> UpdateAdminPasswordHash(User admin, string passwordHash)
+        {
+            var adminSnapshot = await GetAdminSnapshot(admin.FirstName, admin.LastName);
+            var adminRef = adminSnapshot.Reference;
+
+            var updates = new Dictionary<FieldPath, object>
+            {
+                { new FieldPath("PasswordHash"), passwordHash },
+                { new FieldPath("IsAdmin"), true }
+            };
+            await adminRef.UpdateAsync(updates);
+            adminSnapshot = await adminRef.GetSnapshotAsync();
+            var user = adminSnapshot.ConvertTo<User>();
+            return user;
+        }
+    }
 }
