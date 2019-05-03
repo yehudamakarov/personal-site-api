@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Core.BackgroundServices;
 using Core.BL;
 using Core.Interfaces;
 using Infrastructure.Repository;
@@ -13,9 +15,11 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace PersonalSiteApi
 {
@@ -53,6 +57,8 @@ namespace PersonalSiteApi
 
             services.AddScoped<IAuthenticationBL, AuthenticationBL>();
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+
+            services.AddHostedService<RepoFetcherService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
