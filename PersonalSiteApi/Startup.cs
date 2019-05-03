@@ -50,7 +50,7 @@ namespace PersonalSiteApi
                             ValidateIssuerSigningKey = true,
                             IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
                             ValidateIssuer = false,
-                            ValidateAudience = false
+                            ValidateAudience = false,
                         };
                     }
                 );

@@ -24,7 +24,7 @@ namespace Core.BackgroundServices
 
 		private void FetchAndUploadRepos( object state )
 		{
-			throw new NotImplementedException();
+			_repoFetcherBL.BeginJobAsync();
 		}
 
 		public Task StopAsync( CancellationToken cancellationToken )

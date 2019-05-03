@@ -60,7 +60,7 @@ namespace Core.BL
             );
 
             if (admin == null) return new LoginResult() { Reason = LoginResult.ResultReason.UserNotFound };
-            
+
             if (adminLoginRequest.Password == null)
                 return new LoginResult() { Reason = LoginResult.ResultReason.PasswordNotProvided };
 
