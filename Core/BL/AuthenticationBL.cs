@@ -24,7 +24,7 @@ namespace Core.BL
             _configuration = configuration;
         }
 
-        public async Task<CreateAdminResult> HandleCreateAdmin(
+        public async Task<ActivateAdminResult> HandleCreateAdmin(
             CreateAdminRequest createAdminRequest)
         {
             var admin = await _authenticationRepository.GetAdmin(
@@ -34,22 +34,23 @@ namespace Core.BL
 
             if (admin == null)
             {
-                return new CreateAdminResult() { Reason = CreateAdminResult.ResultReason.NoAdminRecord };
+                return new ActivateAdminResult() { Reason = ActivateAdminResult.ResultReason.NoAdminRecord };
             }
 
             if (createAdminRequest.CreationCode != admin.CreationCode)
             {
-                return new CreateAdminResult() { Reason = CreateAdminResult.ResultReason.BadCreationCode };
+                return new ActivateAdminResult() { Reason = ActivateAdminResult.ResultReason.BadCreationCode };
             }
 
             if (admin.PasswordHash != null)
             {
-                return new CreateAdminResult() { Reason = CreateAdminResult.ResultReason.AdminAlreadyExists };
+                return new ActivateAdminResult() { Reason = ActivateAdminResult.ResultReason.AdminAlreadyExists };
             }
 
-            var newAdmin = await CreateAdmin(admin, createAdminRequest.Password);
+            var activatedAdmin = await ActivateAdmin(admin, createAdminRequest.Password);
 
-            return new CreateAdminResult() { Reason = CreateAdminResult.ResultReason.AdminCreated, Admin = newAdmin };
+            return new ActivateAdminResult()
+                { Reason = ActivateAdminResult.ResultReason.AdminCreated, Admin = activatedAdmin };
         }
 
         public async Task<LoginResult> HandleAdminLogin(AdminLoginRequest adminLoginRequest)
@@ -80,7 +81,12 @@ namespace Core.BL
             {
                 Expires = DateTime.UtcNow.AddMinutes(expiryDurationMinutes),
                 Subject = new ClaimsIdentity(
-                    new List<Claim>() { new Claim("role", "Administrator"), new Claim("userId", admin.Id) }
+                    new List<Claim>()
+                    {
+                        new Claim("role", "Administrator"),
+                        new Claim("firstName", admin.FirstName),
+                        new Claim("lastName", admin.LastName)
+                    }
                 ),
                 IssuedAt = DateTime.UtcNow,
                 NotBefore = DateTime.UtcNow,
@@ -120,7 +126,7 @@ namespace Core.BL
             return true;
         }
 
-        private async Task<User> CreateAdmin(User admin, string password)
+        private async Task<User> ActivateAdmin(User admin, string password)
         {
             var passwordHash = CreatePasswordHash(password);
             return await _authenticationRepository.UpdateAdminPasswordHash(admin, passwordHash);

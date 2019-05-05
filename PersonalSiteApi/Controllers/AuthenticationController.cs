@@ -34,7 +34,7 @@ namespace PersonalSiteApi.Controllers
             var createAdminResponse = new CreateAdminResponse(createAdminResult);
 
             return StatusCode(
-                createAdminResult.Reason == CreateAdminResult.ResultReason.AdminCreated
+                createAdminResult.Reason == ActivateAdminResult.ResultReason.AdminCreated
                     ? StatusCodes.Status201Created
                     : StatusCodes.Status403Forbidden,
                 createAdminResponse

@@ -9,24 +9,24 @@ namespace Core.Responses.Authentication
         public string Message { get; }
         public User Data { get; }
 
-        public CreateAdminResponse(CreateAdminResult result)
+        public CreateAdminResponse(ActivateAdminResult result)
         {
             Message = ComputeMessage(result.Reason);
             Data = result.Admin;
         }
 
 
-        private string ComputeMessage(CreateAdminResult.ResultReason resultReason)
+        private string ComputeMessage(ActivateAdminResult.ResultReason resultReason)
         {
             switch (resultReason)
             {
-                case CreateAdminResult.ResultReason.NoAdminRecord:
+                case ActivateAdminResult.ResultReason.NoAdminRecord:
                     return "There is no admin record to work with.";
-                case CreateAdminResult.ResultReason.BadCreationCode:
+                case ActivateAdminResult.ResultReason.BadCreationCode:
                     return "The creation code was wrong. Can't access the admin record.";
-                case CreateAdminResult.ResultReason.AdminAlreadyExists:
+                case ActivateAdminResult.ResultReason.AdminAlreadyExists:
                     return "An Admin is already active.";
-                case CreateAdminResult.ResultReason.AdminCreated:
+                case ActivateAdminResult.ResultReason.AdminCreated:
                     return "Admin is now active";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(resultReason), resultReason, null);

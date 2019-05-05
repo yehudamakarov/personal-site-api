@@ -58,6 +58,10 @@ namespace PersonalSiteApi
             services.AddScoped<IAuthenticationBL, AuthenticationBL>();
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
+            services.AddScoped<IGithubRepoFetcherBL, GithubRepoFetcherBL>();
+            services.AddScoped<IGithubRepoInfrastructure, GithubRepoInfrastructure>();
+            services.AddScoped<IGithubRepoRepository, GithubRepoRepository>();
+
             services.AddHostedService<RepoFetcherService>();
         }
 

@@ -17,13 +17,8 @@ namespace Infrastructure.Repository
         public async Task<User> GetAdmin(string firstName, string lastName)
         {
             var adminSnapshot = await GetAdminSnapshot(firstName, lastName);
-            if (adminSnapshot == null)
-            {
-                return null;
-            }
 
-            var admin = adminSnapshot.ConvertTo<User>();
-            admin.Id = adminSnapshot.Id;
+            var admin = adminSnapshot?.ConvertTo<User>();
             return admin;
         }
 
@@ -37,10 +32,9 @@ namespace Infrastructure.Repository
                 { new FieldPath("PasswordHash"), passwordHash },
                 { new FieldPath("IsAdmin"), true }
             };
-            await adminRef.UpdateAsync(updates);
+            var result = await adminRef.UpdateAsync(updates);
             adminSnapshot = await adminRef.GetSnapshotAsync();
             var user = adminSnapshot.ConvertTo<User>();
-            user.Id = adminSnapshot.Id;
             return user;
         }
 
