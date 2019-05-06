@@ -6,7 +6,7 @@ namespace Core.Types
     [FirestoreData]
     public class Repo
     {
-        [FirestoreProperty] public int DatabaseId { get; set; }
+        [FirestoreProperty] public string DatabaseId { get; set; }
         [FirestoreProperty] public DateTime TimeFetched { get; set; }
         [FirestoreProperty] public bool Current { get; set; }
         [FirestoreProperty] public string Name { get; set; }

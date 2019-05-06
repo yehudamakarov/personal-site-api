@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Core.BackgroundServices;
 using Core.BL;
 using Core.Interfaces;
+using Infrastructure.Notification;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +37,8 @@ namespace PersonalSiteApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices( IServiceCollection services )
 		{
+			services.AddSignalR();
+
 			services
 				.AddMvc()
 				.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -79,7 +82,12 @@ namespace PersonalSiteApi
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
-
+			app.UseSignalR(
+				hubRouteBuilder =>
+				{
+					hubRouteBuilder.MapHub<RepoSyncJobUpdates>("/repoSyncJobUpdates");
+				}
+			);
 			app.UseHttpsRedirection();
 			app.UseAuthentication();
 			app.UseMvc();

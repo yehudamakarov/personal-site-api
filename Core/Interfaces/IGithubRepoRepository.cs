@@ -8,6 +8,5 @@ namespace Core.Interfaces
     {
         Task<Repo> UploadRepoAsync(Repo repo);
         Task<IEnumerable<Repo>> GetCurrentPinnedRepos();
-        Task<IEnumerable<Repo>> UploadReposAsync(IEnumerable<Repo> repos);
     }
 }
