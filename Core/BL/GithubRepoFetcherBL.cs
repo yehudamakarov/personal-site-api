@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Core.BL
 {
@@ -12,18 +13,20 @@ namespace Core.BL
     {
         private readonly IGithubRepoInfrastructure _githubRepoInfrastructure;
         private readonly IGithubRepoRepository _githubRepoRepository;
+        private readonly ILogger<GithubRepoFetcherBL> _logger;
 
         public GithubRepoFetcherBL(IGithubRepoInfrastructure githubRepoInfrastructure,
-            IGithubRepoRepository githubRepoRepository)
+            IGithubRepoRepository githubRepoRepository, ILogger<GithubRepoFetcherBL> logger)
         {
             _githubRepoInfrastructure = githubRepoInfrastructure;
             _githubRepoRepository = githubRepoRepository;
+            _logger = logger;
         }
 
         public async Task BeginJobAsync()
         {
             await MakeAllPinnedReposNonCurrent();
-            var repos = await GetPinnedRepos();
+            var repos = await FetchPinnedRepos();
             var timeStampedRepos = MarkWithTimestamp(repos);
             var uploadedRepos = await SetPinnedReposAsCurrent(timeStampedRepos);
         }
@@ -41,6 +44,7 @@ namespace Core.BL
 
         private async Task<IEnumerable<Repo>> MakeAllPinnedReposNonCurrent()
         {
+            _logger.LogInformation("Making all pinned repositories un-pinned.");
             var currentPinnedRepos = await _githubRepoRepository.GetCurrentPinnedRepos();
             var currentPinnedReposList = currentPinnedRepos.ToList();
             foreach (var currentPinnedRepo in currentPinnedReposList)
@@ -49,6 +53,7 @@ namespace Core.BL
             }
 
             var nonCurrentRepos = await _githubRepoRepository.UploadReposAsync(currentPinnedReposList);
+            _logger.LogInformation("Completed making all pinned repositories un-pinned.");
             return nonCurrentRepos;
         }
 
@@ -65,9 +70,9 @@ namespace Core.BL
             return toMarkWithTimestamp;
         }
 
-        private async Task<IEnumerable<Repo>> GetPinnedRepos()
+        private async Task<IEnumerable<Repo>> FetchPinnedRepos()
         {
-            return await _githubRepoInfrastructure.GetPinnedReposAsync();
+            return await _githubRepoInfrastructure.FetchPinnedReposAsync();
         }
     }
 }

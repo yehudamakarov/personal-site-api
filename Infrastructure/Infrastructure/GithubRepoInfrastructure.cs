@@ -8,6 +8,7 @@ using Core.BL;
 using Core.Interfaces;
 using Core.Types;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,10 +16,14 @@ namespace Infrastructure.Repository
 {
     public class GithubRepoInfrastructure : RepositoryBase, IGithubRepoInfrastructure
     {
+        private readonly ILogger<GithubRepoInfrastructure> _logger;
         private HttpClient _githubHttpClient;
 
-        public GithubRepoInfrastructure(IConfiguration configuration) : base(configuration)
+        public GithubRepoInfrastructure(IConfiguration configuration, ILogger<GithubRepoInfrastructure> logger) : base(
+            configuration
+        )
         {
+            _logger = logger;
             var githubPrivateAccessToken = configuration["GITHUB_ACCESS_TOKEN"];
             _githubHttpClient = new HttpClient()
             {
@@ -35,10 +40,12 @@ namespace Infrastructure.Repository
         }
 
 
-        public async Task<IEnumerable<Repo>> GetPinnedReposAsync()
+        public async Task<IEnumerable<Repo>> FetchPinnedReposAsync()
         {
+            _logger.LogInformation("Fetching pinned repositories from Github.");
             var respContent = await FetchPinnedReposRespContent();
             var repos = ConvertRespToObjects(respContent);
+            _logger.LogInformation("Completed fetching pinned repositories from Github.");
             return repos;
         }
 
@@ -63,8 +70,8 @@ namespace Infrastructure.Repository
             const string query =
                 "{\"query\":\"{\\n  user(login: \\\"yehudamakarov\\\") {\\n    pinnedItems(types: REPOSITORY, first: 6) {\\n      nodes {\\n      \\t... on Repository {\\n          name\\n          description\\n          databaseId\\n          url\\n          createdAt\\n          updatedAt\\n        }\\n      }\\n    }\\n  }\\n}\\n\"}";
             var resp = await _githubHttpClient.PostAsync("/graphql", new StringContent(query));
-//            if (!resp.IsSuccessStatusCode)
-//                throw new HttpRequestException("The request to fetch repositories from GitHub failed.");
+            if (!resp.IsSuccessStatusCode)
+                throw new HttpRequestException("The request to fetch repositories from GitHub failed.");
             var respContent = await resp.Content.ReadAsStringAsync();
             return respContent;
         }
