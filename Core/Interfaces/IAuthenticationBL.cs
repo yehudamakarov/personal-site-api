@@ -1,15 +1,14 @@
 using System.Threading.Tasks;
 using Core.Requests.Authentication;
 using Core.Results.Authentication;
-using Core.Types;
 
 namespace Core.Interfaces
 {
-	public interface IAuthenticationBL
-	{
-		Task<ActivateAdminResult> HandleCreateAdmin(
-			CreateAdminRequest createAdminRequest );
+    public interface IAuthenticationBL
+    {
+        Task<ActivateAdminResult> HandleCreateAdmin(
+            CreateAdminRequest createAdminRequest);
 
-		Task<LoginResult> HandleAdminLogin( AdminLoginRequest adminLoginRequest );
-	}
+        Task<LoginResult> HandleAdminLogin(AdminLoginRequest adminLoginRequest);
+    }
 }

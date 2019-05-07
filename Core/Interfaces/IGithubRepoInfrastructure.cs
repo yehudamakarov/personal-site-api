@@ -4,8 +4,8 @@ using Core.Types;
 
 namespace Core.Interfaces
 {
-	public interface IGithubRepoInfrastructure
-	{
-		Task<IEnumerable<Repo>> FetchPinnedReposAsync();
-	}
+    public interface IGithubRepoInfrastructure
+    {
+        Task<IEnumerable<Repo>> FetchPinnedReposAsync();
+    }
 }

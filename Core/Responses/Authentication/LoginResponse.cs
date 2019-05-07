@@ -5,14 +5,14 @@ namespace Core.Responses.Authentication
 {
     public class LoginResponse
     {
-        public string Message { get; set; }
-        public string Data { get; set; }
-
         public LoginResponse(LoginResult loginResult)
         {
             Message = ComputeMessage(loginResult.Reason);
             Data = loginResult.Token;
         }
+
+        public string Message { get; set; }
+        public string Data { get; set; }
 
         private string ComputeMessage(LoginResult.ResultReason loginResultReason)
         {

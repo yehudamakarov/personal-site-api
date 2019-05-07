@@ -6,14 +6,14 @@ namespace Core.Responses.Authentication
 {
     public class CreateAdminResponse
     {
-        public string Message { get; }
-        public User Data { get; }
-
         public CreateAdminResponse(ActivateAdminResult result)
         {
             Message = ComputeMessage(result.Reason);
             Data = result.Admin;
         }
+
+        public string Message { get; }
+        public User Data { get; }
 
 
         private string ComputeMessage(ActivateAdminResult.ResultReason resultReason)
