@@ -4,11 +4,11 @@ using Core.Results.Authentication;
 
 namespace Core.Interfaces
 {
-    public interface IAuthenticationBL
-    {
-        Task<ActivateAdminResult> HandleCreateAdmin(
-            CreateAdminRequest createAdminRequest);
+	public interface IAuthenticationBL
+	{
+		Task<ActivateAdminResult> HandleActivateAdminRequest(
+			CreateAdminRequest createAdminRequest );
 
-        Task<LoginResult> HandleAdminLogin(AdminLoginRequest adminLoginRequest);
-    }
+		Task<LoginResult> HandleAdminLoginRequest( AdminLoginRequest adminLoginRequest );
+	}
 }

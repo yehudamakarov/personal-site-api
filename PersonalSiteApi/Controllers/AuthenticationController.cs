@@ -1,57 +1,58 @@
 using System.Threading.Tasks;
+using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Responses.Authentication;
-using Core.Results.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
 {
-    [Route("api/[controller]/[action]")]
-    public class AuthenticationController : ControllerBase
-    {
-        private readonly IAuthenticationBL _authenticationBL;
+	[Route("api/[controller]/[action]")]
+	public class AuthenticationController : ControllerBase
+	{
+		private readonly IAuthenticationBL _authenticationBL;
 
-        public AuthenticationController(IAuthenticationBL authenticationBL)
-        {
-            _authenticationBL = authenticationBL;
-        }
+		public AuthenticationController( IAuthenticationBL authenticationBL )
+		{
+			_authenticationBL = authenticationBL;
+		}
 
-        [HttpGet]
-        [Authorize(Roles = "Administrator")]
-        public IActionResult TestAuthentication()
-        {
-            return Ok("Authenticated as Admin");
-        }
+		[HttpGet]
+		[Authorize(Roles = "Administrator")]
+		public IActionResult TestAuthentication()
+		{
+			return Ok("Authenticated as Admin");
+		}
 
-        [HttpPost]
-        public async Task<IActionResult> CreateAdmin(CreateAdminRequest createAdminRequest)
-        {
-            var createAdminResult = await _authenticationBL.HandleCreateAdmin(createAdminRequest);
-            var createAdminResponse = new CreateAdminResponse(createAdminResult);
+		[HttpPost]
+		public async Task<IActionResult> ActivateAdmin( CreateAdminRequest createAdminRequest )
+		{
+			var createAdminResult =
+				await _authenticationBL.HandleActivateAdminRequest(createAdminRequest);
+			var createAdminResponse = new ActivateAdminResponse(createAdminResult);
 
-            return StatusCode(
-                createAdminResult.Reason == ActivateAdminResult.ResultReason.AdminCreated
-                    ? StatusCodes.Status201Created
-                    : StatusCodes.Status403Forbidden,
-                createAdminResponse
-            );
-        }
+			return StatusCode(
+				createAdminResult.Reason == ActivateAdminResultReason.AdminCreated
+					? StatusCodes.Status201Created
+					: StatusCodes.Status403Forbidden,
+				createAdminResponse
+			);
+		}
 
-        [HttpPost]
-        public async Task<IActionResult> Login(AdminLoginRequest adminLoginRequest)
-        {
-            var loginResult = await _authenticationBL.HandleAdminLogin(adminLoginRequest);
-            var loginResponse = new LoginResponse(loginResult);
+		[HttpPost]
+		public async Task<IActionResult> Login( AdminLoginRequest adminLoginRequest )
+		{
+			var loginResult = await _authenticationBL.HandleAdminLoginRequest(adminLoginRequest);
+			var loginResponse = new LoginResponse(loginResult);
 
-            return StatusCode(
-                loginResult.Reason == LoginResult.ResultReason.SuccessfulLogin
-                    ? StatusCodes.Status200OK
-                    : StatusCodes.Status403Forbidden,
-                loginResponse
-            );
-        }
-    }
+			return StatusCode(
+				loginResult.Reason == LoginResultReason.SuccessfulLogin
+					? StatusCodes.Status200OK
+					: StatusCodes.Status403Forbidden,
+				loginResponse
+			);
+		}
+	}
 }

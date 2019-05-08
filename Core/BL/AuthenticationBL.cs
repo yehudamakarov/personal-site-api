@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Results.Authentication;
@@ -13,133 +14,139 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Core.BL
 {
-    public class AuthenticationBL : IAuthenticationBL
-    {
-        private readonly IAuthenticationRepository _authenticationRepository;
-        private readonly IConfiguration _configuration;
+	public class AuthenticationBL : IAuthenticationBL
+	{
+		private readonly IAuthenticationRepository _authenticationRepository;
+		private readonly IConfiguration _configuration;
 
-        public AuthenticationBL(IAuthenticationRepository authenticationRepository, IConfiguration configuration)
-        {
-            _authenticationRepository = authenticationRepository;
-            _configuration = configuration;
-        }
+		public AuthenticationBL(
+			IAuthenticationRepository authenticationRepository, IConfiguration configuration )
+		{
+			_authenticationRepository = authenticationRepository;
+			_configuration = configuration;
+		}
 
-        public async Task<ActivateAdminResult> HandleCreateAdmin(
-            CreateAdminRequest createAdminRequest)
-        {
-            var admin = await _authenticationRepository.GetAdmin(
-                createAdminRequest.FirstName,
-                createAdminRequest.LastName
-            );
+		public async Task<ActivateAdminResult> HandleActivateAdminRequest(
+			CreateAdminRequest createAdminRequest )
+		{
+			var admin = await _authenticationRepository.GetAdmin(
+				createAdminRequest.FirstName,
+				createAdminRequest.LastName
+			);
 
-            if (admin == null)
-                return new ActivateAdminResult { Reason = ActivateAdminResult.ResultReason.NoAdminRecord };
+			if (admin == null)
+				return new ActivateAdminResult { Reason = ActivateAdminResultReason.NoAdminRecord };
 
-            if (createAdminRequest.CreationCode != admin.CreationCode)
-                return new ActivateAdminResult { Reason = ActivateAdminResult.ResultReason.BadCreationCode };
+			if (createAdminRequest.CreationCode != admin.CreationCode)
+				return new ActivateAdminResult
+					{ Reason = ActivateAdminResultReason.BadCreationCode };
 
-            if (admin.PasswordHash != null)
-                return new ActivateAdminResult { Reason = ActivateAdminResult.ResultReason.AdminAlreadyExists };
+			if (admin.PasswordHash != null)
+				return new ActivateAdminResult
+					{ Reason = ActivateAdminResultReason.AdminAlreadyExists };
 
-            var activatedAdmin = await ActivateAdmin(admin, createAdminRequest.Password);
+			var activatedAdmin = await ActivateAdmin(admin, createAdminRequest.Password);
 
-            return new ActivateAdminResult
-                { Reason = ActivateAdminResult.ResultReason.AdminCreated, Admin = activatedAdmin };
-        }
+			return new ActivateAdminResult
+				{ Reason = ActivateAdminResultReason.AdminCreated, Data = activatedAdmin };
+		}
 
-        public async Task<LoginResult> HandleAdminLogin(AdminLoginRequest adminLoginRequest)
-        {
-            var admin = await _authenticationRepository.GetAdmin(
-                adminLoginRequest.FirstName,
-                adminLoginRequest.LastName
-            );
+		public async Task<LoginResult> HandleAdminLoginRequest(
+			AdminLoginRequest adminLoginRequest )
+		{
+			var admin = await _authenticationRepository.GetAdmin(
+				adminLoginRequest.FirstName,
+				adminLoginRequest.LastName
+			);
 
-            if (admin == null) return new LoginResult { Reason = LoginResult.ResultReason.UserNotFound };
+			if (admin == null) return new LoginResult { Reason = LoginResultReason.UserNotFound };
 
-            if (adminLoginRequest.Password == null)
-                return new LoginResult { Reason = LoginResult.ResultReason.PasswordNotProvided };
+			if (adminLoginRequest.Password == null)
+				return new LoginResult { Reason = LoginResultReason.PasswordNotProvided };
 
-            var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
-            if (!correctPassword) return new LoginResult { Reason = LoginResult.ResultReason.PasswordIncorrect };
+			var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
+			if (!correctPassword)
+				return new LoginResult { Reason = LoginResultReason.PasswordIncorrect };
 
-            var token = GenerateToken(admin);
-            return new LoginResult { Token = token, Reason = LoginResult.ResultReason.SuccessfulLogin };
-        }
+			var token = GenerateToken(admin);
+			return new LoginResult { Data = token, Reason = LoginResultReason.SuccessfulLogin };
+		}
 
-        private string GenerateToken(User admin)
-        {
-            var signingKeyBytes = Convert.FromBase64String(_configuration["JWT_SIGNING_KEY"]);
-            var expiryDurationMinutes = int.Parse(_configuration["JWT_TOKEN_EXPIRY_DURATION_IN_MINUTES"]);
+		private string GenerateToken( User admin )
+		{
+			var signingKeyBytes = Convert.FromBase64String(_configuration["JWT_SIGNING_KEY"]);
+			var expiryDurationMinutes =
+				int.Parse(_configuration["JWT_TOKEN_EXPIRY_DURATION_IN_MINUTES"]);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Expires = DateTime.UtcNow.AddMinutes(expiryDurationMinutes),
-                Subject = new ClaimsIdentity(
-                    new List<Claim>
-                    {
-                        new Claim("role", "Administrator"),
-                        new Claim("firstName", admin.FirstName),
-                        new Claim("lastName", admin.LastName)
-                    }
-                ),
-                IssuedAt = DateTime.UtcNow,
-                NotBefore = DateTime.UtcNow,
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(signingKeyBytes),
-                    SecurityAlgorithms.HmacSha256Signature
-                )
-            };
+			var tokenDescriptor = new SecurityTokenDescriptor
+			{
+				Expires = DateTime.UtcNow.AddMinutes(expiryDurationMinutes),
+				Subject = new ClaimsIdentity(
+					new List<Claim>
+					{
+						new Claim("role", "Administrator"),
+						new Claim("firstName", admin.FirstName),
+						new Claim("lastName", admin.LastName)
+					}
+				),
+				IssuedAt = DateTime.UtcNow,
+				NotBefore = DateTime.UtcNow,
+				SigningCredentials = new SigningCredentials(
+					new SymmetricSecurityKey(signingKeyBytes),
+					SecurityAlgorithms.HmacSha256Signature
+				)
+			};
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenObject = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
-            return tokenHandler.WriteToken(tokenObject);
-        }
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var tokenObject = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+			return tokenHandler.WriteToken(tokenObject);
+		}
 
-        private static bool ValidatePassword(string password, string passwordHash)
-        {
-            // Extract the bytes
-            var hashAndSaltFromDb = Convert.FromBase64String(passwordHash);
+		private static bool ValidatePassword( string password, string passwordHash )
+		{
+			// Extract the bytes
+			var hashAndSaltFromDb = Convert.FromBase64String(passwordHash);
 
-            // Get the salt we stored
-            var saltFromDb = new byte[16];
-            Array.Copy(hashAndSaltFromDb, 0, saltFromDb, 0, 16);
+			// Get the salt we stored
+			var saltFromDb = new byte[16];
+			Array.Copy(hashAndSaltFromDb, 0, saltFromDb, 0, 16);
 
-            // compute a hash from entered password
-            var pbkdf2 = new Rfc2898DeriveBytes(password, saltFromDb, 10000);
-            var hashThatResultsFromEnteredPassword = pbkdf2.GetBytes(20);
+			// compute a hash from entered password
+			var pbkdf2 = new Rfc2898DeriveBytes(password, saltFromDb, 10000);
+			var hashThatResultsFromEnteredPassword = pbkdf2.GetBytes(20);
 
-            // compare this hash to the hash in the Db
-            for (var i = 0; i < hashThatResultsFromEnteredPassword.Length; i++)
-                if (hashThatResultsFromEnteredPassword[i] != hashAndSaltFromDb[i + 16])
-                    return false;
+			// compare this hash to the hash in the Db
+			for (var i = 0; i < hashThatResultsFromEnteredPassword.Length; i++)
+				if (hashThatResultsFromEnteredPassword[i] != hashAndSaltFromDb[i + 16])
+					return false;
 
-            return true;
-        }
+			return true;
+		}
 
-        private async Task<User> ActivateAdmin(User admin, string password)
-        {
-            var passwordHash = CreatePasswordHash(password);
-            return await _authenticationRepository.UpdateAdminPasswordHash(admin, passwordHash);
-        }
+		private async Task<User> ActivateAdmin( User admin, string password )
+		{
+			var passwordHash = CreatePasswordHash(password);
+			return await _authenticationRepository.UpdateAdminPasswordHash(admin, passwordHash);
+		}
 
-        private static string CreatePasswordHash(string password)
-        {
-            // Create the salt value with a cryptographic PRNG
-            var salt = new byte[16];
-            new RNGCryptoServiceProvider().GetBytes(salt);
+		private static string CreatePasswordHash( string password )
+		{
+			// Create the salt value with a cryptographic PRNG
+			var salt = new byte[16];
+			new RNGCryptoServiceProvider().GetBytes(salt);
 
-            // Create the Rfc2898DeriveBytes and get the hash value
-            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
-            var passwordHash = pbkdf2.GetBytes(20);
+			// Create the Rfc2898DeriveBytes and get the hash value
+			var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
+			var passwordHash = pbkdf2.GetBytes(20);
 
-            // Combine the salt and password bytes for later use
-            var hashAndSaltBytes = new byte[36];
-            Array.Copy(salt, 0, hashAndSaltBytes, 0, 16);
-            Array.Copy(passwordHash, 0, hashAndSaltBytes, 16, 20);
+			// Combine the salt and password bytes for later use
+			var hashAndSaltBytes = new byte[36];
+			Array.Copy(salt, 0, hashAndSaltBytes, 0, 16);
+			Array.Copy(passwordHash, 0, hashAndSaltBytes, 16, 20);
 
-            // Turn the combined salt+hash into a string for storage
-            var passwordHashString = Convert.ToBase64String(hashAndSaltBytes);
-            return passwordHashString;
-        }
-    }
+			// Turn the combined salt+hash into a string for storage
+			var passwordHashString = Convert.ToBase64String(hashAndSaltBytes);
+			return passwordHashString;
+		}
+	}
 }

@@ -1,16 +1,11 @@
+using Core.Enums.ResultReasons;
+using Core.Interfaces;
+
 namespace Core.Results.Authentication
 {
-    public class LoginResult
-    {
-        public enum ResultReason
-        {
-            UserNotFound,
-            PasswordIncorrect,
-            SuccessfulLogin,
-            PasswordNotProvided
-        }
-
-        public string Token { get; set; }
-        public ResultReason Reason { get; set; }
-    }
+	public class LoginResult : IResult<string, LoginResultReason>
+	{
+		public string Data { get; set; }
+		public LoginResultReason Reason { get; set; }
+	}
 }
