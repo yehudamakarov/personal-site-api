@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.Notification.RepoSync
 {
-    public class RepoSyncNotificationHub : Hub<IRepoSyncNotification>
+    public class RepoSyncNotificationHub : Hub<IGithubRepoFetcherNotification>
     {
         public async Task PushUpdate(Dictionary<string, string> itemStatus, string jobStatus)
         {

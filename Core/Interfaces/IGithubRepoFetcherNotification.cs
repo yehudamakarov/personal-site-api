@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IRepoSyncNotification
+    public interface IGithubRepoFetcherNotification
     {
         Task PushUpdate(Dictionary<string, string> itemStatus, string jobStatus);
     }
