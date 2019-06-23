@@ -19,15 +19,13 @@ namespace Core.BL
 		private readonly IAuthenticationRepository _authenticationRepository;
 		private readonly IConfiguration _configuration;
 
-		public AuthenticationBL(
-			IAuthenticationRepository authenticationRepository, IConfiguration configuration )
+		public AuthenticationBL(IAuthenticationRepository authenticationRepository, IConfiguration configuration)
 		{
 			_authenticationRepository = authenticationRepository;
 			_configuration = configuration;
 		}
 
-		public async Task<ActivateAdminResult> HandleActivateAdminRequest(
-			CreateAdminRequest createAdminRequest )
+		public async Task<ActivateAdminResult> HandleActivateAdminRequest(CreateAdminRequest createAdminRequest)
 		{
 			var admin = await _authenticationRepository.GetAdmin(
 				createAdminRequest.FirstName,
@@ -35,48 +33,70 @@ namespace Core.BL
 			);
 
 			if (admin == null)
-				return new ActivateAdminResult { Reason = ActivateAdminResultReason.NoAdminRecord };
+				return new ActivateAdminResult
+				{
+					Reason = ActivateAdminResultReason.NoAdminRecord
+				};
 
 			if (createAdminRequest.CreationCode != admin.CreationCode)
 				return new ActivateAdminResult
-					{ Reason = ActivateAdminResultReason.BadCreationCode };
+				{
+					Reason = ActivateAdminResultReason.BadCreationCode
+				};
 
 			if (admin.PasswordHash != null)
 				return new ActivateAdminResult
-					{ Reason = ActivateAdminResultReason.AdminAlreadyExists };
+				{
+					Reason = ActivateAdminResultReason.AdminAlreadyExists
+				};
 
 			var activatedAdmin = await ActivateAdmin(admin, createAdminRequest.Password);
 
 			return new ActivateAdminResult
-				{ Reason = ActivateAdminResultReason.AdminCreated, Data = activatedAdmin };
+			{
+				Reason = ActivateAdminResultReason.AdminCreated,
+				Data = activatedAdmin
+			};
 		}
 
-		public async Task<LoginResult> HandleAdminLoginRequest(
-			AdminLoginRequest adminLoginRequest )
+		public async Task<LoginResult> HandleAdminLoginRequest(AdminLoginRequest adminLoginRequest)
 		{
 			var admin = await _authenticationRepository.GetAdmin(
 				adminLoginRequest.FirstName,
 				adminLoginRequest.LastName
 			);
 
-			if (admin == null) return new LoginResult { Reason = LoginResultReason.UserNotFound };
+			if (admin == null)
+				return new LoginResult
+				{
+					Reason = LoginResultReason.UserNotFound
+				};
 
 			if (adminLoginRequest.Password == null)
-				return new LoginResult { Reason = LoginResultReason.PasswordNotProvided };
+				return new LoginResult
+				{
+					Reason = LoginResultReason.PasswordNotProvided
+				};
 
 			var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
 			if (!correctPassword)
-				return new LoginResult { Reason = LoginResultReason.PasswordIncorrect };
+				return new LoginResult
+				{
+					Reason = LoginResultReason.PasswordIncorrect
+				};
 
 			var token = GenerateToken(admin);
-			return new LoginResult { Data = token, Reason = LoginResultReason.SuccessfulLogin };
+			return new LoginResult
+			{
+				Data = token,
+				Reason = LoginResultReason.SuccessfulLogin
+			};
 		}
 
-		private string GenerateToken( User admin )
+		private string GenerateToken(User admin)
 		{
 			var signingKeyBytes = Convert.FromBase64String(_configuration["JWT_SIGNING_KEY"]);
-			var expiryDurationMinutes =
-				int.Parse(_configuration["JWT_TOKEN_EXPIRY_DURATION_IN_MINUTES"]);
+			var expiryDurationMinutes = int.Parse(_configuration["JWT_TOKEN_EXPIRY_DURATION_IN_MINUTES"]);
 
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
@@ -102,7 +122,7 @@ namespace Core.BL
 			return tokenHandler.WriteToken(tokenObject);
 		}
 
-		private static bool ValidatePassword( string password, string passwordHash )
+		private static bool ValidatePassword(string password, string passwordHash)
 		{
 			// Extract the bytes
 			var hashAndSaltFromDb = Convert.FromBase64String(passwordHash);
@@ -123,13 +143,13 @@ namespace Core.BL
 			return true;
 		}
 
-		private async Task<User> ActivateAdmin( User admin, string password )
+		private async Task<User> ActivateAdmin(User admin, string password)
 		{
 			var passwordHash = CreatePasswordHash(password);
 			return await _authenticationRepository.UpdateAdminPasswordHash(admin, passwordHash);
 		}
 
-		private static string CreatePasswordHash( string password )
+		private static string CreatePasswordHash(string password)
 		{
 			// Create the salt value with a cryptographic PRNG
 			var salt = new byte[16];

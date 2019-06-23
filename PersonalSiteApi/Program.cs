@@ -11,6 +11,8 @@ namespace PersonalSiteApi
     {
         public static int Main(string[] args)
         {
+            // environment-variables-configuration-provider by default only gets env variables from ASPNET_<variable> variables. add with the below.
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/index?view=aspnetcore-2.2#environment-variables-configuration-provider
             var config = new ConfigurationBuilder().AddEnvironmentVariables()
                 .Build();
             var googleCloudLoggingConfig =
