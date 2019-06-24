@@ -20,7 +20,7 @@ steps:
       - |
         git clone ${_ENV_REPOSITORY_URL} && \
         cd ${_ENV_REPOSITORY_NAME} && \
-        git checkout candidate && \
+        git checkout ${_ENV_REPOSITORY_BRANCH} && \
         git config user.email ${_GITHUB_EMAIL_ADDRESS} && \
         git config --global user.name ${_GITHUB_USERNAME} && \
         echo $(git remote -v)
@@ -37,6 +37,36 @@ steps:
         sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
 
   - name: 'gcr.io/cloud-builders/gcloud'
+    id: Decrypt Key
+    args: 
+    - kms
+    - decrypt
+    - --ciphertext-file=id_rsa_gcloud.enc
+    - --plaintext-file=/root/.ssh/id_rsa
+    - --location=global
+    - --keyring=main-keyring
+    - --key=main-key
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+
+  - name: 'gcr.io/cloud-builder/gcloud'
+    id: Give Git Permissions
+    entrypoint: /bin/sh
+    args:
+    - '-c'
+    - |
+      chmod 600 /root/.ssh/id_rsa
+      cat <<EOF > /root/.ssh/config
+      Hostname github.com
+      IdentityFile /root/.ssh/id_rsa
+      EOF
+      mv known_hosts /root/.ssh/known_hosts
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: Push New Manifest
     entrypoint: /bin/sh
     args:
@@ -48,8 +78,7 @@ steps:
         git commit -m "Deploying image gcr.io/${_CONTAINER_PROJECT_ID}/${REPO_NAME}:${SHORT_SHA}
         Built from commit ${COMMIT_SHA} of repository ${REPO_NAME}
         Author $(git log --format='%an <%ae>' -n 1 HEAD)" && \
-        # todo: make a this push be authenticated to the repo
-        git push origin candidate
+        git push origin ${_ENV_REPOSITORY_BRANCH}
         
 images:
   - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
