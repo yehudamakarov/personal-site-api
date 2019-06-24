@@ -22,6 +22,7 @@ steps:
         cd ${_ENV_REPOSITORY_NAME} && \
         git checkout candidate && \
         git config user.email ${_GITHUB_EMAIL_ADDRESS} && \
+        git config --global user.name ${_GITHUB_USERNAME} && \
         echo $(git remote -v)
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -47,7 +48,6 @@ steps:
         git commit -m "Deploying image gcr.io/${_CONTAINER_PROJECT_ID}/${REPO_NAME}:${SHORT_SHA}
         Built from commit ${COMMIT_SHA} of repository ${REPO_NAME}
         Author $(git log --format='%an <%ae>' -n 1 HEAD)" && \
-        git remote set-url origin ${_ENV_REPOSITORY_URL}
         git push origin candidate
         
 images:
