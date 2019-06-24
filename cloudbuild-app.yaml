@@ -44,8 +44,8 @@ steps:
         cd ${_ENV_REPOSITORY_NAME} && \
         git add ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml && \
         git commit -m "Deploying image gcr.io/${_CONTAINER_PROJECT_ID}/${REPO_NAME}:${SHORT_SHA}
-        Built from commit ${COMMIT_SHA}" of repository ${REPO_NAME}
-        Author $(git log --format=''%an <%ae>' -n 1 HEAD)" && \
+        Built from commit ${COMMIT_SHA} of repository ${REPO_NAME}
+        Author $(git log --format='%an <%ae>' -n 1 HEAD)" && \
         git push origin candidate
         
 images:
