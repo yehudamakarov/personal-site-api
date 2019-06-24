@@ -21,7 +21,8 @@ steps:
         git clone ${_ENV_REPOSITORY_URL} && \
         cd ${_ENV_REPOSITORY_NAME} && \
         git checkout candidate && \
-        git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)')
+        git config user.email ${_GITHUB_EMAIL_ADDRESS} && \
+        git config user.name ${_GITHUB_USER_NAME}
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Generate New Manifest
