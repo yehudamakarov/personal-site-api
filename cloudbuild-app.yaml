@@ -50,7 +50,7 @@ steps:
     - name: 'ssh'
       path: /root/.ssh
 
-  - name: 'gcr.io/cloud-builder/gcloud'
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: Give Git Permissions
     entrypoint: /bin/sh
     args:
