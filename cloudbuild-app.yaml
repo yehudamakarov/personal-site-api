@@ -1,16 +1,53 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    id: Build
+    id: Build Image
     args:
       - 'build'
       - '-t'
       - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
       - '.'
   - name: 'gcr.io/cloud-builders/docker'
-    id: Push
+    id: Push Image
     args:
       - 'push'
       - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Clone the ENV Repository
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        git clone ${_ENV_REPOSITORY_URL} && \
+        cd ${_ENV_REPOSITORY_NAME} && \
+        git checkout candidate && \
+        git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)')
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Generate New Manifest
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        mkdir -p ${_ENV_REPOSITORY_NAME}/k8s && \
+        sed "s/_CONTAINER_PROJECT_ID/${_CONTAINER_PROJECT_ID}/g" kubernetes-deployment.yaml.tpl | \
+        sed "s/REPO_NAME/${REPO_NAME}/g" | \
+        sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Push New Manifest
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        cd ${_ENV_REPOSITORY_NAME} && \
+        git add ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml && \
+        git commit -m "Deploying image gcr.io/${_CONTAINER_PROJECT_ID}/${REPO_NAME}:${SHORT_SHA}
+        Built from commit ${COMMIT_SHA}" of repository ${REPO_NAME}
+        Author $(git log --format=''%an <%ae>' -n 1 HEAD)" && \
+        git push origin candidate
+        
 images:
   - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
                                                   
