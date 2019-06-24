@@ -48,6 +48,7 @@ steps:
         git commit -m "Deploying image gcr.io/${_CONTAINER_PROJECT_ID}/${REPO_NAME}:${SHORT_SHA}
         Built from commit ${COMMIT_SHA} of repository ${REPO_NAME}
         Author $(git log --format='%an <%ae>' -n 1 HEAD)" && \
+        # todo: make a this push be authenticated to the repo
         git push origin candidate
         
 images:
