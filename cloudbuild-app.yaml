@@ -22,10 +22,7 @@ steps:
         cd ${_ENV_REPOSITORY_NAME} && \
         git checkout ${_ENV_REPOSITORY_BRANCH} && \
         git config user.email ${_GITHUB_EMAIL_ADDRESS}
-    volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-
+    
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Generate New Manifest
     entrypoint: /bin/sh
@@ -36,10 +33,7 @@ steps:
         sed "s/_CONTAINER_PROJECT_ID/${_CONTAINER_PROJECT_ID}/g" kubernetes-deployment.yaml.tpl | \
         sed "s/REPO_NAME/${REPO_NAME}/g" | \
         sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
-    volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-
+    
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Decrypt Key
     args: 
