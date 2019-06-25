@@ -21,9 +21,10 @@ steps:
         git clone ${_ENV_REPOSITORY_URL} && \
         cd ${_ENV_REPOSITORY_NAME} && \
         git checkout ${_ENV_REPOSITORY_BRANCH} && \
-        git config user.email ${_GITHUB_EMAIL_ADDRESS} && \
-        git config --global user.name ${_GITHUB_USERNAME} && \
-        echo $(git remote -v)
+        git config user.email ${_GITHUB_EMAIL_ADDRESS}
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Generate New Manifest
@@ -35,6 +36,9 @@ steps:
         sed "s/_CONTAINER_PROJECT_ID/${_CONTAINER_PROJECT_ID}/g" kubernetes-deployment.yaml.tpl | \
         sed "s/REPO_NAME/${REPO_NAME}/g" | \
         sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Decrypt Key
@@ -57,7 +61,7 @@ steps:
     - '-c'
     - |
       chmod 600 /root/.ssh/id_rsa
-      cat <<EOF > /root/.ssh/config
+      cat <<EOF >/root/.ssh/config
       Hostname github.com
       IdentityFile /root/.ssh/id_rsa
       EOF
