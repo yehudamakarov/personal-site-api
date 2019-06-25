@@ -13,28 +13,6 @@ steps:
       - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
 
   - name: 'gcr.io/cloud-builders/gcloud'
-    id: Clone the ENV Repository
-    entrypoint: /bin/sh
-    args:
-      - '-c'
-      - |
-        git clone ${_ENV_REPOSITORY_URL} && \
-        cd ${_ENV_REPOSITORY_NAME} && \
-        git checkout ${_ENV_REPOSITORY_BRANCH} && \
-        git config user.email ${_GITHUB_EMAIL_ADDRESS}
-    
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: Generate New Manifest
-    entrypoint: /bin/sh
-    args:
-      - '-c'
-      - |
-        mkdir -p ${_ENV_REPOSITORY_NAME}/k8s && \
-        sed "s/_CONTAINER_PROJECT_ID/${_CONTAINER_PROJECT_ID}/g" kubernetes-deployment.yaml.tpl | \
-        sed "s/REPO_NAME/${REPO_NAME}/g" | \
-        sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
-    
-  - name: 'gcr.io/cloud-builders/gcloud'
     id: Decrypt Key
     args: 
     - kms
@@ -62,7 +40,32 @@ steps:
       mv known_hosts /root/.ssh/known_hosts
     volumes:
     - name: 'ssh'
+      path: /root/.ssh      
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Clone the ENV Repository
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        git clone ${_ENV_REPOSITORY_URL} && \
+        cd ${_ENV_REPOSITORY_NAME} && \
+        git checkout ${_ENV_REPOSITORY_BRANCH} && \
+        git config user.email ${_GITHUB_EMAIL_ADDRESS}
+    volumes:
+    - name: 'ssh'
       path: /root/.ssh
+    
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Generate New Manifest
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        mkdir -p ${_ENV_REPOSITORY_NAME}/k8s && \
+        sed "s/_CONTAINER_PROJECT_ID/${_CONTAINER_PROJECT_ID}/g" kubernetes-deployment.yaml.tpl | \
+        sed "s/REPO_NAME/${REPO_NAME}/g" | \
+        sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Push New Manifest
