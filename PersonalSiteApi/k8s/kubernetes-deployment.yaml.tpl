@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-deployment
+  name: personal-site-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: api
+      component: personal-site-api
   template:
     metadata:
       labels:
-        component: api
+        component: personal-site-api
     spec:
       containers:
-        - name: api
+        - name: personal-site-api
           image: gcr.io/_CONTAINER_PROJECT_ID/REPO_NAME:SHORT_SHA
           ports:
             - containerPort: 5000
