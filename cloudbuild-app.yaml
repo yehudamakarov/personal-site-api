@@ -64,8 +64,9 @@ steps:
       - |
         mkdir -p ${_ENV_REPOSITORY_NAME}/k8s && \
         sed "s/_CONTAINER_PROJECT_ID/${_CONTAINER_PROJECT_ID}/g" k8s/kubernetes-deployment.yaml.tpl | \
-        sed "s/REPO_NAME/${REPO_NAME}/g" | \
-        sed "s/SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
+        sed "s/_REPO_NAME/${REPO_NAME}/g" | \
+        sed "s/_ASPNETCORE_ENVIRONMENT/${_ASPNETCORE_ENVIRONMENT}/g" | \
+        sed "s/_SHORT_SHA/${SHORT_SHA}/g" > ${_ENV_REPOSITORY_NAME}/k8s/${REPO_NAME}-deployment.yaml
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Push New Manifest

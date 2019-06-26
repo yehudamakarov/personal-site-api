@@ -12,8 +12,40 @@ spec:
       labels:
         component: personal-site-api
     spec:
+      volumes:
+        - name: google-application-credentials-file-mount
+          secret:
+            secretName: google-application-credentials-file
       containers:
         - name: personal-site-api
-          image: gcr.io/_CONTAINER_PROJECT_ID/REPO_NAME:SHORT_SHA
+          image: gcr.io/_CONTAINER_PROJECT_ID/_REPO_NAME:_SHORT_SHA
           ports:
             - containerPort: 5000
+          volumeMounts:
+            - mountPath: /var/secret/google/key.json
+              name: google-application-credentials-file-mount
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://*:5000"
+
+            - name: JWT_EXPIRY_TIME_IN_MINUTES
+              value: '26'
+
+            - name: ASPNETCORE_ENVIRONMENT
+              value: _ASPNETCORE_ENVIRONMENT
+
+            - name: GOOGLE_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: api-deployment-secret
+                  key: GOOGLE_PROJECT_ID
+
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secret/google/key.json
+
+            - name: GITHUB_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: api-deployment-secret
+                  key: GITHUB_ACCESS_TOKEN 
+                

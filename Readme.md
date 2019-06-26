@@ -18,3 +18,10 @@ in regards to any other configuration, a connection string can be added with
 And when running the app in a container (in order that the same exact code works with a different 
 connection string (or the same,)) we can make an env variable `<keyname>=<keyvalue>`.
 
+
+## Kubernetes Secrets
+
+- secret from file using the google cloud json credentials - google-application-credentials-file
+- secret from literals - api-deployment-secret - with:
+    - GOOGLE_PROJECT_ID
+    - GITHUB_ACCESS_TOKEN
