@@ -15,9 +15,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Switch to keys project
     args:
-      - config set project
-      - $_KEYS_PROJECT_ID
-      
+      - config set project $_KEYS_PROJECT_ID
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Decrypt Key
