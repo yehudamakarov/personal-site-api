@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
 {
-	[Route("api/[controller]/[action]")]
+	[Route("[controller]/[action]")]
 	public class ReposController : ControllerBase
 	{
 		private readonly IGithubRepoBL _githubRepoBL;

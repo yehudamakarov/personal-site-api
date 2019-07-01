@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
 {
-	[Route("api/[controller]/[action]")]
+	[Route("[controller]/[action]")]
 	public class AuthenticationController : ControllerBase
 	{
 		private readonly IAuthenticationBL _authenticationBL;

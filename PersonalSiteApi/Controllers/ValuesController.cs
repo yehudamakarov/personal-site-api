@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
