@@ -17,7 +17,8 @@ steps:
     args:
       - config
       - set
-      - project $_KEYS_PROJECT_ID
+      - project
+      - $_KEYS_PROJECT_ID
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Decrypt Key
