@@ -2,45 +2,58 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     id: Build Image
     args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
-      - '.'
+      - build
+      - -t
+      - gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA
+      - .
   - name: 'gcr.io/cloud-builders/docker'
     id: Push Image
     args:
-      - 'push'
-      - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
+      - push
+      - gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Switch to keys project
+    args:
+      - config set project
+      - $_KEYS_PROJECT_ID
+      
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Decrypt Key
-    args: 
-    - kms
-    - decrypt
-    - --ciphertext-file=id_rsa_gcloud.enc
-    - --plaintext-file=/root/.ssh/id_rsa
-    - --location=global
-    - --keyring=personal-site
-    - --key=personal-site-git-private-key
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=id_rsa_gcloud.enc
+      - --plaintext-file=/root/.ssh/id_rsa
+      - --location=global
+      - --keyring=personal-site
+      - --key=personal-site-git-private-key
     volumes:
-    - name: 'ssh'
-      path: /root/.ssh
+      - name: 'ssh'
+        path: /root/.ssh
+  
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: Switch back to current project
+    args: 
+      - config set project
+      - $PROJECT_ID
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Give Git Permissions
     entrypoint: /bin/sh
     args:
-    - '-c'
-    - |
-      chmod 600 /root/.ssh/id_rsa
-      cat <<EOF >/root/.ssh/config
-      Hostname github.com
-      IdentityFile /root/.ssh/id_rsa
-      EOF
-      mv known_hosts /root/.ssh/known_hosts
+      - '-c'
+      - |
+        chmod 600 /root/.ssh/id_rsa
+        cat <<EOF >/root/.ssh/config
+        Hostname github.com
+        IdentityFile /root/.ssh/id_rsa
+        EOF
+        mv known_hosts /root/.ssh/known_hosts
     volumes:
-    - name: 'ssh'
-      path: /root/.ssh      
+      - name: 'ssh'
+        path: /root/.ssh
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Clone the ENV Repository
@@ -53,9 +66,9 @@ steps:
         git checkout ${_ENV_REPOSITORY_BRANCH} && \
         git config user.email ${_GITHUB_EMAIL_ADDRESS}
     volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-    
+      - name: 'ssh'
+        path: /root/.ssh
+
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Generate New Manifest
     entrypoint: /bin/sh
@@ -82,9 +95,9 @@ steps:
         Author $(git log --format='%an <%ae>' -n 1 HEAD)" && \
         git push origin ${_ENV_REPOSITORY_BRANCH}
     volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-        
+      - name: 'ssh'
+        path: /root/.ssh
+
 images:
   - 'gcr.io/$_CONTAINER_PROJECT_ID/$REPO_NAME:$SHORT_SHA'
                                                   
