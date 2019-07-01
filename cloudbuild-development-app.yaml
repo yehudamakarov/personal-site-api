@@ -48,11 +48,11 @@ steps:
     args:
       - -c
       - |
-        chmod 600 /root/.ssh/id_rsa &&
+        chmod 600 /root/.ssh/id_rsa
         cat <<EOF >/root/.ssh/config
         Hostname github.com
         IdentityFile /root/.ssh/id_rsa
-        EOF &&
+        EOF
         mv known_hosts /root/.ssh/known_hosts
     volumes:
       - name: ssh
@@ -64,9 +64,9 @@ steps:
     args:
       - -c
       - |
-        git clone ${_ENV_REPOSITORY_URL} &&
-        cd ${_ENV_REPOSITORY_NAME} &&
-        git checkout ${_ENV_REPOSITORY_BRANCH} &&
+        git clone ${_ENV_REPOSITORY_URL}
+        cd ${_ENV_REPOSITORY_NAME}
+        git checkout ${_ENV_REPOSITORY_BRANCH}
         git config user.email ${_GITHUB_EMAIL_ADDRESS}
     volumes:
       - name: ssh
