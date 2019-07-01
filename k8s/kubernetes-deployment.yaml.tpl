@@ -22,7 +22,7 @@ spec:
           ports:
             - containerPort: 5000
           volumeMounts:
-            - mountPath: /var/secret/google/key.json
+            - mountPath: /var/secret/google
               name: google-application-credentials-file-mount
           env:
             - name: ASPNETCORE_URLS
