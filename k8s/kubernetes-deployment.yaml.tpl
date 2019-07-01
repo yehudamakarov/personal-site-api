@@ -28,6 +28,12 @@ spec:
             - name: ASPNETCORE_URLS
               value: "http://*:5000"
 
+            - name: JWT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: JWT_SIGNING_KEY
+                  name: api-deployment-secret
+
             - name: JWT_EXPIRY_TIME_IN_MINUTES
               value: '26'
 
