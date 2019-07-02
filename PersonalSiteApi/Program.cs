@@ -18,7 +18,7 @@ namespace PersonalSiteApi
 			var googleCloudLoggingConfig = new GoogleCloudLoggingSinkOptions(config["GOOGLE_PROJECT_ID"])
 			{
 				UseJsonOutput = true,
-				ResourceType = "Personal Site Api",
+				ResourceType = "k8s_pod",
 				UseSourceContextAsLogName = true,
 			};
 			Log.Logger = new LoggerConfiguration().MinimumLevel.Information()
