@@ -15,11 +15,10 @@ namespace PersonalSiteApi
 			// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/index?view=aspnetcore-2.2#environment-variables-configuration-provider
 			var config = new ConfigurationBuilder().AddEnvironmentVariables()
 				.Build();
-			var googleCloudLoggingConfig = new GoogleCloudLoggingSinkOptions(config["GOOGLE_PROJECT_ID"])
+			var googleCloudLoggingConfig = new GoogleCloudLoggingSinkOptions
 			{
+				ProjectId = config["GOOGLE_PROJECT_ID"],
 				UseJsonOutput = true,
-				ResourceType = "k8s_pod",
-				UseSourceContextAsLogName = true,
 			};
 			Log.Logger = new LoggerConfiguration().MinimumLevel.Information()
 				.Enrich.FromLogContext()
