@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
@@ -9,9 +11,16 @@ namespace PersonalSiteApi.Controllers
     {
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public async Task<ActionResult<IEnumerable<string>>> Get()
         {
-            return new[] { "value1", "value2" };
+            await Task.Delay(TimeSpan.FromMilliseconds(1));
+            return Ok(
+                new[]
+                {
+                    "value1",
+                    "value2"
+                }
+            );
         }
 
         // GET api/values/5
