@@ -75,8 +75,8 @@ namespace PersonalSiteApi
 			if (env.IsDevelopment())
 				app.UseDeveloperExceptionPage();
 
-//			else
-//				app.UseHsts();
+			else
+				app.UseHsts();
 
 			app.UseCors("SignalRPolicy");
 			app.UseSignalR(
