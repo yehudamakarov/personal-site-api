@@ -23,7 +23,7 @@ namespace Infrastructure.Repository
 		{
 			_logger.LogInformation("Retrieving 'current' repositories from Firestore.");
 			var pinnedReposRef = Db.Collection("pinned-repositories");
-			var pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("current", true)
+			var pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true)
 				.GetSnapshotAsync();
 			_logger.LogInformation("Retrieved 'current' repositories from Firestore.");
 
