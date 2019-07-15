@@ -53,6 +53,7 @@ namespace PersonalSiteApi
 							ValidateIssuer = false,
 							ValidateAudience = false
 						};
+						
 					}
 				);
 
