@@ -19,7 +19,7 @@ namespace Core.BL
 			_logger = logger;
 		}
 
-		public async Task<PinnedReposResult> HandlePinnedRepos()
+		public async Task<PinnedReposResult> GetPinnedRepos()
 		{
 			try
 			{

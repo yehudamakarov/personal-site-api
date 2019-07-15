@@ -13,7 +13,8 @@ namespace Infrastructure.Repository
 		private readonly ILogger<RepoRepository> _logger;
 
 		public RepoRepository(
-			IConfiguration configuration, ILogger<RepoRepository> logger
+			IConfiguration configuration,
+			ILogger<RepoRepository> logger
 		) : base(configuration)
 		{
 			_logger = logger;
@@ -25,24 +26,16 @@ namespace Infrastructure.Repository
 			var pinnedReposRef = Db.Collection("pinned-repositories");
 			var pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true)
 				.GetSnapshotAsync();
-			_logger.LogInformation("Retrieved 'current' repositories from Firestore.");
 
-			_logger.LogInformation("Converting 'current' repository snapshot to 'Repo' objects.");
-			var pinnedCurrentRepos = pinnedCurrentReposSnapshot
-				.Documents
-				.Select(docSnapshot => docSnapshot.ConvertTo<Repo>());
-			_logger.LogInformation("Converted 'current' repository snapshot to 'Repo' objects.");
+			var pinnedCurrentRepos =
+				pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<Repo>());
 
 			return pinnedCurrentRepos;
 		}
 
-		public async Task<Repo> UploadRepoAsync( Repo repo )
+		public async Task<Repo> UploadRepoAsync(Repo repo)
 		{
-			_logger.LogInformation(
-				"Beginning upload of {databaseId}, with info of {@repo}",
-				repo.DatabaseId,
-				repo
-			);
+			_logger.LogInformation("Beginning upload of {databaseId}, with info of {@repo}", repo.DatabaseId, repo);
 			var repoWithUtc = ConvertTimesToUtc(repo);
 
 			// Get collection ref
@@ -63,7 +56,7 @@ namespace Infrastructure.Repository
 			return updatedRepo;
 		}
 
-		private static Repo ConvertTimesToUtc( Repo repo )
+		private static Repo ConvertTimesToUtc(Repo repo)
 		{
 			var utcRepo = repo;
 			utcRepo.TimeFetched = repo.TimeFetched.ToUniversalTime();

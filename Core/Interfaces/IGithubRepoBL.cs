@@ -5,6 +5,6 @@ namespace Core.Interfaces
 {
 	public interface IGithubRepoBL
 	{
-		Task<PinnedReposResult> HandlePinnedRepos();
+		Task<PinnedReposResult> GetPinnedRepos();
 	}
 }

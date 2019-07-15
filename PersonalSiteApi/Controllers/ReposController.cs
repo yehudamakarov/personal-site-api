@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Core.Enums.ResultReasons;
 using Core.Interfaces;
@@ -12,22 +13,20 @@ namespace PersonalSiteApi.Controllers
 	{
 		private readonly IGithubRepoBL _githubRepoBL;
 
-		public ReposController( IGithubRepoBL githubRepoBL )
-		{
-			_githubRepoBL = githubRepoBL;
-		}
+		public ReposController(IGithubRepoBL githubRepoBL) { _githubRepoBL = githubRepoBL; }
 
 		[HttpGet]
 		public async Task<IActionResult> PinnedRepos()
 		{
-			var pinnedReposResult = await _githubRepoBL.HandlePinnedRepos();
-			var pinnedReposResponse = new PinnedReposResponse(pinnedReposResult);
-			return StatusCode(
-				pinnedReposResult.Reason == PinnedReposResultReason.Success
-					? StatusCodes.Status200OK
-					: StatusCodes.Status500InternalServerError,
-				pinnedReposResponse
-			);
+			try
+			{
+				var pinnedRepos = await _githubRepoBL.GetPinnedRepos();
+				return Ok(pinnedRepos);
+			}
+			catch (Exception exception)
+			{
+				return StatusCode(500, exception);
+			}
 		}
 	}
 }
