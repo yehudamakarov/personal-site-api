@@ -25,7 +25,7 @@ namespace Core.BL
 			_configuration = configuration;
 		}
 
-		public async Task<ActivateAdminResult> HandleActivateAdminRequest(CreateAdminRequest createAdminRequest)
+		public async Task<ActivateAdminResult> ActivateAdmin(CreateAdminRequest createAdminRequest)
 		{
 			var admin = await _authenticationRepository.GetAdmin(
 				createAdminRequest.FirstName,
