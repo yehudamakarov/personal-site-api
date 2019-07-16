@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PersonalSiteApi.BackgroundServices;
+using PersonalSiteApi.StartupHelper;
 
 namespace PersonalSiteApi
 {
@@ -24,55 +25,20 @@ namespace PersonalSiteApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddCors(
-				corsOptions => corsOptions.AddPolicy(
-					"SignalRPolicy",
-					corsPolicyBuilder =>
-					{
-						corsPolicyBuilder.AllowAnyMethod()
-							.AllowAnyHeader()
-							.WithOrigins("http://localhost:3000")
-							.AllowCredentials();
-					}
-				)
-			);
+			services.ConfigureCors();
+			services.ConfigureAuthentication(Configuration);
 			services.AddSignalR();
 
 			services.AddMvc()
 				.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-				.AddJwtBearer(
-					options =>
-					{
-						var signingKeyBytes = Convert.FromBase64String(Configuration["JWT_SIGNING_KEY"]);
-						options.TokenValidationParameters = new TokenValidationParameters
-						{
-							ValidateIssuerSigningKey = true,
-							IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
-							ValidateIssuer = false,
-							ValidateAudience = false
-						};
-						
-					}
-				);
-
-			services.AddScoped<IAuthenticationBL, AuthenticationBL>();
-			services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
-
-
-			services.AddScoped<IGithubRepoBL, GithubRepoBL>();
-			services.AddScoped<IGithubRepoFetcherBL, GithubRepoFetcherBL>();
-			services.AddScoped<IRepoInfrastructure, RepoInfrastructure>();
-			services.AddScoped<IRepoRepository, RepoRepository>();
-
-			services.AddScoped<IGithubRepoFetcherNotifier, GithubGithubRepoFetcherNotifier>();
-
-			services.AddHostedService<RepoFetcherService>();
+			services.AddSrc();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(
+			IApplicationBuilder app,
+			IHostingEnvironment env
+		)
 		{
 			if (env.IsDevelopment())
 				app.UseDeveloperExceptionPage();
