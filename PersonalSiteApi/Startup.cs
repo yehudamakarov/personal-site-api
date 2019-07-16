@@ -31,6 +31,7 @@ namespace PersonalSiteApi
 
 			services.AddMvc()
 				.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			services.AddSwagger();
 			services.AddSrc();
 		}
 
@@ -51,6 +52,8 @@ namespace PersonalSiteApi
 				hubRouteBuilder => { hubRouteBuilder.MapHub<RepoSyncNotificationHub>("/hubs/repoSyncJobUpdates"); }
 			);
 			app.UseAuthentication();
+			app.UseSwagger();
+			app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Personal Site API v1"));
 			app.UseMvc();
 		}
 	}

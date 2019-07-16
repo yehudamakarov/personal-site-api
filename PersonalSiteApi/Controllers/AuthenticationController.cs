@@ -45,7 +45,7 @@ namespace PersonalSiteApi.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Login(AdminLoginRequest adminLoginRequest)
+		public async Task<IActionResult> Login([FromBody] AdminLoginRequest adminLoginRequest)
 		{
 			try
 			{
