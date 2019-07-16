@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: personal-site-api
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       component: personal-site-api
