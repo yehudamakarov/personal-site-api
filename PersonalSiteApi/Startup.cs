@@ -55,11 +55,11 @@ namespace PersonalSiteApi
 				hubRouteBuilder => { hubRouteBuilder.MapHub<RepoSyncNotificationHub>("/hubs/repoSyncJobUpdates"); }
 			);
 			app.UseAuthentication();
-			app.UseSwagger(options => options.RouteTemplate = "api/swagger/{documentname}/swagger.json");
+			app.UseSwagger(options => options.RouteTemplate = "swagger/{documentname}/swagger.json");
 			app.UseSwaggerUI(
 				options =>
 				{
-					options.SwaggerEndpoint("api/swagger/v1/swagger.json", "Personal Site API v1");
+					options.SwaggerEndpoint("swagger/v1/swagger.json", "Personal Site API v1");
 					options.RoutePrefix = "api/swagger";
 				}
 			);
