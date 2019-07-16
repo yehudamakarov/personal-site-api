@@ -18,7 +18,10 @@ namespace PersonalSiteApi
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration) { Configuration = configuration; }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
 		private IConfiguration Configuration { get; }
 
@@ -52,8 +55,14 @@ namespace PersonalSiteApi
 				hubRouteBuilder => { hubRouteBuilder.MapHub<RepoSyncNotificationHub>("/hubs/repoSyncJobUpdates"); }
 			);
 			app.UseAuthentication();
-			app.UseSwagger();
-			app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Personal Site API v1"));
+			app.UseSwagger(options => options.RouteTemplate = "api/swagger/{documentname}/swagger.json");
+			app.UseSwaggerUI(
+				options =>
+				{
+					options.SwaggerEndpoint("api/swagger/v1/swagger.json", "Personal Site API v1");
+					options.RoutePrefix = "api/swagger";
+				}
+			);
 			app.UseMvc();
 		}
 	}
