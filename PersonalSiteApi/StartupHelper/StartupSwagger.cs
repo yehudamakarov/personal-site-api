@@ -45,6 +45,7 @@ namespace PersonalSiteApi.StartupHelper
 							}
 						}
 					);
+					options.DocumentFilter<BasePathFilter>();
 				}
 			);
 			return services;
