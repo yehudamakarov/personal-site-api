@@ -60,7 +60,7 @@ namespace PersonalSiteApi
 				options =>
 				{
 					options.SwaggerEndpoint("swagger/v1/swagger.json", "Personal Site API v1");
-					options.RoutePrefix = "api/swagger";
+					options.RoutePrefix = "swagger";
 				}
 			);
 			app.UseMvc();
