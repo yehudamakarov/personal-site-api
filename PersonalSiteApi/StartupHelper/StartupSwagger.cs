@@ -16,7 +16,8 @@ namespace PersonalSiteApi.StartupHelper
 						new OpenApiInfo
 						{
 							Title = "Personal Site Api",
-							Version = "v1"
+							Version = "v1",
+							Description = "Some methods I need to use to make a personal site run."
 						}
 					);
 					var scheme = new OpenApiSecurityScheme()
@@ -26,7 +27,8 @@ namespace PersonalSiteApi.StartupHelper
 						Name = "Authorization",
 						In = ParameterLocation.Header,
 						Type = SecuritySchemeType.ApiKey,
-						Scheme = "Bearer"
+						Scheme = "Bearer",
+						BearerFormat = "JWT Token"
 					};
 					options.AddSecurityDefinition("Bearer", scheme);
 					options.AddSecurityRequirement(
