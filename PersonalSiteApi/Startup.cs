@@ -18,15 +18,14 @@ namespace PersonalSiteApi
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+		public Startup(IConfiguration configuration) { Configuration = configuration; }
 
 		private IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
+		public void ConfigureServices(
+			IServiceCollection services
+		)
 		{
 			services.ConfigureCors();
 			services.ConfigureAuthentication(Configuration);
@@ -55,12 +54,18 @@ namespace PersonalSiteApi
 				hubRouteBuilder => { hubRouteBuilder.MapHub<RepoSyncNotificationHub>("/hubs/repoSyncJobUpdates"); }
 			);
 			app.UseAuthentication();
-			app.UseSwagger(options => options.RouteTemplate = "swagger/{documentname}/swagger.json");
+			app.UseSwagger();
 			app.UseSwaggerUI(
 				options =>
 				{
-					options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Personal Site API v1");
-					options.RoutePrefix = "swagger";
+					if (env.IsProduction())
+					{
+						options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Personal Site API v1");
+					}
+					if (env.IsDevelopment())
+					{
+						options.SwaggerEndpoint("/swagger/v1/swagger.json", "Personal Site API v1");
+					}
 				}
 			);
 			app.UseMvc();
