@@ -11,53 +11,63 @@ using Microsoft.Extensions.Logging;
 
 namespace PersonalSiteApi.Controllers
 {
-	[Route("[controller]/[action]")]
-	public class AuthenticationController : ControllerBase
-	{
-		private readonly IAuthenticationBL _authenticationBL;
-		private readonly ILogger<AuthenticationController> _logger;
+    [ApiController] [Route("[controller]/[action]")] [ProducesResponseType(typeof(string), 500)]
+    public class AuthenticationController : ControllerBase
+    {
+        private readonly IAuthenticationBL _authenticationBL;
+        private readonly ILogger<AuthenticationController> _logger;
 
-		public AuthenticationController(
-			IAuthenticationBL authenticationBL,
-			ILogger<AuthenticationController> logger
-		)
-		{
-			_authenticationBL = authenticationBL;
-			_logger = logger;
-		}
+        public AuthenticationController(
+            IAuthenticationBL authenticationBL,
+            ILogger<AuthenticationController> logger
+        )
+        {
+            _authenticationBL = authenticationBL;
+            _logger = logger;
+        }
 
-		[HttpGet]
-		[Authorize(Roles = "Administrator")]
-		public IActionResult TestAuthentication() { return Ok("Authenticated as Admin"); }
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        [ProducesResponseType(200)]
+        public IActionResult TestAuthentication()
+        {
+            return Ok("Authenticated as Admin");
+        }
 
-		[HttpPost]
-		public async Task<IActionResult> ActivateAdmin(CreateAdminRequest createAdminRequest)
-		{
-			var createAdminResult = await _authenticationBL.ActivateAdmin(createAdminRequest);
-			var createAdminResponse = new ActivateAdminResponse(createAdminResult);
+        [HttpPost]
+        [ProducesResponseType(typeof(ActivateAdminResponse), 201)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ActivateAdminResponse), 403)]
+        public async Task<IActionResult> ActivateAdmin(CreateAdminRequest createAdminRequest)
+        {
+            var createAdminResult = await _authenticationBL.ActivateAdmin(createAdminRequest);
+            var createAdminResponse = new ActivateAdminResponse(createAdminResult);
 
-			return StatusCode(
-				createAdminResult.Reason == ActivateAdminResultReason.AdminCreated
-					? StatusCodes.Status201Created
-					: StatusCodes.Status403Forbidden,
-				createAdminResponse
-			);
-		}
+            return StatusCode(
+                createAdminResult.Reason == ActivateAdminResultReason.AdminCreated
+                    ? StatusCodes.Status201Created
+                    : StatusCodes.Status403Forbidden,
+                createAdminResponse
+            );
+        }
 
-		[HttpPost]
-		public async Task<IActionResult> Login(AdminLoginRequest adminLoginRequest)
-		{
-			try
-			{
-				var loginResult = await _authenticationBL.HandleAdminLoginRequest(adminLoginRequest);
-				var loginResponse = new LoginResponse(loginResult);
-				return Ok(loginResponse);
-			}
-			catch (Exception exception)
-			{
-				_logger.LogError("There was an error during login.", exception);
-				return StatusCode(500);
-			}
-		}
-	}
+        [HttpPost]
+        [ProducesResponseType(typeof(LoginResponse), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        public async Task<IActionResult> Login(AdminLoginRequest adminLoginRequest)
+        {
+            try
+            {
+                var loginResult = await _authenticationBL.HandleAdminLoginRequest(adminLoginRequest);
+                var loginResponse = new LoginResponse(loginResult);
+                return Ok(loginResponse);
+            }
+            catch (Exception exception)
+            {
+                const string message = "There was an error during login.";
+                _logger.LogError(message, exception);
+                return StatusCode(500, message);
+            }
+        }
+    }
 }
