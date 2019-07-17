@@ -9,7 +9,8 @@ namespace Infrastructure.Notification.RepoSync
     {
         private readonly IHubContext<RepoSyncNotificationHub, IGithubRepoFetcherNotification> _hubContext;
 
-        public GithubGithubRepoFetcherNotifier(IHubContext<RepoSyncNotificationHub, IGithubRepoFetcherNotification> hubContext)
+        public GithubGithubRepoFetcherNotifier(
+            IHubContext<RepoSyncNotificationHub, IGithubRepoFetcherNotification> hubContext)
         {
             _hubContext = hubContext;
         }

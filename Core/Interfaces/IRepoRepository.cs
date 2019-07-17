@@ -4,9 +4,9 @@ using Core.Types;
 
 namespace Core.Interfaces
 {
-	public interface IRepoRepository
-	{
-		Task<Repo> UploadRepoAsync( Repo repo );
-		Task<IEnumerable<Repo>> GetPinnedReposAsync();
-	}
+    public interface IRepoRepository
+    {
+        Task<Repo> UploadRepoAsync(Repo repo);
+        Task<IEnumerable<Repo>> GetPinnedReposAsync();
+    }
 }

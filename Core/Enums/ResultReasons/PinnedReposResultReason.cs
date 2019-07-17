@@ -1,8 +1,8 @@
 namespace Core.Enums.ResultReasons
 {
-	public enum PinnedReposResultReason
-	{
-		Success,
-		Error
-	}
+    public enum PinnedReposResultReason
+    {
+        Success,
+        Error
+    }
 }

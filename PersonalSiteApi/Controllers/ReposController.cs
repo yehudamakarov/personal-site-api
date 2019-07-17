@@ -1,10 +1,6 @@
-using System;
 using System.Threading.Tasks;
-using Core.Enums.ResultReasons;
 using Core.Interfaces;
-using Core.Responses.GithubRepos;
 using Core.Results.GithubRepo;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

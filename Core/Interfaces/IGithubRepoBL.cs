@@ -3,8 +3,8 @@ using Core.Results.GithubRepo;
 
 namespace Core.Interfaces
 {
-	public interface IGithubRepoBL
-	{
-		Task<PinnedReposResult> GetPinnedRepos();
-	}
+    public interface IGithubRepoBL
+    {
+        Task<PinnedReposResult> GetPinnedRepos();
+    }
 }

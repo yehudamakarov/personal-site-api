@@ -29,8 +29,8 @@ namespace Infrastructure.Repository
 
             var updates = new Dictionary<FieldPath, object>
             {
-                { new FieldPath("PasswordHash"), passwordHash },
-                { new FieldPath("IsAdmin"), true }
+                {new FieldPath("PasswordHash"), passwordHash},
+                {new FieldPath("IsAdmin"), true}
             };
             var result = await adminRef.UpdateAsync(updates);
             adminSnapshot = await adminRef.GetSnapshotAsync();

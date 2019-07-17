@@ -1,10 +1,10 @@
 namespace Core.Enums.ResultReasons
 {
-	public enum ActivateAdminResultReason
-	{
-		NoAdminRecord,
-		BadCreationCode,
-		AdminAlreadyExists,
-		AdminCreated
-	}
+    public enum ActivateAdminResultReason
+    {
+        NoAdminRecord,
+        BadCreationCode,
+        AdminAlreadyExists,
+        AdminCreated
+    }
 }

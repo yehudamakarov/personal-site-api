@@ -8,23 +8,23 @@ using PersonalSiteApi.BackgroundServices;
 
 namespace PersonalSiteApi.StartupHelper
 {
-	public static class StartupExtension
-	{
-		public static IServiceCollection AddSrc(this IServiceCollection services)
-		{
-			services.AddScoped<IAuthenticationBL, AuthenticationBL>();
-			services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+    public static class StartupExtension
+    {
+        public static IServiceCollection AddSrc(this IServiceCollection services)
+        {
+            services.AddScoped<IAuthenticationBL, AuthenticationBL>();
+            services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
-			services.AddScoped<IGithubRepoBL, GithubRepoBL>();
-			services.AddScoped<IGithubRepoFetcherBL, GithubRepoFetcherBL>();
-			services.AddScoped<IRepoInfrastructure, RepoInfrastructure>();
-			services.AddScoped<IRepoRepository, RepoRepository>();
+            services.AddScoped<IGithubRepoBL, GithubRepoBL>();
+            services.AddScoped<IGithubRepoFetcherBL, GithubRepoFetcherBL>();
+            services.AddScoped<IRepoInfrastructure, RepoInfrastructure>();
+            services.AddScoped<IRepoRepository, RepoRepository>();
 
-			services.AddScoped<IGithubRepoFetcherNotifier, GithubGithubRepoFetcherNotifier>();
-			
-			services.AddHostedService<RepoFetcherService>();
+            services.AddScoped<IGithubRepoFetcherNotifier, GithubGithubRepoFetcherNotifier>();
 
-			return services;
-		}
-	}
+            services.AddHostedService<RepoFetcherService>();
+
+            return services;
+        }
+    }
 }

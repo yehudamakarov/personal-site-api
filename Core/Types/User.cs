@@ -2,8 +2,7 @@ using Google.Cloud.Firestore;
 
 namespace Core.Types
 {
-    [FirestoreData]
-    public class User
+    [FirestoreData] public class User
     {
         [FirestoreProperty] public string FirstName { get; set; }
         [FirestoreProperty] public string LastName { get; set; }

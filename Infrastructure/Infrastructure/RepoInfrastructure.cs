@@ -17,8 +17,8 @@ namespace Infrastructure.Infrastructure
 {
     public class RepoInfrastructure : RepositoryBase, IRepoInfrastructure
     {
-        private readonly ILogger<RepoInfrastructure> _logger;
         private readonly HttpClient _githubHttpClient;
+        private readonly ILogger<RepoInfrastructure> _logger;
 
         public RepoInfrastructure(
             IConfiguration configuration, ILogger<RepoInfrastructure> logger) : base(
