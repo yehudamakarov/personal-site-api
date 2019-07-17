@@ -1,9 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Core.Requests.Authentication
 {
     public class AdminLoginRequest
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Password { get; set; }
+        [Required] public string FirstName { get; set; }
+        [Required] public string LastName { get; set; }
+        [Required] public string Password { get; set; }
     }
 }
