@@ -44,7 +44,7 @@ namespace Infrastructure.Repository
             // Make document ref in collection
             var pinnedRepoRef = pinnedReposRef.Document(repoWithUtc.DatabaseId);
 
-            // write to Db
+            // write / update in Db
             var writeResult = await pinnedRepoRef.SetAsync(repoWithUtc);
 
             // get result of write

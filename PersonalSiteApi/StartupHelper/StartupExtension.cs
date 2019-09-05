@@ -20,7 +20,7 @@ namespace PersonalSiteApi.StartupHelper
             services.AddScoped<IRepoInfrastructure, RepoInfrastructure>();
             services.AddScoped<IRepoRepository, RepoRepository>();
 
-            services.AddScoped<IGithubRepoFetcherNotifier, GithubGithubRepoFetcherNotifier>();
+            services.AddScoped<IGithubRepoFetcherNotifier, GithubRepoFetcherNotifier>();
 
             services.AddHostedService<RepoFetcherService>();
 
