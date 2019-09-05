@@ -38,7 +38,7 @@ namespace Core.BL
             await MakeAllPinnedReposNonCurrent();
 
             UpdateJobStatus(JobUpdatesStage.Fetching);
-            var repos = await FetchPinnedRepos();
+            var repos = await _repoInfrastructure.FetchPinnedReposAsync();
             var reposList = repos.ToList();
 
             UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);
@@ -82,12 +82,7 @@ namespace Core.BL
             UpdateItemStatus(JobUpdatesStage.Done, repo);
             return repo;
         }
-
-        private async Task<IEnumerable<Repo>> FetchPinnedRepos()
-        {
-            return await _repoInfrastructure.FetchPinnedReposAsync();
-        }
-
+        
         private async Task<IEnumerable<Repo>> MakeAllPinnedReposNonCurrent()
         {
             _logger.LogInformation("Making all pinned repositories un-pinned.");
