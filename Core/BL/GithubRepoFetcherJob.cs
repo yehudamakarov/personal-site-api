@@ -9,19 +9,19 @@ using Newtonsoft.Json;
 
 namespace Core.BL
 {
-    public class GithubRepoFetcherBL : IGithubRepoFetcherBL
+    public class GithubRepoFetcherJob : IGithubRepoFetcherJob
     {
         private readonly IGithubRepoFetcherNotifier _githubRepoFetcherNotifier;
         private readonly Dictionary<string, string> _itemStatus = new Dictionary<string, string>();
-        private readonly ILogger<GithubRepoFetcherBL> _logger;
+        private readonly ILogger<GithubRepoFetcherJob> _logger;
         private readonly IRepoInfrastructure _repoInfrastructure;
         private readonly IRepoRepository _repoRepository;
 
         private string _jobStatus;
 
-        public GithubRepoFetcherBL(
+        public GithubRepoFetcherJob(
             IRepoInfrastructure repoInfrastructure,
-            IRepoRepository repoRepository, ILogger<GithubRepoFetcherBL> logger,
+            IRepoRepository repoRepository, ILogger<GithubRepoFetcherJob> logger,
             IGithubRepoFetcherNotifier githubRepoFetcherNotifier
         )
         {

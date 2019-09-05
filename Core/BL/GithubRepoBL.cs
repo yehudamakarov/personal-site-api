@@ -25,13 +25,13 @@ namespace Core.BL
             {
                 var repos = await _repoRepository.GetPinnedReposAsync();
                 var result = new PinnedReposResult
-                    {Data = repos, Reason = PinnedReposResultReason.Success};
+                    { Data = repos, Reason = PinnedReposResultReason.Success };
                 return result;
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Retrieving pinned repositories from Firebase failed.");
-                var result = new PinnedReposResult {Reason = PinnedReposResultReason.Error};
+                var result = new PinnedReposResult { Reason = PinnedReposResultReason.Error };
                 return result;
             }
         }

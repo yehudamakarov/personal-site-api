@@ -6,21 +6,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.BL
 {
-    public class AddToProjectsBL : IAddToProjectsBL
+    public class AddToProjectsJob : IAddToProjectsJob
     {
-        private readonly IRepoRepository _repoRepository;
-        private readonly ILogger<AddToProjectsBL> _logger;
+        private readonly IGithubRepoBL _githubRepoBL;
+        private readonly ILogger<AddToProjectsJob> _logger;
 
-        public AddToProjectsBL(IRepoRepository repoRepository, ILogger<AddToProjectsBL> logger)
+        public AddToProjectsJob(IGithubRepoBL githubRepoBL, ILogger<AddToProjectsJob> logger)
         {
-            _repoRepository = repoRepository;
+            _githubRepoBL = githubRepoBL;
             _logger = logger;
         }
 
         public async Task BeginJobAsync()
         {
-            var myRepos = await _repoRepository.GetPinnedReposAsync();
-            var projects = await MakeReposIntoProjects(myRepos);
+            var reposResult = await _githubRepoBL.GetPinnedRepos();
+            var projects = await MakeReposIntoProjects(reposResult.Data);
         }
 
         private async Task<Project> MakeReposIntoProjects(IEnumerable<Repo> myRepos)

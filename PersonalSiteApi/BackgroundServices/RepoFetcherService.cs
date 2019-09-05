@@ -46,7 +46,7 @@ namespace PersonalSiteApi.BackgroundServices
         {
             using (var scope = _services.CreateScope())
             {
-                var repoFetcherBL = scope.ServiceProvider.GetRequiredService<IGithubRepoFetcherBL>();
+                var repoFetcherBL = scope.ServiceProvider.GetRequiredService<IGithubRepoFetcherJob>();
                 repoFetcherBL.BeginJobAsync();
             }
         }

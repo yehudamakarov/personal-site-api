@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IAddToProjectsBL
+    public interface IJob
     {
         Task BeginJobAsync();
     }

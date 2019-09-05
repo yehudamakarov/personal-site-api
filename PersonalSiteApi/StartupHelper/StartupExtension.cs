@@ -16,7 +16,7 @@ namespace PersonalSiteApi.StartupHelper
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
             services.AddScoped<IGithubRepoBL, GithubRepoBL>();
-            services.AddScoped<IGithubRepoFetcherBL, GithubRepoFetcherBL>();
+            services.AddScoped<IGithubRepoFetcherJob, GithubRepoFetcherJob>();
             services.AddScoped<IRepoInfrastructure, RepoInfrastructure>();
             services.AddScoped<IRepoRepository, RepoRepository>();
 

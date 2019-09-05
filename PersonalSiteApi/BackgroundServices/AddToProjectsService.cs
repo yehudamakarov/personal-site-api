@@ -44,7 +44,7 @@ namespace PersonalSiteApi.BackgroundServices
         {
             using (var scope = _services.CreateScope())
             {
-                var addToProjectsBL = scope.ServiceProvider.GetRequiredService<IAddToProjectsBL>();
+                var addToProjectsBL = scope.ServiceProvider.GetRequiredService<IAddToProjectsJob>();
                 addToProjectsBL.BeginJobAsync();
             }
         }
