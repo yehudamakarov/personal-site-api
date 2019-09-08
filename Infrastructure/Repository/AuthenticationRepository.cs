@@ -10,9 +10,7 @@ namespace Infrastructure.Repository
 {
     public class AuthenticationRepository : RepositoryBase, IAuthenticationRepository
     {
-        public AuthenticationRepository(IConfiguration configuration) : base(configuration)
-        {
-        }
+        public AuthenticationRepository(IConfiguration configuration) : base(configuration) { }
 
         public async Task<User> GetAdmin(string firstName, string lastName)
         {
@@ -29,10 +27,10 @@ namespace Infrastructure.Repository
 
             var updates = new Dictionary<FieldPath, object>
             {
-                {new FieldPath("PasswordHash"), passwordHash},
-                {new FieldPath("IsAdmin"), true}
+                { new FieldPath("PasswordHash"), passwordHash },
+                { new FieldPath("IsAdmin"), true }
             };
-            var result = await adminRef.UpdateAsync(updates);
+            var unused = await adminRef.UpdateAsync(updates);
             adminSnapshot = await adminRef.GetSnapshotAsync();
             var user = adminSnapshot.ConvertTo<User>();
             return user;

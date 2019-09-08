@@ -1,15 +1,15 @@
 using System;
 using Core.Enums.ResultReasons;
 using Core.Interfaces;
-using Core.Results.Authentication;
+using Core.Results;
 
 namespace Core.Responses.Authentication
 {
     public class LoginResponse : IResponse<string>
     {
-        public LoginResponse(LoginResult loginResult)
+        public LoginResponse(AdminLoginResult loginResult)
         {
-            Message = ComputeMessage(loginResult.Reason);
+            Message = ComputeMessage(loginResult.Details);
             Data = loginResult.Data;
         }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
+using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -20,12 +21,16 @@ namespace Infrastructure.Repository
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Repo>> GetPinnedReposAsync()
+        public async Task<IEnumerable<Repo>> GetPinnedReposAsync(bool onlyCurrent)
         {
             _logger.LogInformation("Retrieving 'current' repositories from Firestore.");
             var pinnedReposRef = Db.Collection("pinned-repositories");
-            var pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true)
-                .GetSnapshotAsync();
+            QuerySnapshot pinnedCurrentReposSnapshot;
+            if (onlyCurrent)
+                pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true)
+                    .GetSnapshotAsync();
+            else
+                pinnedCurrentReposSnapshot = await pinnedReposRef.GetSnapshotAsync();
 
             var pinnedCurrentRepos =
                 pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<Repo>());
@@ -45,7 +50,7 @@ namespace Infrastructure.Repository
             var pinnedRepoRef = pinnedReposRef.Document(repoWithUtc.DatabaseId);
 
             // write / update in Db
-            var writeResult = await pinnedRepoRef.SetAsync(repoWithUtc);
+            var unused = await pinnedRepoRef.SetAsync(repoWithUtc);
 
             // get result of write
             var snapshot = await pinnedRepoRef.GetSnapshotAsync();

@@ -10,8 +10,8 @@ namespace PersonalSiteApi.BackgroundServices
 {
     public class AddToProjectsService : IHostedService
     {
-        private IServiceProvider _services;
         private readonly ILogger<AddToProjectsService> _logger;
+        private readonly IServiceProvider _services;
         private Timer _timer;
 
         public AddToProjectsService(IServiceProvider services, ILogger<AddToProjectsService> logger)
@@ -37,7 +37,7 @@ namespace PersonalSiteApi.BackgroundServices
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private void AddPinnedReposToProjects(object state)

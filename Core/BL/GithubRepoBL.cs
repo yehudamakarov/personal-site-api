@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Enums.ResultReasons;
 using Core.Interfaces;
-using Core.Results.GithubRepo;
+using Core.Results;
+using Core.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Core.BL
@@ -19,19 +20,22 @@ namespace Core.BL
             _logger = logger;
         }
 
-        public async Task<PinnedReposResult> GetPinnedRepos()
+        public async Task<PinnedReposResult> GetPinnedRepos(bool onlyCurrent)
         {
             try
             {
-                var repos = await _repoRepository.GetPinnedReposAsync();
+                var repos = await _repoRepository.GetPinnedReposAsync(onlyCurrent);
                 var result = new PinnedReposResult
-                    { Data = repos, Reason = PinnedReposResultReason.Success };
+                {
+                    Data = new List<Repo>(repos), Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                };
                 return result;
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Retrieving pinned repositories from Firebase failed.");
-                var result = new PinnedReposResult { Reason = PinnedReposResultReason.Error };
+                var result = new PinnedReposResult
+                    { Details = new ResultDetails { ResultStatus = ResultStatus.Failure } };
                 return result;
             }
         }

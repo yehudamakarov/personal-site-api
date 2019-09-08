@@ -7,25 +7,25 @@ using Core.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Core.BL
+namespace Core.Job
 {
     public class GithubRepoFetcherJob : IGithubRepoFetcherJob
     {
         private readonly IGithubRepoFetcherNotifier _githubRepoFetcherNotifier;
+        private readonly IGithubRepoInfrastructure _githubRepoInfrastructure;
         private readonly Dictionary<string, string> _itemStatus = new Dictionary<string, string>();
         private readonly ILogger<GithubRepoFetcherJob> _logger;
-        private readonly IRepoInfrastructure _repoInfrastructure;
         private readonly IRepoRepository _repoRepository;
 
         private string _jobStatus;
 
         public GithubRepoFetcherJob(
-            IRepoInfrastructure repoInfrastructure,
+            IGithubRepoInfrastructure githubRepoInfrastructure,
             IRepoRepository repoRepository, ILogger<GithubRepoFetcherJob> logger,
             IGithubRepoFetcherNotifier githubRepoFetcherNotifier
         )
         {
-            _repoInfrastructure = repoInfrastructure;
+            _githubRepoInfrastructure = githubRepoInfrastructure;
             _repoRepository = repoRepository;
             _logger = logger;
             _githubRepoFetcherNotifier = githubRepoFetcherNotifier;
@@ -38,12 +38,12 @@ namespace Core.BL
             await MakeAllPinnedReposNonCurrent();
 
             UpdateJobStatus(JobUpdatesStage.Fetching);
-            var repos = await _repoInfrastructure.FetchPinnedReposAsync();
+            var repos = await _githubRepoInfrastructure.FetchPinnedReposAsync();
             var reposList = repos.ToList();
 
             UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);
             var timeStampedRepos = MarkWithTimestamp(reposList);
-            var uploadedRepos = await UploadPinnedReposAsCurrent(timeStampedRepos);
+            var unused = await UploadPinnedReposAsCurrent(timeStampedRepos);
 
             UpdateJobStatus(JobUpdatesStage.Done);
             _logger.LogInformation("Completed job");
@@ -82,11 +82,11 @@ namespace Core.BL
             UpdateItemStatus(JobUpdatesStage.Done, repo);
             return repo;
         }
-        
+
         private async Task<IEnumerable<Repo>> MakeAllPinnedReposNonCurrent()
         {
             _logger.LogInformation("Making all pinned repositories un-pinned.");
-            var currentPinnedRepos = await _repoRepository.GetPinnedReposAsync();
+            var currentPinnedRepos = await _repoRepository.GetPinnedReposAsync(true);
             var currentPinnedReposList = currentPinnedRepos.ToList();
             foreach (var currentPinnedRepo in currentPinnedReposList)
                 currentPinnedRepo.Current = false;

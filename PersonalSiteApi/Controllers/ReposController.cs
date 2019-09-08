@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Core.Interfaces;
-using Core.Results.GithubRepo;
+using Core.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +22,7 @@ namespace PersonalSiteApi.Controllers
         [ProducesResponseType(typeof(PinnedReposResult), 200)]
         public async Task<IActionResult> PinnedRepos()
         {
-            var pinnedRepos = await _githubRepoBL.GetPinnedRepos();
+            var pinnedRepos = await _githubRepoBL.GetPinnedRepos(true);
             return Ok(pinnedRepos);
         }
     }

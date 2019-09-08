@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
-using Core.Results.GithubRepo;
+using Core.Results;
 
 namespace Core.Interfaces
 {
     public interface IGithubRepoBL
     {
-        Task<PinnedReposResult> GetPinnedRepos();
+        Task<PinnedReposResult> GetPinnedRepos(bool onlyCurrent);
     }
 }
