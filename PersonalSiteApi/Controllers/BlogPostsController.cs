@@ -15,13 +15,13 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllBlogPosts()
+        public async Task<IActionResult> AllBlogPosts()
         {
             return await Task.FromResult(Ok("all blog posts"));
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBlogPostsByProject(string projectName)
+        public async Task<IActionResult> BlogPostsByProject(string projectName)
         {
             return await Task.FromResult(Ok($"blog posts by project name of {projectName}"));
         }
