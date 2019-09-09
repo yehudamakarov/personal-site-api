@@ -111,7 +111,7 @@ namespace Core.BL
                 Subject = new ClaimsIdentity(
                     new List<Claim>
                     {
-                        new Claim("role", "Administrator"),
+                        new Claim("role", Roles.Administrator),
                         new Claim("firstName", admin.FirstName),
                         new Claim("lastName", admin.LastName)
                     }
