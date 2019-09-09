@@ -9,12 +9,12 @@ namespace PersonalSiteApi.Controllers
     [ApiController] [Route("[controller]/[action]")]
     public class ReposController : ControllerBase
     {
-        private readonly IGithubRepoBL _githubRepoBL;
         private readonly ILogger<ReposController> _logger;
+        private readonly IRepoBL _repoBL;
 
-        public ReposController(IGithubRepoBL githubRepoBL, ILogger<ReposController> logger)
+        public ReposController(IRepoBL repoBL, ILogger<ReposController> logger)
         {
-            _githubRepoBL = githubRepoBL;
+            _repoBL = repoBL;
             _logger = logger;
         }
 
@@ -22,7 +22,7 @@ namespace PersonalSiteApi.Controllers
         [ProducesResponseType(typeof(PinnedReposResult), 200)]
         public async Task<IActionResult> PinnedRepos()
         {
-            var pinnedRepos = await _githubRepoBL.GetPinnedRepos(true);
+            var pinnedRepos = await _repoBL.GetPinnedRepos(true);
             return Ok(pinnedRepos);
         }
     }

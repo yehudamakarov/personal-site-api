@@ -8,7 +8,7 @@ namespace Core.Interfaces
     public interface IProjectBL
     {
         Task<ProjectsResult> GetAllProjects();
-        Task<ProjectResult> GetProjectByName(string projectName);
-        Task<ProjectsResult> UploadProjects(IEnumerable<Project> projects);
+        Task<ProjectResult> GetProjectById(string projectId);
+        Task<ProjectsResult> UploadProjects((List<Project>, string[]) projects);
     }
 }

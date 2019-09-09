@@ -1,29 +1,48 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
+using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repository
 {
     public class BlogPostRepository : RepositoryBase, IBlogPostRepository
     {
-        public BlogPostRepository(IConfiguration configuration) : base(configuration) { }
+        private readonly CollectionReference _blogPostsCollection;
 
-        public Task<List<BlogPost>> GetAllBlogPosts()
+        public BlogPostRepository(IConfiguration configuration) : base(configuration)
         {
-            throw new NotImplementedException();
+            _blogPostsCollection = Db.Collection("blog-posts");
         }
 
-        public Task<BlogPost> AddBlogPost(string title, string description, string content, string projectName)
+        public async Task<IList<BlogPost>> GetAllBlogPosts()
         {
-            throw new NotImplementedException();
+            var querySnapshot = await _blogPostsCollection.GetSnapshotAsync();
+            var results = querySnapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<BlogPost>())
+                .ToList();
+            return results;
         }
 
-        public Task<List<BlogPost>> GetBlogPostsByProject(string projectName)
+        public async Task<BlogPost> AddBlogPost(BlogPost blogPost)
         {
-            throw new NotImplementedException();
+            // add document to collection to get a ref
+            var blogPostRef = await _blogPostsCollection.AddAsync(blogPost);
+            // get a snapshot of the ref
+            var snapshot = await blogPostRef.GetSnapshotAsync();
+            // convert to model
+            return snapshot.ConvertTo<BlogPost>();
+        }
+
+
+        public async Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId)
+        {
+            const string projectIdField = nameof(BlogPost.ProjectId);
+            var querySnapshot = await _blogPostsCollection.WhereEqualTo(projectIdField, projectId).GetSnapshotAsync();
+            var results = querySnapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<BlogPost>())
+                .ToList();
+            return results;
         }
     }
 }

@@ -6,8 +6,8 @@ namespace Core.Interfaces
 {
     public interface IBlogPostRepository
     {
-        Task<List<BlogPost>> GetBlogPostsByProject(string projectName);
-        Task<List<BlogPost>> GetAllBlogPosts();
-        Task<BlogPost> AddBlogPost(string title, string description, string content, string projectName);
+        Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId);
+        Task<IList<BlogPost>> GetAllBlogPosts();
+        Task<BlogPost> AddBlogPost(BlogPost blogPost);
     }
 }

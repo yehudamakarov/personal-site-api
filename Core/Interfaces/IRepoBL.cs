@@ -3,7 +3,7 @@ using Core.Results;
 
 namespace Core.Interfaces
 {
-    public interface IGithubRepoBL
+    public interface IRepoBL
     {
         Task<PinnedReposResult> GetPinnedRepos(bool onlyCurrent);
     }

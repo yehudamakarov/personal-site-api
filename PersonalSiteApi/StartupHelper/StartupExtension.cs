@@ -16,13 +16,16 @@ namespace PersonalSiteApi.StartupHelper
             services.AddScoped<IAuthenticationBL, AuthenticationBL>();
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
-            services.AddScoped<IGithubRepoInfrastructure, GithubRepoInfrastructure>();
+            services.AddScoped<IGithubInfrastructure, GithubInfrastructure>();
 
-            services.AddScoped<IGithubRepoBL, GithubRepoBL>();
+            services.AddScoped<IRepoBL, RepoBL>();
             services.AddScoped<IRepoRepository, RepoRepository>();
 
-            services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IProjectBL, ProjectBL>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+
+            services.AddScoped<IBlogPostBL, BlogPostBL>();
+            services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 
             services.AddScoped<IGithubRepoFetcherNotifier, GithubRepoFetcherNotifier>();
 

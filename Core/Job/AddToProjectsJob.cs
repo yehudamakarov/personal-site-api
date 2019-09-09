@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,30 +10,44 @@ namespace Core.Job
 {
     public class AddToProjectsJob : IAddToProjectsJob
     {
-        private readonly IGithubRepoBL _githubRepoBL;
         private readonly ILogger<AddToProjectsJob> _logger;
         private readonly IProjectBL _projectBL;
+        private readonly IRepoBL _repoBL;
 
-        public AddToProjectsJob(IGithubRepoBL githubRepoBL, ILogger<AddToProjectsJob> logger, IProjectBL projectBL)
+        public AddToProjectsJob(IRepoBL repoBL, ILogger<AddToProjectsJob> logger, IProjectBL projectBL)
         {
-            _githubRepoBL = githubRepoBL;
+            _repoBL = repoBL;
             _logger = logger;
             _projectBL = projectBL;
         }
 
         public async Task BeginJobAsync()
         {
-            var reposResult = await _githubRepoBL.GetPinnedRepos(false);
-            var projects = MakeReposIntoProjects(reposResult.Data);
-            await _projectBL.UploadProjects(projects);
+            var reposResult = await _repoBL.GetPinnedRepos(false);
+            var projectsAndMergeFields = MakeReposIntoProjects(reposResult.Data);
+            await _projectBL.UploadProjects(projectsAndMergeFields);
         }
 
-        private IEnumerable<Project> MakeReposIntoProjects(IEnumerable<Repo> myRepos)
+        /// <summary>
+        /// merge fields are generated here, because we only want to merge what is collected from the job's fetch.
+        /// </summary>
+        /// <param name="myRepos"></param>
+        /// <returns></returns>
+        private (List<Project>, string[]) MakeReposIntoProjects(IEnumerable<Repo> myRepos)
         {
-            return myRepos
+            var projects = myRepos
                 .Select(myRepo => new Project
-                    { Name = myRepo.Name, Description = myRepo.Description, GithubRepoDatabaseId = myRepo.DatabaseId })
+                {
+                    Name = myRepo.Name,
+                    Description = myRepo.Description,
+                    GithubRepoDatabaseId = myRepo.DatabaseId
+                })
                 .ToList();
+            var mergeFields = new[]
+            {
+                nameof(Project.Name), nameof(Project.Description), nameof(Project.GithubRepoDatabaseId)
+            };
+            return (projects, mergeFields);
         }
     }
 }

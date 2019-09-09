@@ -8,5 +8,6 @@ namespace Core.Types
         [FirestoreProperty] public string Title { get; set; }
         [FirestoreProperty] public string Description { get; set; }
         [FirestoreProperty] public string Content { get; set; }
+        [FirestoreProperty] public string ProjectId { get; set; }
     }
 }

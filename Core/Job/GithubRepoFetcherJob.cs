@@ -11,8 +11,8 @@ namespace Core.Job
 {
     public class GithubRepoFetcherJob : IGithubRepoFetcherJob
     {
+        private readonly IGithubInfrastructure _githubInfrastructure;
         private readonly IGithubRepoFetcherNotifier _githubRepoFetcherNotifier;
-        private readonly IGithubRepoInfrastructure _githubRepoInfrastructure;
         private readonly Dictionary<string, string> _itemStatus = new Dictionary<string, string>();
         private readonly ILogger<GithubRepoFetcherJob> _logger;
         private readonly IRepoRepository _repoRepository;
@@ -20,12 +20,12 @@ namespace Core.Job
         private string _jobStatus;
 
         public GithubRepoFetcherJob(
-            IGithubRepoInfrastructure githubRepoInfrastructure,
+            IGithubInfrastructure githubInfrastructure,
             IRepoRepository repoRepository, ILogger<GithubRepoFetcherJob> logger,
             IGithubRepoFetcherNotifier githubRepoFetcherNotifier
         )
         {
-            _githubRepoInfrastructure = githubRepoInfrastructure;
+            _githubInfrastructure = githubInfrastructure;
             _repoRepository = repoRepository;
             _logger = logger;
             _githubRepoFetcherNotifier = githubRepoFetcherNotifier;
@@ -38,7 +38,7 @@ namespace Core.Job
             await MakeAllPinnedReposNonCurrent();
 
             UpdateJobStatus(JobUpdatesStage.Fetching);
-            var repos = await _githubRepoInfrastructure.FetchPinnedReposAsync();
+            var repos = await _githubInfrastructure.FetchPinnedReposAsync();
             var reposList = repos.ToList();
 
             UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);

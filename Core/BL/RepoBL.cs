@@ -8,13 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.BL
 {
-    public class GithubRepoBL : IGithubRepoBL
+    public class RepoBL : IRepoBL
     {
-        private readonly ILogger<GithubRepoBL> _logger;
+        private readonly ILogger<RepoBL> _logger;
         private readonly IRepoRepository _repoRepository;
 
-        public GithubRepoBL(
-            IRepoRepository repoRepository, ILogger<GithubRepoBL> logger)
+        public RepoBL(
+            IRepoRepository repoRepository, ILogger<RepoBL> logger)
         {
             _repoRepository = repoRepository;
             _logger = logger;
@@ -27,7 +27,8 @@ namespace Core.BL
                 var repos = await _repoRepository.GetPinnedReposAsync(onlyCurrent);
                 var result = new PinnedReposResult
                 {
-                    Data = new List<Repo>(repos), Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                    Data = new List<Repo>(repos),
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
                 return result;
             }
@@ -35,7 +36,9 @@ namespace Core.BL
             {
                 _logger.LogError(exception, "Retrieving pinned repositories from Firebase failed.");
                 var result = new PinnedReposResult
-                    { Details = new ResultDetails { ResultStatus = ResultStatus.Failure } };
+                {
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Failure }
+                };
                 return result;
             }
         }

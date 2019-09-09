@@ -15,13 +15,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Infrastructure.Infrastructure
 {
-    public class GithubRepoInfrastructure : RepositoryBase, IGithubRepoInfrastructure
+    public class GithubInfrastructure : RepositoryBase, IGithubInfrastructure
     {
         private readonly HttpClient _githubHttpClient;
-        private readonly ILogger<GithubRepoInfrastructure> _logger;
+        private readonly ILogger<GithubInfrastructure> _logger;
 
-        public GithubRepoInfrastructure(
-            IConfiguration configuration, ILogger<GithubRepoInfrastructure> logger) : base(
+        public GithubInfrastructure(
+            IConfiguration configuration, ILogger<GithubInfrastructure> logger) : base(
             configuration
         )
         {

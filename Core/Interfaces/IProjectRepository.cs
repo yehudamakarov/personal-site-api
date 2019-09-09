@@ -7,7 +7,8 @@ namespace Core.Interfaces
     public interface IProjectRepository
     {
         Task<List<Project>> GetAllProjects();
-        Task<Project> GetProjectByName(string projectName);
-        Task<Project> UploadProjectAsync(Project project, string projectName, string githubDatabaseId);
+        Task<Project> GetProjectById(string projectId);
+        Task<Project> UploadProjectAsync(Project project, string projectName, string githubDatabaseId,
+            string[] mergeFields);
     }
 }

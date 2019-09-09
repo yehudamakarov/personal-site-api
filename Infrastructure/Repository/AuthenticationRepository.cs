@@ -10,7 +10,12 @@ namespace Infrastructure.Repository
 {
     public class AuthenticationRepository : RepositoryBase, IAuthenticationRepository
     {
-        public AuthenticationRepository(IConfiguration configuration) : base(configuration) { }
+        private readonly CollectionReference _usersCollection;
+
+        public AuthenticationRepository(IConfiguration configuration) : base(configuration)
+        {
+            _usersCollection = Db.Collection("users");
+        }
 
         public async Task<User> GetAdmin(string firstName, string lastName)
         {
@@ -38,9 +43,11 @@ namespace Infrastructure.Repository
 
         private async Task<DocumentSnapshot> GetAdminSnapshot(string firstName, string lastName)
         {
-            var adminQuery = Db.Collection("users")
-                .WhereEqualTo("FirstName", firstName)
-                .WhereEqualTo("LastName", lastName);
+            const string firstNameField = nameof(User.FirstName);
+            const string lastNameField = nameof(User.LastName);
+            var adminQuery = _usersCollection
+                .WhereEqualTo(firstNameField, firstName)
+                .WhereEqualTo(lastNameField, lastName);
 
             var querySnapshot = await adminQuery.GetSnapshotAsync();
 

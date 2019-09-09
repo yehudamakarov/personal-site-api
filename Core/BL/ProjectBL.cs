@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,20 +20,54 @@ namespace Core.BL
             _projectRepository = projectRepository;
         }
 
-        public Task<ProjectsResult> GetAllProjects()
+        public async Task<ProjectsResult> GetAllProjects()
         {
-            throw new NotImplementedException();
+            var results = await _projectRepository.GetAllProjects();
+            if (results.Count == 0)
+                return new ProjectsResult
+                {
+                    Data = results,
+                    Details = new ResultDetails
+                    {
+                        Message = "None were found.",
+                        ResultStatus = ResultStatus.Warning
+                    }
+                };
+
+            return new ProjectsResult
+            {
+                Data = results,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
         }
 
-        public Task<ProjectResult> GetProjectByName(string projectName)
+        public async Task<ProjectResult> GetProjectById(string projectId)
         {
-            throw new NotImplementedException();
+            var project = await _projectRepository.GetProjectById(projectId);
+            if (project == null)
+                return new ProjectResult
+                {
+                    Data = null,
+                    Details = new ResultDetails
+                    {
+                        Message = $"No project with id {projectId} was found.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+
+            return new ProjectResult
+            {
+                Data = project,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
         }
 
-        public async Task<ProjectsResult> UploadProjects(IEnumerable<Project> projects)
+        public async Task<ProjectsResult> UploadProjects((List<Project>, string[]) projectsAndMergeFields)
         {
+            var (projects, mergeFields) = projectsAndMergeFields;
+
             var uploadTasks = projects.Select(project =>
-                _projectRepository.UploadProjectAsync(project, project.Name, project.GithubRepoDatabaseId));
+                _projectRepository.UploadProjectAsync(project, project.Name, project.GithubRepoDatabaseId, mergeFields));
             var initiatedUploadTasks =
                 (from uploadTask in uploadTasks select AwaitUpload(uploadTask))
                 .ToArray();

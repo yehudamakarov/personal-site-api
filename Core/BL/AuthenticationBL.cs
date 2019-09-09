@@ -36,21 +36,30 @@ namespace Core.BL
                 return new ActivateAdminResult
                 {
                     Details = new ResultDetails<ActivateAdminResultReason>
-                        { ResultStatus = ActivateAdminResultReason.NoAdminRecord, Message = "" }
+                    {
+                        ResultStatus = ActivateAdminResultReason.NoAdminRecord,
+                        Message = ""
+                    }
                 };
 
             if (createAdminRequest.CreationCode != admin.CreationCode)
                 return new ActivateAdminResult
                 {
                     Details = new ResultDetails<ActivateAdminResultReason>
-                        { ResultStatus = ActivateAdminResultReason.BadCreationCode, Message = "" }
+                    {
+                        ResultStatus = ActivateAdminResultReason.BadCreationCode,
+                        Message = ""
+                    }
                 };
 
             if (admin.PasswordHash != null)
                 return new ActivateAdminResult
                 {
                     Details = new ResultDetails<ActivateAdminResultReason>
-                        { ResultStatus = ActivateAdminResultReason.AdminAlreadyExists, Message = "" }
+                    {
+                        ResultStatus = ActivateAdminResultReason.AdminAlreadyExists,
+                        Message = ""
+                    }
                 };
 
             var activatedAdmin = await ActivateAdmin(admin, createAdminRequest.Password);
@@ -58,7 +67,10 @@ namespace Core.BL
             return new ActivateAdminResult
             {
                 Details = new ResultDetails<ActivateAdminResultReason>
-                    { ResultStatus = ActivateAdminResultReason.AdminCreated, Message = "" },
+                {
+                    ResultStatus = ActivateAdminResultReason.AdminCreated,
+                    Message = ""
+                },
                 Data = activatedAdmin
             };
         }
@@ -71,23 +83,14 @@ namespace Core.BL
             );
 
             if (admin == null)
-                return new AdminLoginResult
-                {
-                    Details = LoginResultReason.UserNotFound
-                };
+                return new AdminLoginResult { Details = LoginResultReason.UserNotFound };
 
             if (adminLoginRequest.Password == null)
-                return new AdminLoginResult
-                {
-                    Details = LoginResultReason.PasswordNotProvided
-                };
+                return new AdminLoginResult { Details = LoginResultReason.PasswordNotProvided };
 
             var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
             if (!correctPassword)
-                return new AdminLoginResult
-                {
-                    Details = LoginResultReason.PasswordIncorrect
-                };
+                return new AdminLoginResult { Details = LoginResultReason.PasswordIncorrect };
 
             var token = GenerateToken(admin);
             return new AdminLoginResult
