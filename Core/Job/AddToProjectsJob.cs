@@ -38,15 +38,12 @@ namespace Core.Job
             var projects = myRepos
                 .Select(myRepo => new Project
                 {
+                    GithubRepoDatabaseId = myRepo.DatabaseId,
                     Name = myRepo.Name,
-                    Description = myRepo.Description,
-                    GithubRepoDatabaseId = myRepo.DatabaseId
+                    Description = myRepo.Description
                 })
                 .ToList();
-            var mergeFields = new[]
-            {
-                nameof(Project.Name), nameof(Project.Description), nameof(Project.GithubRepoDatabaseId)
-            };
+            var mergeFields = new[] { nameof(Project.Name), nameof(Project.Description) };
             return (projects, mergeFields);
         }
     }
