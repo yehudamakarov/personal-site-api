@@ -4,6 +4,7 @@ using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Responses.Authentication;
+using Core.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = Roles.Administrator)]
         [ProducesResponseType(200)]
         public IActionResult TestAuthentication()
         {
