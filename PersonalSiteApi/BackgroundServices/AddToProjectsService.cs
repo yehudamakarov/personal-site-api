@@ -8,16 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace PersonalSiteApi.BackgroundServices
 {
-    public class RepoFetcherService : IHostedService
+    public class AddToProjectsService : IHostedService
     {
-        private readonly ILogger<RepoFetcherService> _logger;
+        private readonly ILogger<AddToProjectsService> _logger;
         private readonly IServiceProvider _services;
         private Timer _timer;
 
-        public RepoFetcherService(
-            IServiceProvider services,
-            ILogger<RepoFetcherService> logger
-        )
+        public AddToProjectsService(IServiceProvider services, ILogger<AddToProjectsService> logger)
         {
             _services = services;
             _logger = logger;
@@ -27,7 +24,7 @@ namespace PersonalSiteApi.BackgroundServices
         {
             try
             {
-                _timer = new Timer(FetchAndUploadRepos, null, TimeSpan.FromSeconds(60), TimeSpan.FromHours(6));
+                _timer = new Timer(AddPinnedReposToProjects, null, TimeSpan.FromSeconds(30), TimeSpan.FromHours(12));
                 return Task.CompletedTask;
             }
             catch (Exception exception)
@@ -37,17 +34,18 @@ namespace PersonalSiteApi.BackgroundServices
             }
         }
 
+
         public Task StopAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        private void FetchAndUploadRepos(object state)
+        private void AddPinnedReposToProjects(object state)
         {
             using (var scope = _services.CreateScope())
             {
-                var repoFetcherBL = scope.ServiceProvider.GetRequiredService<IGithubRepoFetcherJob>();
-                repoFetcherBL.BeginJobAsync();
+                var addToProjectsBL = scope.ServiceProvider.GetRequiredService<IAddToProjectsJob>();
+                addToProjectsBL.BeginJobAsync();
             }
         }
     }

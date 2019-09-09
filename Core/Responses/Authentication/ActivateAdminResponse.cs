@@ -1,7 +1,7 @@
 using System;
 using Core.Enums.ResultReasons;
 using Core.Interfaces;
-using Core.Results.Authentication;
+using Core.Results;
 using Core.Types;
 
 namespace Core.Responses.Authentication
@@ -10,7 +10,7 @@ namespace Core.Responses.Authentication
     {
         public ActivateAdminResponse(ActivateAdminResult result)
         {
-            Message = ComputeMessage(result.Reason);
+            Message = ComputeMessage(result.Details.ResultStatus);
             Data = result.Data;
         }
 

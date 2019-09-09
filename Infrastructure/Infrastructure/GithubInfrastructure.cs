@@ -15,13 +15,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Infrastructure.Infrastructure
 {
-    public class RepoInfrastructure : RepositoryBase, IRepoInfrastructure
+    public class GithubInfrastructure : RepositoryBase, IGithubInfrastructure
     {
         private readonly HttpClient _githubHttpClient;
-        private readonly ILogger<RepoInfrastructure> _logger;
+        private readonly ILogger<GithubInfrastructure> _logger;
 
-        public RepoInfrastructure(
-            IConfiguration configuration, ILogger<RepoInfrastructure> logger) : base(
+        public GithubInfrastructure(
+            IConfiguration configuration, ILogger<GithubInfrastructure> logger) : base(
             configuration
         )
         {
@@ -70,10 +70,16 @@ namespace Infrastructure.Infrastructure
         {
             _logger.LogInformation("Parsing respContent to objects.");
             var jObject = JObject.Parse(respContent);
-            var jsonRepos = jObject["data"]["user"]["pinnedItems"]["nodes"]
+            var jsonRepos = jObject?["data"]?["user"]?["pinnedItems"]?["nodes"]?
                 .Children()
                 .ToList();
             var repos = new List<Repo>();
+            if (jsonRepos == null)
+            {
+                _logger.LogError("There was a problem fetching repos.");
+                return repos;
+            }
+
             foreach (var jsonRepo in jsonRepos)
             {
                 var repo = jsonRepo.ToObject<Repo>();

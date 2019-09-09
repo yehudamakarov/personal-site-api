@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.Notification.RepoSync
 {
-    public class GithubGithubRepoFetcherNotifier : IGithubRepoFetcherNotifier
+    public class GithubRepoFetcherNotifier : IGithubRepoFetcherNotifier
     {
         private readonly IHubContext<RepoSyncNotificationHub, IGithubRepoFetcherNotification> _hubContext;
 
-        public GithubGithubRepoFetcherNotifier(
+        public GithubRepoFetcherNotifier(
             IHubContext<RepoSyncNotificationHub, IGithubRepoFetcherNotification> hubContext)
         {
             _hubContext = hubContext;

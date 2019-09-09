@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Core.Requests.Authentication;
-using Core.Results.Authentication;
+using Core.Results;
 
 namespace Core.Interfaces
 {
@@ -9,6 +9,6 @@ namespace Core.Interfaces
         Task<ActivateAdminResult> ActivateAdmin(
             CreateAdminRequest createAdminRequest);
 
-        Task<LoginResult> HandleAdminLoginRequest(AdminLoginRequest adminLoginRequest);
+        Task<AdminLoginResult> HandleAdminLoginRequest(AdminLoginRequest adminLoginRequest);
     }
 }

@@ -1,5 +1,6 @@
 using Core.BL;
 using Core.Interfaces;
+using Core.Job;
 using Infrastructure.Infrastructure;
 using Infrastructure.Notification.RepoSync;
 using Infrastructure.Repository;
@@ -15,14 +16,25 @@ namespace PersonalSiteApi.StartupHelper
             services.AddScoped<IAuthenticationBL, AuthenticationBL>();
             services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
-            services.AddScoped<IGithubRepoBL, GithubRepoBL>();
-            services.AddScoped<IGithubRepoFetcherBL, GithubRepoFetcherBL>();
-            services.AddScoped<IRepoInfrastructure, RepoInfrastructure>();
+            services.AddScoped<IGithubInfrastructure, GithubInfrastructure>();
+
+            services.AddScoped<IRepoBL, RepoBL>();
             services.AddScoped<IRepoRepository, RepoRepository>();
 
-            services.AddScoped<IGithubRepoFetcherNotifier, GithubGithubRepoFetcherNotifier>();
+            services.AddScoped<IProjectBL, ProjectBL>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+
+            services.AddScoped<IBlogPostBL, BlogPostBL>();
+            services.AddScoped<IBlogPostRepository, BlogPostRepository>();
+
+            services.AddScoped<IGithubRepoFetcherNotifier, GithubRepoFetcherNotifier>();
+
+            services.AddScoped<IGithubRepoFetcherJob, GithubRepoFetcherJob>();
+            services.AddScoped<IAddToProjectsJob, AddToProjectsJob>();
 
             services.AddHostedService<RepoFetcherService>();
+            services.AddHostedService<AddToProjectsService>();
+
 
             return services;
         }

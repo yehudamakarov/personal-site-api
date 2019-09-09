@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IGithubRepoFetcherBL
+    public interface IJob
     {
         Task BeginJobAsync();
     }

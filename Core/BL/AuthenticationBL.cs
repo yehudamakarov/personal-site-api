@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
-using Core.Results.Authentication;
+using Core.Results;
 using Core.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -35,31 +35,47 @@ namespace Core.BL
             if (admin == null)
                 return new ActivateAdminResult
                 {
-                    Reason = ActivateAdminResultReason.NoAdminRecord
+                    Details = new ResultDetails<ActivateAdminResultReason>
+                    {
+                        ResultStatus = ActivateAdminResultReason.NoAdminRecord,
+                        Message = ""
+                    }
                 };
 
             if (createAdminRequest.CreationCode != admin.CreationCode)
                 return new ActivateAdminResult
                 {
-                    Reason = ActivateAdminResultReason.BadCreationCode
+                    Details = new ResultDetails<ActivateAdminResultReason>
+                    {
+                        ResultStatus = ActivateAdminResultReason.BadCreationCode,
+                        Message = ""
+                    }
                 };
 
             if (admin.PasswordHash != null)
                 return new ActivateAdminResult
                 {
-                    Reason = ActivateAdminResultReason.AdminAlreadyExists
+                    Details = new ResultDetails<ActivateAdminResultReason>
+                    {
+                        ResultStatus = ActivateAdminResultReason.AdminAlreadyExists,
+                        Message = ""
+                    }
                 };
 
             var activatedAdmin = await ActivateAdmin(admin, createAdminRequest.Password);
 
             return new ActivateAdminResult
             {
-                Reason = ActivateAdminResultReason.AdminCreated,
+                Details = new ResultDetails<ActivateAdminResultReason>
+                {
+                    ResultStatus = ActivateAdminResultReason.AdminCreated,
+                    Message = ""
+                },
                 Data = activatedAdmin
             };
         }
 
-        public async Task<LoginResult> HandleAdminLoginRequest(AdminLoginRequest adminLoginRequest)
+        public async Task<AdminLoginResult> HandleAdminLoginRequest(AdminLoginRequest adminLoginRequest)
         {
             var admin = await _authenticationRepository.GetAdmin(
                 adminLoginRequest.FirstName,
@@ -67,29 +83,20 @@ namespace Core.BL
             );
 
             if (admin == null)
-                return new LoginResult
-                {
-                    Reason = LoginResultReason.UserNotFound
-                };
+                return new AdminLoginResult { Details = LoginResultReason.UserNotFound };
 
             if (adminLoginRequest.Password == null)
-                return new LoginResult
-                {
-                    Reason = LoginResultReason.PasswordNotProvided
-                };
+                return new AdminLoginResult { Details = LoginResultReason.PasswordNotProvided };
 
             var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
             if (!correctPassword)
-                return new LoginResult
-                {
-                    Reason = LoginResultReason.PasswordIncorrect
-                };
+                return new AdminLoginResult { Details = LoginResultReason.PasswordIncorrect };
 
             var token = GenerateToken(admin);
-            return new LoginResult
+            return new AdminLoginResult
             {
                 Data = token,
-                Reason = LoginResultReason.SuccessfulLogin
+                Details = LoginResultReason.SuccessfulLogin
             };
         }
 
