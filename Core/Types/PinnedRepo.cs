@@ -3,7 +3,7 @@ using Google.Cloud.Firestore;
 
 namespace Core.Types
 {
-    [FirestoreData] public class Repo
+    [FirestoreData] public class PinnedRepo
     {
         [FirestoreDocumentId] public string DatabaseId { get; set; }
         [FirestoreProperty] public DateTime TimeFetched { get; set; }

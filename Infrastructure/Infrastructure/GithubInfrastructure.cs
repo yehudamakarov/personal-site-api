@@ -50,7 +50,7 @@ namespace Infrastructure.Infrastructure
             };
         }
 
-        public async Task<IEnumerable<Repo>> FetchPinnedReposAsync()
+        public async Task<IEnumerable<PinnedRepo>> FetchPinnedReposAsync()
         {
             _logger.LogInformation("Fetching pinned repositories from Github.");
             var respContent = await FetchPinnedReposRespContent();
@@ -66,14 +66,14 @@ namespace Infrastructure.Infrastructure
             return repos;
         }
 
-        private IEnumerable<Repo> ConvertRespToObjects(string respContent)
+        private IEnumerable<PinnedRepo> ConvertRespToObjects(string respContent)
         {
             _logger.LogInformation("Parsing respContent to objects.");
             var jObject = JObject.Parse(respContent);
             var jsonRepos = jObject?["data"]?["user"]?["pinnedItems"]?["nodes"]?
                 .Children()
                 .ToList();
-            var repos = new List<Repo>();
+            var repos = new List<PinnedRepo>();
             if (jsonRepos == null)
             {
                 _logger.LogError("There was a problem fetching repos.");
@@ -82,7 +82,7 @@ namespace Infrastructure.Infrastructure
 
             foreach (var jsonRepo in jsonRepos)
             {
-                var repo = jsonRepo.ToObject<Repo>();
+                var repo = jsonRepo.ToObject<PinnedRepo>();
                 _logger.LogInformation("Parsed {@repo}", repo);
                 repos.Add(repo);
             }

@@ -59,5 +59,13 @@ namespace Infrastructure.Repository
             // convert to model
             return snapshot.ConvertTo<Project>();
         }
+
+        public async Task<Project> GetProjectByName(string projectName)
+        {
+            var snapshot = await _projectCollection.WhereEqualTo(nameof(Project.ProjectName), projectName)
+                .GetSnapshotAsync();
+            var result = snapshot.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).FirstOrDefault();
+            return result;
+        }
     }
 }

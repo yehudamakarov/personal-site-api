@@ -4,9 +4,9 @@ using Core.Types;
 
 namespace Core.Responses.GithubRepos
 {
-    public class PinnedReposResponse : IResponse<IEnumerable<Repo>>
+    public class PinnedReposResponse : IResponse<IEnumerable<PinnedRepo>>
     {
         public string Message { get; set; }
-        public IEnumerable<Repo> Data { get; set; }
+        public IEnumerable<PinnedRepo> Data { get; set; }
     }
 }

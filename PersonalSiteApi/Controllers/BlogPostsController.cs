@@ -24,7 +24,7 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> BlogPostsByProject(string projectId)
+        public async Task<IActionResult> BlogPostsByProjectId(string projectId)
         {
             var result = await _blogPostBL.GetBlogPostsByProjectId(projectId);
             return Ok(result);

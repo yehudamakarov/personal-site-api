@@ -32,7 +32,7 @@ namespace Core.Job
         /// </summary>
         /// <param name="myRepos"></param>
         /// <returns></returns>
-        private (List<Project>, string[]) MakeReposIntoProjects(IEnumerable<Repo> myRepos)
+        private (List<Project>, string[]) MakeReposIntoProjects(IEnumerable<PinnedRepo> myRepos)
         {
             var projects = myRepos
                 .Select(myRepo => new Project
@@ -41,12 +41,12 @@ namespace Core.Job
                     GithubRepoDatabaseId = myRepo.DatabaseId,
 
                     // Fields
-                    Name = myRepo.Name,
-                    Description = myRepo.Description
+                    ProjectName = myRepo.Name,
+                    ProjectDescription = myRepo.Description
                 })
                 .ToList();
             // only merge by fields
-            var mergeFields = new[] { nameof(Project.Name), nameof(Project.Description) };
+            var mergeFields = new[] { nameof(Project.ProjectName), nameof(Project.ProjectDescription) };
             return (projects, mergeFields);
         }
     }
