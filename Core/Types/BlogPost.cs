@@ -1,3 +1,4 @@
+using System.Linq;
 using Google.Cloud.Firestore;
 
 namespace Core.Types
@@ -9,5 +10,6 @@ namespace Core.Types
         [FirestoreProperty] public string Description { get; set; }
         [FirestoreProperty] public string Content { get; set; }
         [FirestoreProperty] public string ProjectId { get; set; }
+        [FirestoreProperty] public string Slug => string.Join("-", Title.ToLower().Split(" "));
     }
 }
