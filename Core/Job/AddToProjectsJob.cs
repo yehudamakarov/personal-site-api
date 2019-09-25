@@ -42,11 +42,19 @@ namespace Core.Job
 
                     // Fields
                     ProjectName = myRepo.Name,
-                    ProjectDescription = myRepo.Description
+                    ProjectDescription = myRepo.Description,
+                    IsPinnedRepo = true,
+                    GithubUrl = myRepo.Url
                 })
                 .ToList();
             // only merge by fields
-            var mergeFields = new[] { nameof(Project.ProjectName), nameof(Project.ProjectDescription) };
+            var mergeFields = new[]
+            {
+                nameof(Project.ProjectName),
+                nameof(Project.ProjectDescription),
+                nameof(Project.IsPinnedRepo),
+                nameof(Project.GithubUrl)
+            };
             return (projects, mergeFields);
         }
     }
