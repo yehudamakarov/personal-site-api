@@ -6,7 +6,7 @@ namespace Core.Interfaces
 {
     public interface IRepoRepository
     {
-        Task<Repo> UploadRepoAsync(Repo repo);
-        Task<IEnumerable<Repo>> GetPinnedReposAsync(bool onlyCurrent);
+        Task<PinnedRepo> UploadRepoAsync(PinnedRepo pinnedRepo);
+        Task<IEnumerable<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent);
     }
 }

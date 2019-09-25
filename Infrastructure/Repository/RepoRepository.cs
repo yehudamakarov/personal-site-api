@@ -21,7 +21,7 @@ namespace Infrastructure.Repository
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Repo>> GetPinnedReposAsync(bool onlyCurrent)
+        public async Task<IEnumerable<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent)
         {
             _logger.LogInformation("Retrieving 'current' repositories from Firestore.");
             var pinnedReposRef = Db.Collection("pinned-repositories");
@@ -33,15 +33,15 @@ namespace Infrastructure.Repository
                 pinnedCurrentReposSnapshot = await pinnedReposRef.GetSnapshotAsync();
 
             var pinnedCurrentRepos =
-                pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<Repo>());
+                pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<PinnedRepo>());
 
             return pinnedCurrentRepos;
         }
 
-        public async Task<Repo> UploadRepoAsync(Repo repo)
+        public async Task<PinnedRepo> UploadRepoAsync(PinnedRepo pinnedRepo)
         {
-            _logger.LogInformation("Beginning upload of {databaseId}, with info of {@repo}", repo.DatabaseId, repo);
-            var repoWithUtc = ConvertTimesToUtc(repo);
+            _logger.LogInformation("Beginning upload of {databaseId}, with info of {@repo}", pinnedRepo.DatabaseId, pinnedRepo);
+            var repoWithUtc = ConvertTimesToUtc(pinnedRepo);
 
             // Get collection ref
             var pinnedReposRef = Db.Collection("pinned-repositories");
@@ -56,17 +56,17 @@ namespace Infrastructure.Repository
             var snapshot = await pinnedRepoRef.GetSnapshotAsync();
 
             // convert to model
-            var updatedRepo = snapshot.ConvertTo<Repo>();
+            var updatedRepo = snapshot.ConvertTo<PinnedRepo>();
 
             return updatedRepo;
         }
 
-        private static Repo ConvertTimesToUtc(Repo repo)
+        private static PinnedRepo ConvertTimesToUtc(PinnedRepo pinnedRepo)
         {
-            var utcRepo = repo;
-            utcRepo.TimeFetched = repo.TimeFetched.ToUniversalTime();
-            utcRepo.CreatedAt = repo.CreatedAt.ToUniversalTime();
-            utcRepo.UpdatedAt = repo.UpdatedAt.ToUniversalTime();
+            var utcRepo = pinnedRepo;
+            utcRepo.TimeFetched = pinnedRepo.TimeFetched.ToUniversalTime();
+            utcRepo.CreatedAt = pinnedRepo.CreatedAt.ToUniversalTime();
+            utcRepo.UpdatedAt = pinnedRepo.UpdatedAt.ToUniversalTime();
             return utcRepo;
         }
     }

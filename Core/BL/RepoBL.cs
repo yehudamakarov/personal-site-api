@@ -27,7 +27,7 @@ namespace Core.BL
                 var repos = await _repoRepository.GetPinnedReposAsync(onlyCurrent);
                 var result = new PinnedReposResult
                 {
-                    Data = new List<Repo>(repos),
+                    Data = new List<PinnedRepo>(repos),
                     Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
                 return result;

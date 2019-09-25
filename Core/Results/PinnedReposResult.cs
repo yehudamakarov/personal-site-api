@@ -3,9 +3,9 @@ using Core.Types;
 
 namespace Core.Results
 {
-    public class PinnedReposResult : IResult<IList<Repo>>
+    public class PinnedReposResult : IResult<IList<PinnedRepo>>
     {
-        public IList<Repo> Data { get; set; }
+        public IList<PinnedRepo> Data { get; set; }
         public ResultDetails Details { get; set; }
     }
 }

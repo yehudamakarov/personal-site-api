@@ -67,7 +67,8 @@ namespace Core.BL
             var (projects, mergeFields) = projectsAndMergeFields;
 
             var uploadTasks = projects.Select(project =>
-                _projectRepository.UploadProjectAsync(project, project.Name, project.GithubRepoDatabaseId, mergeFields));
+                _projectRepository.UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
+                    mergeFields));
             var initiatedUploadTasks =
                 (from uploadTask in uploadTasks select AwaitUpload(uploadTask))
                 .ToArray();
@@ -79,6 +80,27 @@ namespace Core.BL
             return new ProjectsResult
             {
                 Data = new List<Project>(uploadedProjects),
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
+        }
+
+        public async Task<ProjectResult> GetProjectByName(string projectName)
+        {
+            var project = await _projectRepository.GetProjectByName(projectName);
+            if (project == null)
+                return new ProjectResult
+                {
+                    Data = null,
+                    Details = new ResultDetails
+                    {
+                        Message = $"No project with name {projectName} was found.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+
+            return new ProjectResult
+            {
+                Data = project,
                 Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }

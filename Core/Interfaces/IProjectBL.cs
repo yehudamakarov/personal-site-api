@@ -10,5 +10,6 @@ namespace Core.Interfaces
         Task<ProjectsResult> GetAllProjects();
         Task<ProjectResult> GetProjectById(string projectId);
         Task<ProjectsResult> UploadProjects((List<Project>, string[]) projects);
+        Task<ProjectResult> GetProjectByName(string projectName);
     }
 }

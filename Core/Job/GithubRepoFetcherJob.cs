@@ -49,7 +49,7 @@ namespace Core.Job
             _logger.LogInformation("Completed job");
         }
 
-        private async Task<IEnumerable<Repo>> UploadPinnedReposAsCurrent(IEnumerable<Repo> repos)
+        private async Task<IEnumerable<PinnedRepo>> UploadPinnedReposAsCurrent(IEnumerable<PinnedRepo> repos)
         {
             _logger.LogInformation("Setting pinned as current to Firestore.");
             var reposList = repos.ToList();
@@ -62,7 +62,7 @@ namespace Core.Job
             return await UploadReposAsync(reposList);
         }
 
-        private async Task<IEnumerable<Repo>> UploadReposAsync(IEnumerable<Repo> reposList)
+        private async Task<IEnumerable<PinnedRepo>> UploadReposAsync(IEnumerable<PinnedRepo> reposList)
         {
             var uploadTasks = reposList.Select(_repoRepository.UploadRepoAsync);
             var initiatedUploadTasks =
@@ -76,14 +76,14 @@ namespace Core.Job
             return uploadedRepos;
         }
 
-        private async Task<Repo> AwaitUploadAndSendUpdate(Task<Repo> uploadTask)
+        private async Task<PinnedRepo> AwaitUploadAndSendUpdate(Task<PinnedRepo> uploadTask)
         {
             var repo = await uploadTask;
             UpdateItemStatus(JobUpdatesStage.Done, repo);
             return repo;
         }
 
-        private async Task<IEnumerable<Repo>> MakeAllPinnedReposNonCurrent()
+        private async Task<IEnumerable<PinnedRepo>> MakeAllPinnedReposNonCurrent()
         {
             _logger.LogInformation("Making all pinned repositories un-pinned.");
             var currentPinnedRepos = await _repoRepository.GetPinnedReposAsync(true);
@@ -96,22 +96,22 @@ namespace Core.Job
             return nonCurrentRepos;
         }
 
-        private static IEnumerable<Repo> MarkWithTimestamp(IEnumerable<Repo> items)
+        private static IEnumerable<PinnedRepo> MarkWithTimestamp(IEnumerable<PinnedRepo> items)
         {
-            IEnumerable<Repo> toMarkWithTimestamp = items.ToList();
+            IEnumerable<PinnedRepo> toMarkWithTimestamp = items.ToList();
             var timeFetched = DateTime.Now;
             foreach (var item in toMarkWithTimestamp) item.TimeFetched = timeFetched;
 
             return toMarkWithTimestamp;
         }
 
-        private void UpdateItemStatus(JobUpdatesStage stage, Repo repo)
+        private void UpdateItemStatus(JobUpdatesStage stage, PinnedRepo pinnedRepo)
         {
-            _itemStatus[repo.DatabaseId] = stage.ToString();
+            _itemStatus[pinnedRepo.DatabaseId] = stage.ToString();
             _githubRepoFetcherNotifier.PushUpdate(_itemStatus, _jobStatus);
         }
 
-        private void UpdateAllItemsStatus(JobUpdatesStage stage, IEnumerable<Repo> repos)
+        private void UpdateAllItemsStatus(JobUpdatesStage stage, IEnumerable<PinnedRepo> repos)
         {
             foreach (var repo in repos) _itemStatus[repo.DatabaseId] = stage.ToString();
             UpdateJobStatus(stage);

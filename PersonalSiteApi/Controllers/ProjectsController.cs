@@ -27,5 +27,12 @@ namespace PersonalSiteApi.Controllers
             var result = await _projectBL.GetProjectById(projectId);
             return Ok(result);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ProjectByName(string projectName)
+        {
+            var result = await _projectBL.GetProjectByName(projectName);
+            return Ok(result);
+        }
     }
 }

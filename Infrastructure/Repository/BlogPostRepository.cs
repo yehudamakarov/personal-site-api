@@ -38,8 +38,8 @@ namespace Infrastructure.Repository
 
         public async Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId)
         {
-            const string projectIdField = nameof(BlogPost.ProjectId);
-            var querySnapshot = await _blogPostsCollection.WhereEqualTo(projectIdField, projectId).GetSnapshotAsync();
+            var querySnapshot = await _blogPostsCollection.WhereEqualTo(nameof(BlogPost.ProjectId), projectId)
+                .GetSnapshotAsync();
             var results = querySnapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<BlogPost>())
                 .ToList();
             return results;
