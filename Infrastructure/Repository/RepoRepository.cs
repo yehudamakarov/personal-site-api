@@ -27,7 +27,7 @@ namespace Infrastructure.Repository
             var pinnedReposRef = Db.Collection("pinned-repositories");
             QuerySnapshot pinnedCurrentReposSnapshot;
             if (onlyCurrent)
-                pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true).OrderByDescending(nameof(Project.UpdatedAt))
+                pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true)
                     .GetSnapshotAsync();
             else
                 pinnedCurrentReposSnapshot = await pinnedReposRef.GetSnapshotAsync();
@@ -40,7 +40,8 @@ namespace Infrastructure.Repository
 
         public async Task<PinnedRepo> UploadRepoAsync(PinnedRepo pinnedRepo)
         {
-            _logger.LogInformation("Beginning upload of {databaseId}, with info of {@repo}", pinnedRepo.DatabaseId, pinnedRepo);
+            _logger.LogInformation("Beginning upload of {databaseId}, with info of {@repo}", pinnedRepo.DatabaseId,
+                pinnedRepo);
             var repoWithUtc = ConvertTimesToUtc(pinnedRepo);
 
             // Get collection ref

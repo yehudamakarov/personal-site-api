@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Results;
@@ -25,9 +26,10 @@ namespace Core.BL
             try
             {
                 var repos = await _repoRepository.GetPinnedReposAsync(onlyCurrent);
+                var mostRecentFirst = repos.OrderByDescending(repo => repo.UpdatedAt);
                 var result = new PinnedReposResult
                 {
-                    Data = new List<PinnedRepo>(repos),
+                    Data = new List<PinnedRepo>(mostRecentFirst),
                     Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
                 return result;
