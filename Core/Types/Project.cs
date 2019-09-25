@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Google.Cloud.Firestore;
@@ -6,6 +7,7 @@ namespace Core.Types
 {
     [FirestoreData] public class Project
     {
+        [FirestoreProperty] public DateTime UpdatedAt { get; set; }
         [FirestoreDocumentId] public string GithubRepoDatabaseId { get; set; }
         [FirestoreProperty] public string ProjectName { get; set; }
 
@@ -27,5 +29,6 @@ namespace Core.Types
         [FirestoreProperty] public string Slug => string.Join("-", ProjectTitle.ToLower().Split(" "));
         [FirestoreProperty] public bool IsPinnedRepo { get; set; }
         [FirestoreProperty] public string GithubUrl { get; set; }
+        [FirestoreProperty] public DateTime CreatedAt { get; set; }
     }
 }

@@ -44,7 +44,9 @@ namespace Core.Job
                     ProjectName = myRepo.Name,
                     ProjectDescription = myRepo.Description,
                     IsPinnedRepo = true,
-                    GithubUrl = myRepo.Url
+                    GithubUrl = myRepo.Url,
+                    UpdatedAt = myRepo.UpdatedAt,
+                    CreatedAt = myRepo.CreatedAt
                 })
                 .ToList();
             // only merge by fields
@@ -53,7 +55,9 @@ namespace Core.Job
                 nameof(Project.ProjectName),
                 nameof(Project.ProjectDescription),
                 nameof(Project.IsPinnedRepo),
-                nameof(Project.GithubUrl)
+                nameof(Project.GithubUrl), 
+                nameof(Project.UpdatedAt), 
+                nameof(Project.CreatedAt), 
             };
             return (projects, mergeFields);
         }
