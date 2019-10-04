@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
 {
-    [ApiController] [Route("[controller]/[action]")]
+    [ApiController] [Route("[controller]/[action]")] [ProducesResponseType(typeof(string), 500)]
     public class ProjectsController : ControllerBase
     {
         private readonly IProjectBL _projectBL;
