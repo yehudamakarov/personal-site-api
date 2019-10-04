@@ -76,10 +76,10 @@ namespace Core.BL
 
             var blogPost = new BlogPost
             {
-                Title = title,
-                Description = description,
-                Content = content,
-                ProjectId = projectId
+                Title = title.Trim(),
+                Description = description.Trim(),
+                Content = content.Trim(),
+                ProjectId = projectId.Trim()
             };
             var persistedBlogPost = await _blogPostRepository.AddBlogPost(blogPost);
             return new BlogPostResult

@@ -42,6 +42,7 @@ namespace Core.Job
 
                     // Fields
                     ProjectName = myRepo.Name,
+                    ProjectTitle = GenerateProjectTitleFromName(myRepo.Name),
                     ProjectDescription = myRepo.Description,
                     IsPinnedRepo = true,
                     GithubUrl = myRepo.Url,
@@ -55,11 +56,17 @@ namespace Core.Job
                 nameof(Project.ProjectName),
                 nameof(Project.ProjectDescription),
                 nameof(Project.IsPinnedRepo),
-                nameof(Project.GithubUrl), 
-                nameof(Project.UpdatedAt), 
-                nameof(Project.CreatedAt), 
+                nameof(Project.GithubUrl),
+                nameof(Project.UpdatedAt),
+                nameof(Project.CreatedAt),
             };
             return (projects, mergeFields);
+        }
+
+        private static string GenerateProjectTitleFromName(string myRepoName)
+        {
+            return string.Join(" ", myRepoName.Split('-', ' ')
+                .Select(word => word.First().ToString().ToUpper() + word.Substring(1)));
         }
     }
 }
