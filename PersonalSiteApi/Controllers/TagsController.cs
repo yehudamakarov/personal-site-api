@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Results;
@@ -20,7 +21,7 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(AddTagResult), 200)]
-        public async Task<IActionResult> AddTag(string tagName)
+        public async Task<IActionResult> AddTag([Required] string tagName)
         {
             var addTagResult = await _tagBL.AddTag(tagName);
             return Ok(addTagResult);
