@@ -19,11 +19,19 @@ namespace PersonalSiteApi.Controllers
             _tagBL = tagBL;
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(TagsResult), 200)]
+        public async Task<IActionResult> AllTags()
+        {
+            var result = await _tagBL.GetAllTags();
+            return Ok(result);
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(AddTagResult), 200)]
-        public async Task<IActionResult> AddTag([Required] string tagName)
+        public async Task<IActionResult> CreateOrFindByTagId([Required] string tagName)
         {
-            var addTagResult = await _tagBL.AddTag(tagName);
+            var addTagResult = await _tagBL.CreateOrFindByTagId(tagName);
             return Ok(addTagResult);
         }
     }

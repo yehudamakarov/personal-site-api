@@ -5,6 +5,7 @@ namespace Core.Interfaces
 {
     public interface ITagBL
     {
-        Task<AddTagResult> AddTag(string tagName);
+        Task<AddTagResult> CreateOrFindByTagId(string tagId);
+        Task<TagsResult> GetAllTags();
     }
 }
