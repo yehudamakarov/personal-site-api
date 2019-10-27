@@ -22,7 +22,6 @@ namespace Core.BL
                 Data = tag,
                 Details = new ResultDetails()
                 {
-                    Message = "Tag added successfully.",
                     ResultStatus = ResultStatus.Success
                 }
             };

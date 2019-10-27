@@ -28,6 +28,7 @@ namespace Core.Types
         [FirestoreProperty] public string Slug => string.Join("-", ProjectTitle.ToLower().Trim().Split(" "));
         [FirestoreProperty] public bool IsPinnedRepo { get; set; }
         [FirestoreProperty] public string GithubUrl { get; set; }
+        [FirestoreProperty] public string DeploymentUrl { get; set; }
         [FirestoreProperty] public DateTime CreatedAt { get; set; }
     }
 }
