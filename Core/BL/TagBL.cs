@@ -76,17 +76,17 @@ namespace Core.BL
             };
         }
 
-        public async Task<UpdateTagCountsResult> UpdateTagCountsByOne(IList<string> tagIds, TagCountUpdates direction)
+        public async Task<UpdateTagCountsResult> UpdateTagCounts(IList<string> tagIds, TagCountUpdates direction, int amount)
         {
             foreach (var tagId in tagIds)
             {
                 switch (direction)
                 {
                     case TagCountUpdates.Increment:
-                        await _tagRepository.IncrementTagCountById(tagId, amount: 1);
+                        await _tagRepository.IncrementTagCountById(tagId, amount);
                         break;
                     case TagCountUpdates.Decrement:
-                        await _tagRepository.DecrementTagCountById(tagId, amount: 1);
+                        await _tagRepository.DecrementTagCountById(tagId, amount);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
