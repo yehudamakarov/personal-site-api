@@ -9,5 +9,7 @@ namespace Core.Interfaces
         Task<Tag> CreateOrFindByTagId(Tag tag);
         Task<IList<Tag>> GetAllTags();
         Task<Tag> GetTagById(string tagId);
+        Task<Tag> IncrementTagCountById(string tagId, int amount);
+        Task<Tag> DecrementTagCountById(string tagId, int amount);
     }
 }
