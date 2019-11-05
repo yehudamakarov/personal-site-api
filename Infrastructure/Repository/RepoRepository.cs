@@ -27,7 +27,7 @@ namespace Infrastructure.Repository
             var pinnedReposRef = Db.Collection("pinned-repositories");
             QuerySnapshot pinnedCurrentReposSnapshot;
             if (onlyCurrent)
-                pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo("Current", true)
+                pinnedCurrentReposSnapshot = await pinnedReposRef.WhereEqualTo(nameof(PinnedRepo.Current), true)
                     .GetSnapshotAsync();
             else
                 pinnedCurrentReposSnapshot = await pinnedReposRef.GetSnapshotAsync();

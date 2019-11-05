@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Enums;
 using Core.Results;
 
 namespace Core.Interfaces
@@ -7,5 +9,6 @@ namespace Core.Interfaces
     {
         Task<AddTagResult> CreateOrFindByTagId(string tagId);
         Task<TagsResult> GetAllTags();
+        Task<UpdateTagCountsResult> UpdateTagCounts(IList<string> tagIds, TagCountUpdates direction, int amount);
     }
 }
