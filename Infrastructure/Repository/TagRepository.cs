@@ -39,5 +39,27 @@ namespace Infrastructure.Repository
             var documentSnapshot = await reference.GetSnapshotAsync();
             return documentSnapshot?.ConvertTo<Tag>();
         }
+
+        public async Task<Tag> IncrementTagCountById(string tagId, int amount)
+        {
+            var tag = await GetTagById(tagId);
+            tag.ArticleCount += amount;
+            return await UpdateTagById(tag, nameof(tag.ArticleCount));
+        }
+
+        public async Task<Tag> DecrementTagCountById(string tagId, int amount)
+        {
+            var tag = await GetTagById(tagId);
+            tag.ArticleCount -= amount;
+            return await UpdateTagById(tag, nameof(tag.ArticleCount));
+        }
+
+        private async Task<Tag> UpdateTagById(Tag tag, params string[] mergeFields)
+        {
+            var tagRef = _tagsCollection.Document(tag.TagId);
+            await tagRef.SetAsync(tag, SetOptions.MergeFields(mergeFields));
+            var snapShot = await tagRef.GetSnapshotAsync();
+            return snapShot.ConvertTo<Tag>();
+        }
     }
 }
