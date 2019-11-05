@@ -33,13 +33,13 @@ namespace Core.Job
 
         public async Task BeginJobAsync()
         {
-            _logger.LogInformation("Beginning job");
-            UpdateJobStatus(JobUpdatesStage.PreparingDatabase);
-            await MakeAllPinnedReposNonCurrent();
-
             UpdateJobStatus(JobUpdatesStage.Fetching);
             var repos = await _githubInfrastructure.FetchPinnedReposAsync();
             var reposList = repos.ToList();
+            
+            _logger.LogInformation("Beginning job");
+            UpdateJobStatus(JobUpdatesStage.PreparingDatabase);
+            await MakeAllPinnedReposNonCurrent();
 
             UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);
             var timeStampedRepos = MarkWithTimestamp(reposList);
