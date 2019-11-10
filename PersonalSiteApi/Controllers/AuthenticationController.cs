@@ -4,6 +4,7 @@ using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Responses.Authentication;
+using Core.Results;
 using Core.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -53,18 +54,16 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(LoginResponse), 200)]
+        [ProducesResponseType(typeof(AdminLoginResult), 200)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]
         public async Task<IActionResult> Login(AdminLoginRequest adminLoginRequest)
         {
             try
             {
                 var loginResult = await _authenticationBL.HandleAdminLoginRequest(adminLoginRequest);
-                var loginResponse = new LoginResponse(loginResult);
-                return Ok(loginResponse);
+                return Ok(loginResult);
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception){
                 const string message = "There was an error during login.";
                 _logger.LogError(message, exception);
                 return StatusCode(500, message);
