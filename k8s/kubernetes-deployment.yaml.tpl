@@ -34,7 +34,7 @@ spec:
                   key: JWT_SIGNING_KEY
                   name: api-deployment-secret
 
-            - name: JWT_EXPIRY_TIME_IN_MINUTES
+            - name: JWT_TOKEN_EXPIRY_DURATION_IN_MINUTES
               value: '26'
 
             - name: ASPNETCORE_ENVIRONMENT
