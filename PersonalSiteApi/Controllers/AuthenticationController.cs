@@ -65,7 +65,7 @@ namespace PersonalSiteApi.Controllers
             }
             catch (Exception exception){
                 const string message = "There was an error during login.";
-                _logger.LogError(message, exception);
+                _logger.LogError(message: message, exception: exception);
                 return StatusCode(500, message);
             }
         }
