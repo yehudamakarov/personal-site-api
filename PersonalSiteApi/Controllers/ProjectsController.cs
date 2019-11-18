@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
@@ -17,6 +18,7 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.Administrator)]
         public async Task<ActionResult> UpdateProject(Project project)
         {
             try

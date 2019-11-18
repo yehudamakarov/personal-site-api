@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Enums;
 using Core.Interfaces;
 using Core.Results;
 using Core.Types;
@@ -83,21 +84,6 @@ namespace Core.BL
 
         private async Task<Project[]> UploadProjects(List<Project> projects, string[] mergeFields)
         {
-            var allTagIds = new List<string>();
-            foreach (var project in projects)
-            foreach (var tagId in project.TagIds)
-            {
-                if (!allTagIds.Contains(tagId))
-                {
-                    allTagIds.Add(tagId);
-                }
-            }
-
-            var createOrFindTagTasks = allTagIds.Select(tagId => _tagBL.CreateOrFindByTagId(tagId));
-            var initiatedCreateOrFindTagsTasks =
-                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
-            var uploadedTagResults = await Task.WhenAll(initiatedCreateOrFindTagsTasks);
-            
             var uploadTasks = projects.Select(project =>
                 UploadProjectAsync(project, mergeFields));
             var initiatedUploadTasks =
@@ -137,6 +123,8 @@ namespace Core.BL
         {
             try
             {
+                var currentProject = await _projectRepository.GetProjectById(project.GithubRepoDatabaseId);
+                var tagsAffected = await UpdateTags(currentProject.TagIds, project.TagIds);
                 var updatedProject = await _projectRepository.UpdateProject(project);
                 return new ProjectResult()
                 {
@@ -162,6 +150,32 @@ namespace Core.BL
                     }
                 };
             }
+        }
+
+        private async Task<List<AddTagResult>> UpdateTags(IReadOnlyCollection<string> currentProjectTagIds,
+            IReadOnlyCollection<string> newProjectTagIds)
+        {
+            var allTagIds = new List<string>();
+
+            foreach (var tagId in newProjectTagIds)
+            {
+                if (!allTagIds.Contains(tagId))
+                {
+                    allTagIds.Add(tagId);
+                }
+            }
+
+            var createOrFindTagTasks = allTagIds.Select(tagId => _tagBL.CreateOrFindByTagId(tagId));
+            var initiatedCreateOrFindTagsTasks =
+                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
+            var uploadedTagResults = await Task.WhenAll(initiatedCreateOrFindTagsTasks);
+
+            var toIncrement = newProjectTagIds.Except(currentProjectTagIds).ToList();
+            var toDecrement = currentProjectTagIds.Except(newProjectTagIds).ToList();
+            var tagIncrementResults = await _tagBL.UpdateTagCounts(toIncrement, TagCountUpdates.Increment, 1);
+            var tagDecrementResults = await _tagBL.UpdateTagCounts(toDecrement, TagCountUpdates.Decrement, 1);
+
+            return uploadedTagResults.ToList();
         }
 
         private static async Task<T> AwaitTask<T>(Task<T> task)
