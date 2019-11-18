@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,11 +14,13 @@ namespace Core.BL
     {
         private readonly ILogger<ProjectBL> _logger;
         private readonly IProjectRepository _projectRepository;
+        private readonly ITagBL _tagBL;
 
-        public ProjectBL(ILogger<ProjectBL> logger, IProjectRepository projectRepository)
+        public ProjectBL(ILogger<ProjectBL> logger, IProjectRepository projectRepository, ITagBL tagBL)
         {
             _logger = logger;
             _projectRepository = projectRepository;
+            _tagBL = tagBL;
         }
 
         public async Task<ProjectsResult> GetAllProjects()
@@ -66,13 +69,7 @@ namespace Core.BL
         {
             var (projects, mergeFields) = projectsAndMergeFields;
 
-            var uploadTasks = projects.Select(project =>
-                _projectRepository.UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
-                    mergeFields));
-            var initiatedUploadTasks =
-                (from uploadTask in uploadTasks select AwaitUpload(uploadTask))
-                .ToArray();
-            var uploadedProjects = await Task.WhenAll(initiatedUploadTasks);
+            var uploadedProjects = await UploadProjects(projects, mergeFields);
             _logger.LogInformation(
                 "Completed uploading projects. {uploadedProjects}",
                 JsonConvert.SerializeObject(uploadedProjects)
@@ -84,11 +81,43 @@ namespace Core.BL
             };
         }
 
+        private async Task<Project[]> UploadProjects(List<Project> projects, string[] mergeFields)
+        {
+            var allTagIds = new List<string>();
+            foreach (var project in projects)
+            foreach (var tagId in project.TagIds)
+            {
+                if (!allTagIds.Contains(tagId))
+                {
+                    allTagIds.Add(tagId);
+                }
+            }
+
+            var createOrFindTagTasks = allTagIds.Select(tagId => _tagBL.CreateOrFindByTagId(tagId));
+            var initiatedCreateOrFindTagsTasks =
+                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
+            var uploadedTagResults = await Task.WhenAll(initiatedCreateOrFindTagsTasks);
+            
+            var uploadTasks = projects.Select(project =>
+                UploadProjectAsync(project, mergeFields));
+            var initiatedUploadTasks =
+                (from uploadTask in uploadTasks select AwaitTask(uploadTask))
+                .ToArray();
+            var uploadedProjects = await Task.WhenAll(initiatedUploadTasks);
+            return uploadedProjects;
+        }
+
+        private Task<Project> UploadProjectAsync(Project project, string[] mergeFields)
+        {
+            return _projectRepository.UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
+                mergeFields);
+        }
+
         public async Task<ProjectResult> GetProjectByName(string projectName)
         {
             var project = await _projectRepository.GetProjectByName(projectName);
-            if (project == null)
-                return new ProjectResult
+            return project == null
+                ? new ProjectResult
                 {
                     Data = null,
                     Details = new ResultDetails
@@ -96,18 +125,48 @@ namespace Core.BL
                         Message = $"No project with name {projectName} was found.",
                         ResultStatus = ResultStatus.Failure
                     }
+                }
+                : new ProjectResult
+                {
+                    Data = project,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
-
-            return new ProjectResult
-            {
-                Data = project,
-                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
-            };
         }
 
-        private static async Task<Project> AwaitUpload(Task<Project> uploadTask)
+        public async Task<ProjectResult> UpdateProject(Project project)
         {
-            return await uploadTask;
+            try
+            {
+                var updatedProject = await _projectRepository.UpdateProject(project);
+                return new ProjectResult()
+                {
+                    Data = updatedProject,
+                    Details = new ResultDetails()
+                    {
+                        Message = "Success",
+                        ResultStatus = ResultStatus.Success
+                    }
+                };
+            }
+            catch (Exception exception)
+            {
+                const string message = "The Project may not have been saved.";
+                _logger.LogError(exception, message);
+                return new ProjectResult()
+                {
+                    Data = project,
+                    Details = new ResultDetails()
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+        }
+
+        private static async Task<T> AwaitTask<T>(Task<T> task)
+        {
+            return await task;
         }
     }
 }

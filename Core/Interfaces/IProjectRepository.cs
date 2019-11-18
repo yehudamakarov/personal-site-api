@@ -12,5 +12,6 @@ namespace Core.Interfaces
             string[] mergeFields);
 
         Task<Project> GetProjectByName(string projectName);
+        Task<Project> UpdateProject(Project project);
     }
 }

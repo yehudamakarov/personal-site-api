@@ -67,5 +67,11 @@ namespace Infrastructure.Repository
             var result = snapshot.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).FirstOrDefault();
             return result;
         }
+
+        public async Task<Project> UpdateProject(Project project)
+        {
+            return await UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
+                new[] { nameof(Project.DeploymentUrl), nameof(Project.TagIds), nameof(Project.ProjectTitle) });
+        }
     }
 }

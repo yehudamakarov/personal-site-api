@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using Core.Interfaces;
+using Core.Types;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalSiteApi.Controllers
@@ -12,6 +14,21 @@ namespace PersonalSiteApi.Controllers
         public ProjectsController(IProjectBL projectBL)
         {
             _projectBL = projectBL;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateProject(Project project)
+        {
+            try
+            {
+                var result = await _projectBL.UpdateProject(project);
+                return Ok(result);
+            }
+            catch (Exception exception)
+            {
+                var message = exception.StackTrace;
+                return StatusCode(500, message);
+            }
         }
 
         [HttpGet]
