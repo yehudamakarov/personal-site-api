@@ -37,5 +37,24 @@ namespace PersonalSiteApi.Controllers
             var addTagResult = await _tagBL.CreateOrFindByTagId(tagName);
             return Ok(addTagResult);
         }
+
+        [HttpPost]
+        [Authorize(Roles = Roles.Administrator)]
+        public async Task<IActionResult> MapTag()
+        {
+            return Ok();
+        }
+        [HttpPost]
+        [Authorize(Roles = Roles.Administrator)]
+        public async Task<IActionResult> RenameTag(string existingTagId, string newTagId)
+        {
+            return Ok();
+        }
+        [HttpPost]
+        [Authorize(Roles = Roles.Administrator)]
+        public async Task<IActionResult> DeleteTag()
+        {
+            return Ok();
+        }
     }
 }

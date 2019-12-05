@@ -82,7 +82,7 @@ namespace Core.BL
             };
         }
 
-        private async Task<Project[]> UploadProjects(List<Project> projects, string[] mergeFields)
+        private async Task<Project[]> UploadProjects(IEnumerable<Project> projects, string[] mergeFields)
         {
             var uploadTasks = projects.Select(project =>
                 UploadProjectAsync(project, mergeFields));
@@ -123,8 +123,7 @@ namespace Core.BL
         {
             try
             {
-                var currentProject = await _projectRepository.GetProjectById(project.GithubRepoDatabaseId);
-                var tagsAffected = await UpdateTags(currentProject.TagIds, project.TagIds);
+                await UpdateTagIdsOfProject(project);
                 var updatedProject = await _projectRepository.UpdateProject(project);
                 return new ProjectResult()
                 {
@@ -152,30 +151,34 @@ namespace Core.BL
             }
         }
 
-        private async Task<List<AddTagResult>> UpdateTags(IReadOnlyCollection<string> currentProjectTagIds,
+        private async Task UpdateTagIdsOfProject(Project newProject)
+        {
+            var currentProject = await _projectRepository.GetProjectById(newProject.GithubRepoDatabaseId);
+            await UpdateTags(currentProject.TagIds, newProject.TagIds);
+        }
+
+        private async Task UpdateTags(IReadOnlyCollection<string> currentProjectTagIds,
             IReadOnlyCollection<string> newProjectTagIds)
         {
-            var allTagIds = new List<string>();
+            await CreateOrFindTags(newProjectTagIds);
+            await AdjustTagCounts(currentProjectTagIds, newProjectTagIds);
+        }
 
-            foreach (var tagId in newProjectTagIds)
-            {
-                if (!allTagIds.Contains(tagId))
-                {
-                    allTagIds.Add(tagId);
-                }
-            }
-
-            var createOrFindTagTasks = allTagIds.Select(tagId => _tagBL.CreateOrFindByTagId(tagId));
-            var initiatedCreateOrFindTagsTasks =
-                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
-            var uploadedTagResults = await Task.WhenAll(initiatedCreateOrFindTagsTasks);
-
+        private async Task AdjustTagCounts(IReadOnlyCollection<string> currentProjectTagIds,
+            IReadOnlyCollection<string> newProjectTagIds)
+        {
             var toIncrement = newProjectTagIds.Except(currentProjectTagIds).ToList();
             var toDecrement = currentProjectTagIds.Except(newProjectTagIds).ToList();
-            var tagIncrementResults = await _tagBL.UpdateTagCounts(toIncrement, TagCountUpdates.Increment, 1);
-            var tagDecrementResults = await _tagBL.UpdateTagCounts(toDecrement, TagCountUpdates.Decrement, 1);
+            await _tagBL.UpdateTagCounts(toIncrement, TagCountUpdates.Increment, 1);
+            await _tagBL.UpdateTagCounts(toDecrement, TagCountUpdates.Decrement, 1);
+        }
 
-            return uploadedTagResults.ToList();
+        private async Task CreateOrFindTags(IEnumerable<string> newProjectTagIds)
+        {
+            var createOrFindTagTasks = newProjectTagIds.Select(tagId => _tagBL.CreateOrFindByTagId(tagId));
+            var initiatedCreateOrFindTagsTasks =
+                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
+            await Task.WhenAll(initiatedCreateOrFindTagsTasks);
         }
 
         private static async Task<T> AwaitTask<T>(Task<T> task)

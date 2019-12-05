@@ -9,6 +9,6 @@ namespace Core.Interfaces
     {
         Task<AddTagResult> CreateOrFindByTagId(string tagId);
         Task<TagsResult> GetAllTags();
-        Task<UpdateTagCountsResult> UpdateTagCounts(IList<string> tagIds, TagCountUpdates direction, int amount);
+        Task UpdateTagCounts(IEnumerable<string> tagIds, TagCountUpdates direction, int amount);
     }
 }
