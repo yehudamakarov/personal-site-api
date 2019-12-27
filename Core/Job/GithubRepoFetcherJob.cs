@@ -36,7 +36,7 @@ namespace Core.Job
             UpdateJobStatus(JobUpdatesStage.Fetching);
             var repos = await _githubInfrastructure.FetchPinnedReposAsync();
             var reposList = repos.ToList();
-            
+
             _logger.LogInformation("Beginning job");
             UpdateJobStatus(JobUpdatesStage.PreparingDatabase);
             await MakeAllPinnedReposNonCurrent();

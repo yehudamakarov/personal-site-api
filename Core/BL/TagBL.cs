@@ -20,31 +20,8 @@ namespace Core.BL
 
         public async Task<AddTagResult> CreateOrFindByTagId(string tagId)
         {
-            var tag = await _tagRepository.CreateOrFindByTagId(new Tag() { TagId = tagId });
-            return new AddTagResult()
-            {
-                Data = tag,
-                Details = new ResultDetails() { ResultStatus = ResultStatus.Success }
-            };
-        }
-
-        private async Task<TagResult> GetTagById(string tagId)
-        {
-            var tag = await _tagRepository.GetTagById(tagId);
-            if (tag == null)
-            {
-                return new TagResult
-                {
-                    Data = null,
-                    Details = new ResultDetails
-                    {
-                        Message = $"No tag with id {tagId} was found.",
-                        ResultStatus = ResultStatus.Failure
-                    }
-                };
-            }
-
-            return new TagResult
+            var tag = await _tagRepository.CreateOrFindByTagId(new Tag { TagId = tagId });
+            return new AddTagResult
             {
                 Data = tag,
                 Details = new ResultDetails { ResultStatus = ResultStatus.Success }
@@ -55,18 +32,16 @@ namespace Core.BL
         {
             var tags = await _tagRepository.GetAllTags();
             if (tags.Count != 0)
-            {
-                return new TagsResult()
+                return new TagsResult
                 {
                     Data = tags,
                     Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
-            }
 
-            return new TagsResult()
+            return new TagsResult
             {
                 Data = tags,
-                Details = new ResultDetails()
+                Details = new ResultDetails
                 {
                     Message = "None were found",
                     ResultStatus = ResultStatus.Warning
@@ -94,21 +69,35 @@ namespace Core.BL
             throw new NotImplementedException();
         }
 
+        private async Task<TagResult> GetTagById(string tagId)
+        {
+            var tag = await _tagRepository.GetTagById(tagId);
+            if (tag == null)
+                return new TagResult
+                {
+                    Data = null,
+                    Details = new ResultDetails
+                    {
+                        Message = $"No tag with id {tagId} was found.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+
+            return new TagResult
+            {
+                Data = tag,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
+        }
+
         private async Task DecrementTagAmounts(IEnumerable<string> tagIds, int amount)
         {
-            foreach (var tagId in tagIds)
-
-            {
-                await _tagRepository.DecrementTagCountById(tagId, amount);
-            }
+            foreach (var tagId in tagIds) await _tagRepository.DecrementTagCountById(tagId, amount);
         }
 
         private async Task IncrementTagAmounts(IEnumerable<string> tagIds, int amount)
         {
-            foreach (var tagId in tagIds)
-            {
-                await _tagRepository.IncrementTagCountById(tagId, amount);
-            }
+            foreach (var tagId in tagIds) await _tagRepository.IncrementTagCountById(tagId, amount);
         }
     }
 }

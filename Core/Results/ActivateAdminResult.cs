@@ -1,4 +1,3 @@
-using Core.Enums.ResultReasons;
 using Core.Types;
 
 namespace Core.Results

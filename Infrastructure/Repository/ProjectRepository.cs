@@ -36,11 +36,13 @@ namespace Infrastructure.Repository
         }
 
         /// <summary>
-        /// we don't want to overwrite anything besides the fields we have on the class. Since some initialized
-        /// properties may be null, we specify merge fields.
+        ///     we don't want to overwrite anything besides the fields we have on the class. Since some initialized
+        ///     properties may be null, we specify merge fields.
         /// </summary>
-        /// <param name="project">if there are any null property values that should NOT overwrite fields on the
-        /// documents; specify the non-null properties in the <paramref name="mergeFields"/>mergeFields> param.</param>
+        /// <param name="project">
+        ///     if there are any null property values that should NOT overwrite fields on the
+        ///     documents; specify the non-null properties in the <paramref name="mergeFields" />mergeFields> param.
+        /// </param>
         /// <param name="projectName"></param>
         /// <param name="githubDatabaseId"></param>
         /// <param name="mergeFields"></param>

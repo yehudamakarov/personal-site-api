@@ -26,7 +26,7 @@ namespace PersonalSiteApi.StartupHelper
 
             services.AddScoped<IBlogPostBL, BlogPostBL>();
             services.AddScoped<IBlogPostRepository, BlogPostRepository>();
-            
+
             services.AddScoped<ITagBL, TagBL>();
             services.AddScoped<ITagRepository, TagRepository>();
 

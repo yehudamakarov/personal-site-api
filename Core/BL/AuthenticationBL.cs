@@ -4,7 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Results;
@@ -83,48 +82,42 @@ namespace Core.BL
             );
 
             if (admin == null)
-            {
                 return new AdminLoginResult
                 {
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = "User not found.",
                         ResultStatus = ResultStatus.Failure
                     }
                 };
-            }
 
             if (adminLoginRequest.Password == null)
-            {
                 return new AdminLoginResult
                 {
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = "Password was not provided.",
                         ResultStatus = ResultStatus.Failure
                     }
                 };
-            }
 
             var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
             if (!correctPassword)
-            {
                 return new AdminLoginResult
                 {
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = "The password was incorrect.",
                         ResultStatus = ResultStatus.Failure
                     }
                 };
-            }
 
 
             var token = GenerateToken(admin);
             return new AdminLoginResult
             {
                 Data = token,
-                Details = new ResultDetails()
+                Details = new ResultDetails
                 {
                     Message = "Successful login.",
                     ResultStatus = ResultStatus.Success

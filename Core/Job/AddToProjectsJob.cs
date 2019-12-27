@@ -28,7 +28,7 @@ namespace Core.Job
         }
 
         /// <summary>
-        /// merge fields are generated here, because we only want to merge what is collected from the job's fetch.
+        ///     merge fields are generated here, because we only want to merge what is collected from the job's fetch.
         /// </summary>
         /// <param name="myRepos"></param>
         /// <returns></returns>
@@ -58,7 +58,7 @@ namespace Core.Job
                 nameof(Project.IsPinnedRepo),
                 nameof(Project.GithubUrl),
                 nameof(Project.UpdatedAt),
-                nameof(Project.CreatedAt),
+                nameof(Project.CreatedAt)
             };
             return (projects, mergeFields);
         }

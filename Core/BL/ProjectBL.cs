@@ -82,23 +82,6 @@ namespace Core.BL
             };
         }
 
-        private async Task<Project[]> UploadProjects(IEnumerable<Project> projects, string[] mergeFields)
-        {
-            var uploadTasks = projects.Select(project =>
-                UploadProjectAsync(project, mergeFields));
-            var initiatedUploadTasks =
-                (from uploadTask in uploadTasks select AwaitTask(uploadTask))
-                .ToArray();
-            var uploadedProjects = await Task.WhenAll(initiatedUploadTasks);
-            return uploadedProjects;
-        }
-
-        private Task<Project> UploadProjectAsync(Project project, string[] mergeFields)
-        {
-            return _projectRepository.UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
-                mergeFields);
-        }
-
         public async Task<ProjectResult> GetProjectByName(string projectName)
         {
             var project = await _projectRepository.GetProjectByName(projectName);
@@ -125,10 +108,10 @@ namespace Core.BL
             {
                 await UpdateTagIdsOfProject(project);
                 var updatedProject = await _projectRepository.UpdateProject(project);
-                return new ProjectResult()
+                return new ProjectResult
                 {
                     Data = updatedProject,
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = "Success",
                         ResultStatus = ResultStatus.Success
@@ -139,16 +122,33 @@ namespace Core.BL
             {
                 const string message = "The Project may not have been saved.";
                 _logger.LogError(exception, message);
-                return new ProjectResult()
+                return new ProjectResult
                 {
                     Data = project,
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = message,
                         ResultStatus = ResultStatus.Failure
                     }
                 };
             }
+        }
+
+        private async Task<Project[]> UploadProjects(IEnumerable<Project> projects, string[] mergeFields)
+        {
+            var uploadTasks = projects.Select(project =>
+                UploadProjectAsync(project, mergeFields));
+            var initiatedUploadTasks =
+                (from uploadTask in uploadTasks select AwaitTask(uploadTask))
+                .ToArray();
+            var uploadedProjects = await Task.WhenAll(initiatedUploadTasks);
+            return uploadedProjects;
+        }
+
+        private Task<Project> UploadProjectAsync(Project project, string[] mergeFields)
+        {
+            return _projectRepository.UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
+                mergeFields);
         }
 
         private async Task UpdateTagIdsOfProject(Project newProject)

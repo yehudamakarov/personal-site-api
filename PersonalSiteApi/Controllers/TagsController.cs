@@ -46,12 +46,14 @@ namespace PersonalSiteApi.Controllers
             var result = _tagBL.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
             return Ok();
         }
+
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> RenameTag(string existingTagId, string newTagId)
         {
             return Ok();
         }
+
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> DeleteTag()

@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
 using Core.Results;
@@ -60,7 +59,8 @@ namespace PersonalSiteApi.Controllers
                 var loginResult = await _authenticationBL.HandleAdminLoginRequest(adminLoginRequest);
                 return Ok(loginResult);
             }
-            catch (Exception exception){
+            catch (Exception exception)
+            {
                 const string message = "There was an error during login.";
                 _logger.LogError(exception, message);
                 return StatusCode(500, message);

@@ -8,6 +8,7 @@ namespace Core.Interfaces
     {
         Task<List<Project>> GetAllProjects();
         Task<Project> GetProjectById(string projectId);
+
         Task<Project> UploadProjectAsync(Project project, string projectName, string githubDatabaseId,
             string[] mergeFields);
 
