@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
-using Core.Responses.Authentication;
 using Core.Results;
 using Core.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -37,19 +36,17 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ActivateAdminResponse), 201)]
+        [ProducesResponseType(typeof(ActivateAdminResult), 201)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]
-        [ProducesResponseType(typeof(ActivateAdminResponse), 403)]
         public async Task<IActionResult> ActivateAdmin(CreateAdminRequest createAdminRequest)
         {
             var createAdminResult = await _authenticationBL.ActivateAdmin(createAdminRequest);
-            var createAdminResponse = new ActivateAdminResponse(createAdminResult);
 
             return StatusCode(
-                createAdminResult.Details.ResultStatus == ActivateAdminResultReason.AdminCreated
+                createAdminResult.Details.ResultStatus == ResultStatus.Success
                     ? StatusCodes.Status201Created
                     : StatusCodes.Status403Forbidden,
-                createAdminResponse
+                createAdminResult
             );
         }
 

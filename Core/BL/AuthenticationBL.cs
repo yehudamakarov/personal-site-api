@@ -35,30 +35,30 @@ namespace Core.BL
             if (admin == null)
                 return new ActivateAdminResult
                 {
-                    Details = new ResultDetails<ActivateAdminResultReason>
+                    Details = new ResultDetails
                     {
-                        ResultStatus = ActivateAdminResultReason.NoAdminRecord,
-                        Message = ""
+                        ResultStatus = ResultStatus.Failure,
+                        Message = "There was no found admin record."
                     }
                 };
 
             if (createAdminRequest.CreationCode != admin.CreationCode)
                 return new ActivateAdminResult
                 {
-                    Details = new ResultDetails<ActivateAdminResultReason>
+                    Details = new ResultDetails
                     {
-                        ResultStatus = ActivateAdminResultReason.BadCreationCode,
-                        Message = ""
+                        ResultStatus = ResultStatus.Failure,
+                        Message = "The creation code was incorrect."
                     }
                 };
 
             if (admin.PasswordHash != null)
                 return new ActivateAdminResult
                 {
-                    Details = new ResultDetails<ActivateAdminResultReason>
+                    Details = new ResultDetails
                     {
-                        ResultStatus = ActivateAdminResultReason.AdminAlreadyExists,
-                        Message = ""
+                        ResultStatus = ResultStatus.Failure,
+                        Message = "The admin already exists."
                     }
                 };
 
@@ -66,10 +66,10 @@ namespace Core.BL
 
             return new ActivateAdminResult
             {
-                Details = new ResultDetails<ActivateAdminResultReason>
+                Details = new ResultDetails
                 {
-                    ResultStatus = ActivateAdminResultReason.AdminCreated,
-                    Message = ""
+                    ResultStatus = ResultStatus.Success,
+                    Message = "Successfully created an admin user."
                 },
                 Data = activatedAdmin
             };
@@ -83,20 +83,52 @@ namespace Core.BL
             );
 
             if (admin == null)
-                return new AdminLoginResult { Details = LoginResultReason.UserNotFound };
+            {
+                return new AdminLoginResult
+                {
+                    Details = new ResultDetails()
+                    {
+                        Message = "User not found.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
 
             if (adminLoginRequest.Password == null)
-                return new AdminLoginResult { Details = LoginResultReason.PasswordNotProvided };
+            {
+                return new AdminLoginResult
+                {
+                    Details = new ResultDetails()
+                    {
+                        Message = "Password was not provided.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
 
             var correctPassword = ValidatePassword(adminLoginRequest.Password, admin.PasswordHash);
             if (!correctPassword)
-                return new AdminLoginResult { Details = LoginResultReason.PasswordIncorrect };
+            {
+                return new AdminLoginResult
+                {
+                    Details = new ResultDetails()
+                    {
+                        Message = "The password was incorrect.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+
 
             var token = GenerateToken(admin);
             return new AdminLoginResult
             {
                 Data = token,
-                Details = LoginResultReason.SuccessfulLogin
+                Details = new ResultDetails()
+                {
+                    Message = "Successful login.",
+                    ResultStatus = ResultStatus.Success
+                }
             };
         }
 

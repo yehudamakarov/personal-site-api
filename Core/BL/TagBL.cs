@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Enums;
 using Core.Interfaces;
+using Core.Requests.Tags;
 using Core.Results;
 using Core.Types;
 
@@ -86,6 +87,11 @@ namespace Core.BL
                 default:
                     throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
+        }
+
+        public bool MapTag(IEnumerable<Facade> facadesToMap, string tagId)
+        {
+            throw new NotImplementedException();
         }
 
         private async Task DecrementTagAmounts(IEnumerable<string> tagIds, int amount)
