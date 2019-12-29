@@ -1,6 +1,7 @@
 using Core.BL;
 using Core.Interfaces;
 using Core.Job;
+using Core.Manager;
 using Infrastructure.Infrastructure;
 using Infrastructure.Notification.RepoSync;
 using Infrastructure.Repository;
@@ -29,6 +30,7 @@ namespace PersonalSiteApi.StartupHelper
 
             services.AddScoped<ITagBL, TagBL>();
             services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<ITagManager, TagManager>();
 
             services.AddScoped<IGithubRepoFetcherNotifier, GithubRepoFetcherNotifier>();
 

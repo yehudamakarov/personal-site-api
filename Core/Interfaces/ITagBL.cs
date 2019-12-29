@@ -10,7 +10,7 @@ namespace Core.Interfaces
     {
         Task<AddTagResult> CreateOrFindByTagId(string tagId);
         Task<TagsResult> GetAllTags();
-        Task UpdateTagCounts(IEnumerable<string> tagIds, TagCountUpdates direction, int amount);
-        bool MapTag(IEnumerable<Facade> facadesToMap, string tagId);
+        Task UpdateTagCounts(IReadOnlyCollection<string> currentTagIds, IReadOnlyCollection<string> newTagIds);
+        Task CreateOrFindTags(IEnumerable<string> tagIds);
     }
 }

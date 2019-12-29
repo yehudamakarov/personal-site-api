@@ -9,11 +9,13 @@ namespace Core.BL
     {
         private readonly IBlogPostRepository _blogPostRepository;
         private readonly IProjectBL _projectBL;
+        private readonly ITagBL _tagBL;
 
-        public BlogPostBL(IBlogPostRepository blogPostRepository, IProjectBL projectBL)
+        public BlogPostBL(IBlogPostRepository blogPostRepository, IProjectBL projectBL, ITagBL tagBL)
         {
             _blogPostRepository = blogPostRepository;
             _projectBL = projectBL;
+            _tagBL = tagBL;
         }
 
 
@@ -87,6 +89,21 @@ namespace Core.BL
                 Data = persistedBlogPost,
                 Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
+        }
+
+        public Task<BlogPostsResult> GetBlogPostsByTagId(string tagId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<BlogPostResult> GetBlogPostById(string blogPostId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<BlogPostResult> UpdateBlogPost(BlogPost blogPost)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

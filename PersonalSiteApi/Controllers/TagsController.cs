@@ -15,11 +15,13 @@ namespace PersonalSiteApi.Controllers
     {
         private readonly ILogger<TagsController> _logger;
         private readonly ITagBL _tagBL;
+        private readonly ITagManager _tagManager;
 
-        public TagsController(ILogger<TagsController> logger, ITagBL tagBL)
+        public TagsController(ILogger<TagsController> logger, ITagBL tagBL, ITagManager tagManager)
         {
             _logger = logger;
             _tagBL = tagBL;
+            _tagManager = tagManager;
         }
 
         [HttpGet]
@@ -43,7 +45,7 @@ namespace PersonalSiteApi.Controllers
         [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> MapTag(MapTagRequest mapTagRequest)
         {
-            var result = _tagBL.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
+            var result = _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
             return Ok();
         }
 
