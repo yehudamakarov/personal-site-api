@@ -37,8 +37,9 @@ namespace Core.Manager
         {
             try
             {
-                await MapTagToProjects(facadesToMap, tagId);
-                await MapTagToBlogPosts(facadesToMap, tagId);
+                var toMap = facadesToMap.ToList();
+                await MapTagToProjects(toMap, tagId);
+                await MapTagToBlogPosts(toMap, tagId);
                 return true;
             }
             catch (Exception exception)
@@ -95,9 +96,9 @@ namespace Core.Manager
             BlogPostIdsToTag(IEnumerable<Facade> facadesToMap, string tagId)
         {
             var blogPostIdsToMap = facadesToMap.Where(facade => facade.Type == FacadeType.BlogPost)
-                .Select(facade => facade.Id);
+                .Select(facade => facade.Id).ToList();
             var blogPostsWithTag = await _blogPostBL.GetBlogPostsByTagId(tagId);
-            var blogPostIdsWithTag = blogPostsWithTag.Data.Select(blogPost => blogPost.Id);
+            var blogPostIdsWithTag = blogPostsWithTag.Data.Select(blogPost => blogPost.Id).ToList();
 
             var blogPostIdsToTag = blogPostIdsToMap.Except(blogPostIdsWithTag);
             var blogPostIdsToUntag = blogPostIdsWithTag.Except(blogPostIdsToMap);
@@ -133,9 +134,9 @@ namespace Core.Manager
             ProjectIdsToTagAndToUntag(IEnumerable<Facade> facadesToMap, string tagId)
         {
             var projectIdsToMap = facadesToMap.Where(facade => facade.Type == FacadeType.Project)
-                .Select(facade => facade.Id);
+                .Select(facade => facade.Id).ToList();
             var projectsWithTag = await _projectBL.GetProjectsByTagId(tagId);
-            var projectIdsWithTag = projectsWithTag.Data.Select(project => project.GithubRepoDatabaseId);
+            var projectIdsWithTag = projectsWithTag.Data.Select(project => project.GithubRepoDatabaseId).ToList();
 
             var projectIdsToTag = projectIdsToMap.Except(projectIdsWithTag);
             var projectIdsToUntag = projectIdsWithTag.Except(projectIdsToMap);

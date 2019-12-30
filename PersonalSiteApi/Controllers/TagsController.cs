@@ -46,7 +46,7 @@ namespace PersonalSiteApi.Controllers
         public async Task<IActionResult> MapTag(MapTagRequest mapTagRequest)
         {
             var result = _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
-            return Ok();
+            return Ok(result);
         }
 
         [HttpPost]

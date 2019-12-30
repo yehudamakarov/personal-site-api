@@ -35,6 +35,18 @@ namespace Infrastructure.Repository
             return snapshot.ConvertTo<BlogPost>();
         }
 
+        public async Task<BlogPost> GetBlogPostById(string blogPostId)
+        {
+            var reference = _blogPostsCollection.Document(blogPostId);
+            var documentSnapshot = await reference.GetSnapshotAsync();
+            return documentSnapshot?.ConvertTo<BlogPost>();
+        }
+
+        public Task<BlogPost> UpdateBlogPost(BlogPost blogPost)
+        {
+            throw new System.NotImplementedException();
+        }
+
 
         public async Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId)
         {

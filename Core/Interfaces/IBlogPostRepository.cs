@@ -9,5 +9,7 @@ namespace Core.Interfaces
         Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId);
         Task<IList<BlogPost>> GetAllBlogPosts();
         Task<BlogPost> AddBlogPost(BlogPost blogPost);
+        Task<BlogPost> GetBlogPostById(string blogPostId);
+        Task<BlogPost> UpdateBlogPost(BlogPost blogPost);
     }
 }

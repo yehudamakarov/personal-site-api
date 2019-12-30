@@ -1,7 +1,9 @@
+using System;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Results;
 using Core.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Core.BL
 {
@@ -10,12 +12,15 @@ namespace Core.BL
         private readonly IBlogPostRepository _blogPostRepository;
         private readonly IProjectBL _projectBL;
         private readonly ITagBL _tagBL;
+        private readonly ILogger<BlogPostBL> _logger;
 
-        public BlogPostBL(IBlogPostRepository blogPostRepository, IProjectBL projectBL, ITagBL tagBL)
+        public BlogPostBL(IBlogPostRepository blogPostRepository, IProjectBL projectBL, ITagBL tagBL,
+            ILogger<BlogPostBL> logger)
         {
             _blogPostRepository = blogPostRepository;
             _projectBL = projectBL;
             _tagBL = tagBL;
+            _logger = logger;
         }
 
 
@@ -93,17 +98,69 @@ namespace Core.BL
 
         public Task<BlogPostsResult> GetBlogPostsByTagId(string tagId)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<BlogPostResult> GetBlogPostById(string blogPostId)
+        public async Task<BlogPostResult> GetBlogPostById(string blogPostId)
         {
-            throw new System.NotImplementedException();
+            var blogPost = await _blogPostRepository.GetBlogPostById(blogPostId);
+            if (blogPost == null)
+            {
+                return new BlogPostResult
+                {
+                    Data = null,
+                    Details = new ResultDetails
+                    {
+                        Message = $"No blogPost with {blogPostId} was found.",
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+
+            return new BlogPostResult
+            {
+                Data = blogPost,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
         }
 
-        public Task<BlogPostResult> UpdateBlogPost(BlogPost blogPost)
+        public async Task<BlogPostResult> UpdateBlogPost(BlogPost blogPost)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                await UpdateTagIdsOfBlogPost(blogPost);
+                var updatedBlogPost = await _blogPostRepository.UpdateBlogPost(blogPost);
+                return new BlogPostResult()
+                {
+                    Data = updatedBlogPost,
+                    Details = new ResultDetails()
+                    {
+                        Message = "Successfully updated.",
+                        ResultStatus = ResultStatus.Success
+                    }
+                };
+            }
+            catch (Exception exception)
+            {
+                const string message = "The BlogPost may not have been saved.";
+                _logger.LogError(exception, message);
+                return new BlogPostResult()
+                {
+                    Data = blogPost,
+                    Details = new ResultDetails()
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+        }
+
+        private async Task UpdateTagIdsOfBlogPost(BlogPost newBlogPost)
+        {
+            var currentBlogPost = await _blogPostRepository.GetBlogPostById(newBlogPost.Id);
+            await _tagBL.CreateOrFindTags(newBlogPost.TagIds);
+            await _tagBL.UpdateTagCounts(currentBlogPost.TagIds, newBlogPost.TagIds);
         }
     }
 }
