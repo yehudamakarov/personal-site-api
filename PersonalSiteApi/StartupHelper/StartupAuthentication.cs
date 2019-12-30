@@ -8,23 +8,24 @@ namespace PersonalSiteApi.StartupHelper
 {
     public static class StartupAuthentication
     {
-        public static IServiceCollection ConfigureAuthentication(this IServiceCollection services,
-            IConfiguration configuration)
+        public static IServiceCollection ConfigureAuthentication(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(
-                    options =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+                options =>
+                {
+                    var signingKeyBytes = Convert.FromBase64String(configuration["JWT_SIGNING_KEY"]);
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        var signingKeyBytes = Convert.FromBase64String(configuration["JWT_SIGNING_KEY"]);
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
-                            ValidateIssuer = false,
-                            ValidateAudience = false
-                        };
-                    }
-                );
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                }
+            );
             return services;
         }
     }

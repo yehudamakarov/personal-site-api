@@ -9,8 +9,12 @@ namespace Core.Interfaces
         Task<IList<Project>> GetAllProjects();
         Task<Project> GetProjectById(string projectId);
 
-        Task<Project> UploadProjectAsync(Project project, string projectName, string githubDatabaseId,
-            string[] mergeFields);
+        Task<Project> UploadProjectAsync(
+            Project project,
+            string projectName,
+            string githubDatabaseId,
+            string[] mergeFields
+        );
 
         Task<Project> GetProjectByName(string projectName);
         Task<Project> UpdateProject(Project project);

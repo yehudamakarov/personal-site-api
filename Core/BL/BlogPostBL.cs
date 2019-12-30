@@ -10,9 +10,9 @@ namespace Core.BL
     public class BlogPostBL : IBlogPostBL
     {
         private readonly IBlogPostRepository _blogPostRepository;
+        private readonly ILogger<BlogPostBL> _logger;
         private readonly IProjectBL _projectBL;
         private readonly ITagBL _tagBL;
-        private readonly ILogger<BlogPostBL> _logger;
 
         public BlogPostBL(
             IBlogPostRepository blogPostRepository,
@@ -104,20 +104,18 @@ namespace Core.BL
         {
             var results = await _blogPostRepository.GetBlogPostsByTagId(tagId);
             if (results.Count == 0)
-            {
-                return new BlogPostsResult()
+                return new BlogPostsResult
                 {
                     Data = results,
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = "None were found.", ResultStatus = ResultStatus.Warning
                     }
                 };
-            }
 
-            return new BlogPostsResult()
+            return new BlogPostsResult
             {
-                Data = results, Details = new ResultDetails() { ResultStatus = ResultStatus.Success }
+                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -125,7 +123,6 @@ namespace Core.BL
         {
             var blogPost = await _blogPostRepository.GetBlogPostById(blogPostId);
             if (blogPost == null)
-            {
                 return new BlogPostResult
                 {
                     Data = null,
@@ -135,7 +132,6 @@ namespace Core.BL
                         ResultStatus = ResultStatus.Failure
                     }
                 };
-            }
 
             return new BlogPostResult
             {
@@ -149,10 +145,10 @@ namespace Core.BL
             {
                 await UpdateTagIdsOfBlogPost(blogPost);
                 var updatedBlogPost = await _blogPostRepository.UpdateBlogPost(blogPost);
-                return new BlogPostResult()
+                return new BlogPostResult
                 {
                     Data = updatedBlogPost,
-                    Details = new ResultDetails()
+                    Details = new ResultDetails
                     {
                         Message = "Successfully updated.", ResultStatus = ResultStatus.Success
                     }
@@ -162,10 +158,10 @@ namespace Core.BL
             {
                 const string message = "The BlogPost may not have been saved.";
                 _logger.LogError(exception, message);
-                return new BlogPostResult()
+                return new BlogPostResult
                 {
                     Data = blogPost,
-                    Details = new ResultDetails() { Message = message, ResultStatus = ResultStatus.Failure }
+                    Details = new ResultDetails { Message = message, ResultStatus = ResultStatus.Failure }
                 };
             }
         }

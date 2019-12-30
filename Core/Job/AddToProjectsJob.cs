@@ -34,8 +34,8 @@ namespace Core.Job
         /// <returns></returns>
         private (List<Project>, string[]) MakeReposIntoProjects(IEnumerable<PinnedRepo> myRepos)
         {
-            var projects = myRepos
-                .Select(myRepo => new Project
+            var projects = myRepos.Select(
+                myRepo => new Project
                 {
                     // Id
                     GithubRepoDatabaseId = myRepo.DatabaseId,
@@ -48,25 +48,23 @@ namespace Core.Job
                     GithubUrl = myRepo.Url,
                     UpdatedAt = myRepo.UpdatedAt,
                     CreatedAt = myRepo.CreatedAt
-                })
-                .ToList();
+                }
+            ).ToList();
             // only merge by fields
             var mergeFields = new[]
             {
-                nameof(Project.ProjectName),
-                nameof(Project.ProjectDescription),
-                nameof(Project.IsPinnedRepo),
-                nameof(Project.GithubUrl),
-                nameof(Project.UpdatedAt),
-                nameof(Project.CreatedAt)
+                nameof(Project.ProjectName), nameof(Project.ProjectDescription), nameof(Project.IsPinnedRepo),
+                nameof(Project.GithubUrl), nameof(Project.UpdatedAt), nameof(Project.CreatedAt)
             };
             return (projects, mergeFields);
         }
 
         private static string GenerateProjectTitleFromName(string myRepoName)
         {
-            return string.Join(" ", myRepoName.Split('-', ' ')
-                .Select(word => word.First().ToString().ToUpper() + word.Substring(1)));
+            return string.Join(
+                " ",
+                myRepoName.Split('-', ' ').Select(word => word.First().ToString().ToUpper() + word.Substring(1))
+            );
         }
     }
 }

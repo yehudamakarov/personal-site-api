@@ -7,6 +7,8 @@ namespace Core.Types
 {
     [FirestoreData] public class Project
     {
+        private string _projectTitle;
+
         public Project()
         {
             ProjectHighlights = new List<ProjectHighlight>();
@@ -14,7 +16,6 @@ namespace Core.Types
             TagIds = new List<string>();
         }
 
-        private string _projectTitle;
         [FirestoreDocumentId] public string GithubRepoDatabaseId { get; set; }
 
         [Description("Controlled by Github")] [FirestoreProperty]

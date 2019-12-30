@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Enums;
-using Core.Requests.Tags;
 using Core.Results;
 
 namespace Core.Interfaces

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Enums;
 using Core.Interfaces;
-using Core.Requests.Tags;
 using Core.Results;
 using Core.Types;
 
@@ -49,6 +48,22 @@ namespace Core.BL
             };
         }
 
+        public async Task UpdateTagCounts(
+            IReadOnlyCollection<string> currentTagIds,
+            IReadOnlyCollection<string> newTagIds
+        )
+        {
+            await AdjustTagCounts(currentTagIds, newTagIds);
+        }
+
+        public async Task CreateOrFindTags(IEnumerable<string> tagIds)
+        {
+            var createOrFindTagTasks = tagIds.Select(CreateOrFindByTagId);
+            var initiatedCreateOrFindTagsTasks =
+                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
+            await Task.WhenAll(initiatedCreateOrFindTagsTasks);
+        }
+
         private async Task UpdateTagCount(IEnumerable<string> tagIds, TagCountUpdates direction, int amount)
         {
             switch (direction)
@@ -64,11 +79,6 @@ namespace Core.BL
             }
         }
 
-        public async Task UpdateTagCounts(IReadOnlyCollection<string> currentTagIds, IReadOnlyCollection<string> newTagIds)
-        {
-            await AdjustTagCounts(currentTagIds, newTagIds);
-        }
-
         private async Task AdjustTagCounts(
             IReadOnlyCollection<string> currentProjectTagIds,
             IReadOnlyCollection<string> newProjectTagIds
@@ -78,14 +88,6 @@ namespace Core.BL
             var toDecrement = currentProjectTagIds.Except(newProjectTagIds).ToList();
             await UpdateTagCount(toIncrement, TagCountUpdates.Increment, 1);
             await UpdateTagCount(toDecrement, TagCountUpdates.Decrement, 1);
-        }
-
-        public async Task CreateOrFindTags(IEnumerable<string> tagIds)
-        {
-            var createOrFindTagTasks = tagIds.Select(CreateOrFindByTagId);
-            var initiatedCreateOrFindTagsTasks =
-                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
-            await Task.WhenAll(initiatedCreateOrFindTagsTasks);
         }
 
         private static async Task<T> AwaitTask<T>(Task<T> task)

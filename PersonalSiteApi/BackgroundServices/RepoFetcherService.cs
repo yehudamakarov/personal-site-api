@@ -14,10 +14,7 @@ namespace PersonalSiteApi.BackgroundServices
         private readonly IServiceProvider _services;
         private Timer _timer;
 
-        public RepoFetcherService(
-            IServiceProvider services,
-            ILogger<RepoFetcherService> logger
-        )
+        public RepoFetcherService(IServiceProvider services, ILogger<RepoFetcherService> logger)
         {
             _services = services;
             _logger = logger;

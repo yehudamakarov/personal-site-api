@@ -1,4 +1,6 @@
 namespace Core.Interfaces
 {
-    public interface IGithubRepoFetcherJob : IJob { }
+    public interface IGithubRepoFetcherJob : IJob
+    {
+    }
 }

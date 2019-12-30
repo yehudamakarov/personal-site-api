@@ -13,27 +13,20 @@ namespace PersonalSiteApi
         {
             // environment-variables-configuration-provider by default only gets env variables from ASPNET_<variable> variables. add with the below.
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/index?view=aspnetcore-2.2#environment-variables-configuration-provider
-            var config = new ConfigurationBuilder().AddEnvironmentVariables()
-                .Build();
+            var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
             var googleCloudLoggingConfig = new GoogleCloudLoggingSinkOptions
             {
-                ProjectId = config["GOOGLE_PROJECT_ID"],
-                UseJsonOutput = true
+                ProjectId = config["GOOGLE_PROJECT_ID"], UseJsonOutput = true
             };
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Information()
-                .Enrich.FromLogContext()
-                .WriteTo.Console(
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Information().Enrich.FromLogContext().WriteTo
+                .Console(
                     outputTemplate:
                     "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} -- Properties: {Properties:j} {NewLine}{Exception}"
-                )
-                .WriteTo.GoogleCloudLogging(googleCloudLoggingConfig)
-                .CreateLogger();
+                ).WriteTo.GoogleCloudLogging(googleCloudLoggingConfig).CreateLogger();
             try
             {
                 Log.Information("Starting web host...");
-                CreateWebHostBuilder(args)
-                    .Build()
-                    .Run();
+                CreateWebHostBuilder(args).Build().Run();
                 return 0;
             }
             catch (Exception exception)
@@ -49,9 +42,7 @@ namespace PersonalSiteApi
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-            return WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseSerilog();
+            return WebHost.CreateDefaultBuilder(args).UseStartup<Startup>().UseSerilog();
         }
     }
 }

@@ -32,8 +32,7 @@ namespace Infrastructure.Repository
 
             var updates = new Dictionary<FieldPath, object>
             {
-                { new FieldPath("PasswordHash"), passwordHash },
-                { new FieldPath("IsAdmin"), true }
+                { new FieldPath("PasswordHash"), passwordHash }, { new FieldPath("IsAdmin"), true }
             };
             var unused = await adminRef.UpdateAsync(updates);
             adminSnapshot = await adminRef.GetSnapshotAsync();
@@ -45,8 +44,7 @@ namespace Infrastructure.Repository
         {
             const string firstNameField = nameof(User.FirstName);
             const string lastNameField = nameof(User.LastName);
-            var adminQuery = _usersCollection
-                .WhereEqualTo(firstNameField, firstName)
+            var adminQuery = _usersCollection.WhereEqualTo(firstNameField, firstName)
                 .WhereEqualTo(lastNameField, lastName);
 
             var querySnapshot = await adminQuery.GetSnapshotAsync();

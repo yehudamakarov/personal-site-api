@@ -21,7 +21,8 @@ namespace Core.Job
 
         public GithubRepoFetcherJob(
             IGithubInfrastructure githubInfrastructure,
-            IRepoRepository repoRepository, ILogger<GithubRepoFetcherJob> logger,
+            IRepoRepository repoRepository,
+            ILogger<GithubRepoFetcherJob> logger,
             IGithubRepoFetcherNotifier githubRepoFetcherNotifier
         )
         {
@@ -66,8 +67,7 @@ namespace Core.Job
         {
             var uploadTasks = reposList.Select(_repoRepository.UploadRepoAsync);
             var initiatedUploadTasks =
-                (from uploadTask in uploadTasks select AwaitUploadAndSendUpdate(uploadTask))
-                .ToArray();
+                (from uploadTask in uploadTasks select AwaitUploadAndSendUpdate(uploadTask)).ToArray();
             var uploadedRepos = await Task.WhenAll(initiatedUploadTasks);
             _logger.LogInformation(
                 "Completed uploading repos. {uploadedRepos}",
@@ -90,8 +90,7 @@ namespace Core.Job
             var currentPinnedReposList = currentPinnedRepos.ToList();
             foreach (var currentPinnedRepo in currentPinnedReposList)
                 currentPinnedRepo.Current = false;
-            var nonCurrentRepos =
-                await UploadReposAsync(currentPinnedReposList);
+            var nonCurrentRepos = await UploadReposAsync(currentPinnedReposList);
             _logger.LogInformation("Completed making all pinned repositories un-pinned.");
             return nonCurrentRepos;
         }

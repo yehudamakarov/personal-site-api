@@ -10,15 +10,6 @@ namespace Core.Manager
 {
     public class TagManager : ITagManager
     {
-        #region Properties
-
-        private readonly ILogger<TagManager> _logger;
-        private readonly IProjectBL _projectBL;
-        private readonly IBlogPostBL _blogPostBL;
-        private readonly ITagBL _tagBL;
-
-        #endregion
-
         #region Constructors
 
         public TagManager(IProjectBL projectBL, IBlogPostBL blogPostBL, ITagBL tagBL, ILogger<TagManager> logger)
@@ -48,6 +39,15 @@ namespace Core.Manager
                 return false;
             }
         }
+
+        #endregion
+
+        #region Properties
+
+        private readonly ILogger<TagManager> _logger;
+        private readonly IProjectBL _projectBL;
+        private readonly IBlogPostBL _blogPostBL;
+        private readonly ITagBL _tagBL;
 
         #endregion
 
@@ -85,13 +85,9 @@ namespace Core.Manager
                 var blogPostResult = await _blogPostBL.GetBlogPostById(blogPostId);
                 var blogPost = blogPostResult.Data;
                 if (blogPost.TagIds == null)
-                {
                     blogPost.TagIds = new List<string> { tagId };
-                }
                 else
-                {
                     blogPost.TagIds.Add(tagId);
-                }
 
                 var updatedBlogPost = await _blogPostBL.UpdateBlogPost(blogPost);
             }
@@ -128,13 +124,9 @@ namespace Core.Manager
                 var projectResult = await _projectBL.GetProjectById(projectId);
                 var project = projectResult.Data;
                 if (project.TagIds == null)
-                {
                     project.TagIds = new List<string> { tagId };
-                }
                 else
-                {
                     project.TagIds.Add(tagId);
-                }
 
                 var updatedProject = await _projectBL.UpdateProject(project);
             }

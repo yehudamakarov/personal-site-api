@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.Enums;
 using Core.Interfaces;
 using Core.Results;
 using Core.Types;
@@ -126,20 +125,15 @@ namespace Core.BL
         {
             var results = await _projectRepository.GetProjectsByTagId(tagId);
             if (results.Count == 0)
-            {
-                return new ProjectsResult()
+                return new ProjectsResult
                 {
                     Data = results,
-                    Details = new ResultDetails()
-                    {
-                        Message = "None were found", ResultStatus = ResultStatus.Warning
-                    }
+                    Details = new ResultDetails { Message = "None were found", ResultStatus = ResultStatus.Warning }
                 };
-            }
 
-            return new ProjectsResult()
+            return new ProjectsResult
             {
-                Data = results, Details = new ResultDetails() { ResultStatus = ResultStatus.Success }
+                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 

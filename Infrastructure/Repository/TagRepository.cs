@@ -28,8 +28,7 @@ namespace Infrastructure.Repository
         public async Task<IList<Tag>> GetAllTags()
         {
             var query = await _tagsCollection.GetSnapshotAsync();
-            var tagSnapshot = query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Tag>())
-                .ToList();
+            var tagSnapshot = query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Tag>()).ToList();
             return tagSnapshot;
         }
 

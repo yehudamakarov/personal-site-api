@@ -9,6 +9,7 @@ namespace Core.Types
         {
             TagIds = new List<string>();
         }
+
         [FirestoreDocumentId] public string Id { get; set; }
         [FirestoreProperty] public string Title { get; set; }
         [FirestoreProperty] public string Description { get; set; }

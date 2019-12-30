@@ -17,10 +17,7 @@ namespace PersonalSiteApi.Controllers
         private readonly IAuthenticationBL _authenticationBL;
         private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(
-            IAuthenticationBL authenticationBL,
-            ILogger<AuthenticationController> logger
-        )
+        public AuthenticationController(IAuthenticationBL authenticationBL, ILogger<AuthenticationController> logger)
         {
             _authenticationBL = authenticationBL;
             _logger = logger;

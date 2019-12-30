@@ -14,8 +14,7 @@ namespace Core.BL
         private readonly ILogger<RepoBL> _logger;
         private readonly IRepoRepository _repoRepository;
 
-        public RepoBL(
-            IRepoRepository repoRepository, ILogger<RepoBL> logger)
+        public RepoBL(IRepoRepository repoRepository, ILogger<RepoBL> logger)
         {
             _repoRepository = repoRepository;
             _logger = logger;
