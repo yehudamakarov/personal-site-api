@@ -45,7 +45,7 @@ namespace PersonalSiteApi.Controllers
         [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> MapTag(MapTagRequest mapTagRequest)
         {
-            var result = _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
+            var result = await _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
             return Ok(result);
         }
 

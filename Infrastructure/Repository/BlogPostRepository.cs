@@ -52,10 +52,10 @@ namespace Infrastructure.Repository
 
         public async Task<IList<BlogPost>> GetBlogPostsByTagId(string tagId)
         {
-            var snapshot = await _blogPostsCollection.WhereArrayContains(nameof(BlogPost.TagIds), tagId).GetSnapshotAsync();
+            var snapshot = await _blogPostsCollection.WhereArrayContains(nameof(BlogPost.TagIds), tagId)
+                .GetSnapshotAsync();
             return snapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<BlogPost>()).ToList();
         }
-
 
         public async Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId)
         {

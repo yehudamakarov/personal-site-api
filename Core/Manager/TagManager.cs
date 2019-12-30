@@ -73,11 +73,8 @@ namespace Core.Manager
             {
                 var blogPostResult = await _blogPostBL.GetBlogPostById(blogPostId);
                 var blogPost = blogPostResult.Data;
-                var removed = blogPost.TagIds.Remove(tagId);
-                if (removed)
-                {
-                    var updatedBlogPost = await _blogPostBL.UpdateBlogPost(blogPost);
-                }
+                blogPost.TagIds?.Remove(tagId);
+                var updatedBlogPost = await _blogPostBL.UpdateBlogPost(blogPost);
             }
         }
 
@@ -87,7 +84,15 @@ namespace Core.Manager
             {
                 var blogPostResult = await _blogPostBL.GetBlogPostById(blogPostId);
                 var blogPost = blogPostResult.Data;
-                blogPost.TagIds.Add(tagId);
+                if (blogPost.TagIds == null)
+                {
+                    blogPost.TagIds = new List<string> { tagId };
+                }
+                else
+                {
+                    blogPost.TagIds.Add(tagId);
+                }
+
                 var updatedBlogPost = await _blogPostBL.UpdateBlogPost(blogPost);
             }
         }
@@ -111,11 +116,8 @@ namespace Core.Manager
             {
                 var projectResult = await _projectBL.GetProjectById(projectId);
                 var project = projectResult.Data;
-                var removed = project.TagIds.Remove(tagId);
-                if (removed)
-                {
-                    var updatedProject = await _projectBL.UpdateProject(project);
-                }
+                project.TagIds?.Remove(tagId);
+                var updatedProject = await _projectBL.UpdateProject(project);
             }
         }
 
@@ -125,7 +127,15 @@ namespace Core.Manager
             {
                 var projectResult = await _projectBL.GetProjectById(projectId);
                 var project = projectResult.Data;
-                project.TagIds.Add(tagId);
+                if (project.TagIds == null)
+                {
+                    project.TagIds = new List<string> { tagId };
+                }
+                else
+                {
+                    project.TagIds.Add(tagId);
+                }
+
                 var updatedProject = await _projectBL.UpdateProject(project);
             }
         }
