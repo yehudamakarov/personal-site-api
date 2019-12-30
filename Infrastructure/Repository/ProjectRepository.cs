@@ -21,11 +21,10 @@ namespace Infrastructure.Repository
             _logger = logger;
         }
 
-        public async Task<List<Project>> GetAllProjects()
+        public async Task<IList<Project>> GetAllProjects()
         {
             var query = await _projectCollection.GetSnapshotAsync();
-            var results = query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).ToList();
-            return results;
+            return query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).ToList();
         }
 
         public async Task<Project> GetProjectById(string projectId)
@@ -47,8 +46,12 @@ namespace Infrastructure.Repository
         /// <param name="githubDatabaseId"></param>
         /// <param name="mergeFields"></param>
         /// <returns></returns>
-        public async Task<Project> UploadProjectAsync(Project project, string projectName, string githubDatabaseId,
-            string[] mergeFields)
+        public async Task<Project> UploadProjectAsync(
+            Project project,
+            string projectName,
+            string githubDatabaseId,
+            string[] mergeFields
+        )
         {
             _logger.LogInformation("Beginning upload of {projectName}", projectName);
 
@@ -72,8 +75,19 @@ namespace Infrastructure.Repository
 
         public async Task<Project> UpdateProject(Project project)
         {
-            return await UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
-                new[] { nameof(Project.DeploymentUrl), nameof(Project.TagIds), nameof(Project.ProjectTitle) });
+            return await UploadProjectAsync(
+                project,
+                project.ProjectName,
+                project.GithubRepoDatabaseId,
+                new[] { nameof(Project.DeploymentUrl), nameof(Project.TagIds), nameof(Project.ProjectTitle) }
+            );
+        }
+
+        public async Task<IList<Project>> GetProjectsByTagId(string tagId)
+        {
+            var snapshot = await _projectCollection.WhereArrayContains(nameof(Project.TagIds), tagId)
+                .GetSnapshotAsync();
+            return snapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).ToList();
         }
     }
 }

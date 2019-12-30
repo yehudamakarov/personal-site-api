@@ -14,8 +14,12 @@ namespace Core.BL
         private readonly ITagBL _tagBL;
         private readonly ILogger<BlogPostBL> _logger;
 
-        public BlogPostBL(IBlogPostRepository blogPostRepository, IProjectBL projectBL, ITagBL tagBL,
-            ILogger<BlogPostBL> logger)
+        public BlogPostBL(
+            IBlogPostRepository blogPostRepository,
+            IProjectBL projectBL,
+            ITagBL tagBL,
+            ILogger<BlogPostBL> logger
+        )
         {
             _blogPostRepository = blogPostRepository;
             _projectBL = projectBL;
@@ -33,15 +37,13 @@ namespace Core.BL
                     Data = results,
                     Details = new ResultDetails
                     {
-                        Message = "None were found.",
-                        ResultStatus = ResultStatus.Warning
+                        Message = "None were found.", ResultStatus = ResultStatus.Warning
                     }
                 };
 
             return new BlogPostsResult
             {
-                Data = results,
-                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -61,13 +63,16 @@ namespace Core.BL
 
             return new BlogPostsResult
             {
-                Data = results,
-                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
-        public async Task<BlogPostResult> AddBlogPost(string title, string description, string content,
-            string projectId)
+        public async Task<BlogPostResult> AddBlogPost(
+            string title,
+            string description,
+            string content,
+            string projectId
+        )
         {
             var project = await _projectBL.GetProjectById(projectId);
             if (project.Details.ResultStatus == ResultStatus.Failure)
@@ -91,14 +96,29 @@ namespace Core.BL
             var persistedBlogPost = await _blogPostRepository.AddBlogPost(blogPost);
             return new BlogPostResult
             {
-                Data = persistedBlogPost,
-                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = persistedBlogPost, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
-        public Task<BlogPostsResult> GetBlogPostsByTagId(string tagId)
+        public async Task<BlogPostsResult> GetBlogPostsByTagId(string tagId)
         {
-            throw new NotImplementedException();
+            var results = await _blogPostRepository.GetBlogPostsByTagId(tagId);
+            if (results.Count == 0)
+            {
+                return new BlogPostsResult()
+                {
+                    Data = results,
+                    Details = new ResultDetails()
+                    {
+                        Message = "None were found.", ResultStatus = ResultStatus.Warning
+                    }
+                };
+            }
+
+            return new BlogPostsResult()
+            {
+                Data = results, Details = new ResultDetails() { ResultStatus = ResultStatus.Success }
+            };
         }
 
         public async Task<BlogPostResult> GetBlogPostById(string blogPostId)
@@ -119,8 +139,7 @@ namespace Core.BL
 
             return new BlogPostResult
             {
-                Data = blogPost,
-                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = blogPost, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -135,8 +154,7 @@ namespace Core.BL
                     Data = updatedBlogPost,
                     Details = new ResultDetails()
                     {
-                        Message = "Successfully updated.",
-                        ResultStatus = ResultStatus.Success
+                        Message = "Successfully updated.", ResultStatus = ResultStatus.Success
                     }
                 };
             }
@@ -147,11 +165,7 @@ namespace Core.BL
                 return new BlogPostResult()
                 {
                     Data = blogPost,
-                    Details = new ResultDetails()
-                    {
-                        Message = message,
-                        ResultStatus = ResultStatus.Failure
-                    }
+                    Details = new ResultDetails() { Message = message, ResultStatus = ResultStatus.Failure }
                 };
             }
         }

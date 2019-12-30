@@ -122,9 +122,25 @@ namespace Core.BL
             }
         }
 
-        public Task<ProjectsResult> GetProjectsByTagId(string tagId)
+        public async Task<ProjectsResult> GetProjectsByTagId(string tagId)
         {
-            throw new NotImplementedException();
+            var results = await _projectRepository.GetProjectsByTagId(tagId);
+            if (results.Count == 0)
+            {
+                return new ProjectsResult()
+                {
+                    Data = results,
+                    Details = new ResultDetails()
+                    {
+                        Message = "None were found", ResultStatus = ResultStatus.Warning
+                    }
+                };
+            }
+
+            return new ProjectsResult()
+            {
+                Data = results, Details = new ResultDetails() { ResultStatus = ResultStatus.Success }
+            };
         }
 
         private async Task<Project[]> UploadProjects(IEnumerable<Project> projects, string[] mergeFields)

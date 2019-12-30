@@ -42,9 +42,18 @@ namespace Infrastructure.Repository
             return documentSnapshot?.ConvertTo<BlogPost>();
         }
 
-        public Task<BlogPost> UpdateBlogPost(BlogPost blogPost)
+        public async Task<BlogPost> UpdateBlogPost(BlogPost blogPost)
         {
-            throw new System.NotImplementedException();
+            var blogPostRef = _blogPostsCollection.Document(blogPost.Id);
+            await blogPostRef.SetAsync(blogPost);
+            var snapshot = await blogPostRef.GetSnapshotAsync();
+            return snapshot.ConvertTo<BlogPost>();
+        }
+
+        public async Task<IList<BlogPost>> GetBlogPostsByTagId(string tagId)
+        {
+            var snapshot = await _blogPostsCollection.WhereArrayContains(nameof(BlogPost.TagIds), tagId).GetSnapshotAsync();
+            return snapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<BlogPost>()).ToList();
         }
 
 

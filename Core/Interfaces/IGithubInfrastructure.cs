@@ -6,6 +6,6 @@ namespace Core.Interfaces
 {
     public interface IGithubInfrastructure
     {
-        Task<IEnumerable<PinnedRepo>> FetchPinnedReposAsync();
+        Task<IList<PinnedRepo>> FetchPinnedReposAsync();
     }
 }

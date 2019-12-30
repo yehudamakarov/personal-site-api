@@ -62,7 +62,7 @@ namespace Core.Manager
 
         private async Task MapTagToProjects(IEnumerable<Facade> facadesToMap, string tagId)
         {
-            var (projectIdsToTag, projectIdsToUntag) = await ProjectIdsToTagAndToUntag(facadesToMap, tagId);
+            var ( projectIdsToTag, projectIdsToUntag) = await ProjectIdsToTagAndToUntag(facadesToMap, tagId);
             await TagProjects(tagId, projectIdsToTag);
             await UntagProjects(tagId, projectIdsToUntag);
         }
@@ -135,6 +135,7 @@ namespace Core.Manager
         {
             var projectIdsToMap = facadesToMap.Where(facade => facade.Type == FacadeType.Project)
                 .Select(facade => facade.Id).ToList();
+
             var projectsWithTag = await _projectBL.GetProjectsByTagId(tagId);
             var projectIdsWithTag = projectsWithTag.Data.Select(project => project.GithubRepoDatabaseId).ToList();
 

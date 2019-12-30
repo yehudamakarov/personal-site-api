@@ -21,7 +21,7 @@ namespace Infrastructure.Repository
             _logger = logger;
         }
 
-        public async Task<IEnumerable<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent)
+        public async Task<IList<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent)
         {
             _logger.LogInformation("Retrieving 'current' repositories from Firestore.");
             var pinnedReposRef = Db.Collection("pinned-repositories");
@@ -33,7 +33,7 @@ namespace Infrastructure.Repository
                 pinnedCurrentReposSnapshot = await pinnedReposRef.GetSnapshotAsync();
 
             var pinnedCurrentRepos =
-                pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<PinnedRepo>());
+                pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<PinnedRepo>()).ToList();
 
             return pinnedCurrentRepos;
         }

@@ -11,5 +11,6 @@ namespace Core.Interfaces
         Task<BlogPost> AddBlogPost(BlogPost blogPost);
         Task<BlogPost> GetBlogPostById(string blogPostId);
         Task<BlogPost> UpdateBlogPost(BlogPost blogPost);
+        Task<IList<BlogPost>> GetBlogPostsByTagId(string tagId);
     }
 }
