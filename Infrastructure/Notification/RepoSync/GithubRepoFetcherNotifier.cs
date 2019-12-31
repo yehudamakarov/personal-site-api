@@ -20,6 +20,7 @@ namespace Infrastructure.Notification.RepoSync
         public async Task PushUpdate(Dictionary<string, string> itemStatus, string jobStatus)
         {
             await _hubContext.Clients.All.PushUpdate(itemStatus, jobStatus);
+            await Task.Delay(200);
         }
     }
 }

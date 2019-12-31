@@ -34,15 +34,15 @@ namespace Core.Job
 
         public async Task BeginJobAsync()
         {
-            UpdateJobStatus(JobUpdatesStage.Fetching);
+            await UpdateJobStatus(JobUpdatesStage.Fetching);
             var repos = await _githubInfrastructure.FetchPinnedReposAsync();
             var reposList = repos.ToList();
 
             _logger.LogInformation("Beginning job");
-            UpdateJobStatus(JobUpdatesStage.PreparingDatabase);
+            await UpdateJobStatus(JobUpdatesStage.PreparingDatabase);
             await MakeAllPinnedReposNonCurrent();
 
-            UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);
+            await UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);
             var timeStampedRepos = MarkWithTimestamp(reposList);
             var unused = await UploadPinnedReposAsCurrent(timeStampedRepos);
 
@@ -65,13 +65,25 @@ namespace Core.Job
 
         private async Task<IEnumerable<PinnedRepo>> UploadReposAsync(IEnumerable<PinnedRepo> reposList)
         {
-            var uploadTasks = reposList.Select(_repoRepository.UploadRepoAsync);
-            var initiatedUploadTasks =
-                (from uploadTask in uploadTasks select AwaitUploadAndSendUpdate(uploadTask)).ToArray();
-            var uploadedRepos = await Task.WhenAll(initiatedUploadTasks);
+            // faster
+            // var uploadTasks = reposList.Select(_repoRepository.UploadRepoAsync);
+            // var initiatedUploadTasks =
+            //     (from uploadTask in uploadTasks select AwaitUploadAndSendUpdate(uploadTask)).ToArray();
+            // var uploadedRepos = await Task.WhenAll(initiatedUploadTasks);
+            // _logger.LogInformation(
+            //     "Completed uploading repos. {uploadedRepos}",
+            //     JsonConvert.SerializeObject(uploadedRepos)
+            // );
+            // return uploadedRepos;
+            var uploadedRepos = new List<PinnedRepo>();
+            foreach (var pinnedRepo in reposList)
+            {
+                var result = await AwaitUploadAndSendUpdate(_repoRepository.UploadRepoAsync(pinnedRepo));
+                uploadedRepos.Add(result);
+            }
             _logger.LogInformation(
-                "Completed uploading repos. {uploadedRepos}",
-                JsonConvert.SerializeObject(uploadedRepos)
+                "Completed uploading repos. {uploadedReposNames}",
+                string.Join(" | ", uploadedRepos.Select(repo => repo.Name))
             );
             return uploadedRepos;
         }
@@ -79,7 +91,7 @@ namespace Core.Job
         private async Task<PinnedRepo> AwaitUploadAndSendUpdate(Task<PinnedRepo> uploadTask)
         {
             var repo = await uploadTask;
-            UpdateItemStatus(JobUpdatesStage.Done, repo);
+            await UpdateItemStatus(JobUpdatesStage.Done, repo);
             return repo;
         }
 
@@ -104,22 +116,22 @@ namespace Core.Job
             return toMarkWithTimestamp;
         }
 
-        private void UpdateItemStatus(JobUpdatesStage stage, PinnedRepo pinnedRepo)
+        private async Task UpdateItemStatus(JobUpdatesStage stage, PinnedRepo pinnedRepo)
         {
             _itemStatus[pinnedRepo.DatabaseId] = stage.ToString();
-            _githubRepoFetcherNotifier.PushUpdate(_itemStatus, _jobStatus);
+            await _githubRepoFetcherNotifier.PushUpdate(_itemStatus, _jobStatus);
         }
 
-        private void UpdateAllItemsStatus(JobUpdatesStage stage, IEnumerable<PinnedRepo> repos)
+        private async Task UpdateAllItemsStatus(JobUpdatesStage stage, IEnumerable<PinnedRepo> repos)
         {
             foreach (var repo in repos) _itemStatus[repo.DatabaseId] = stage.ToString();
-            UpdateJobStatus(stage);
+            await UpdateJobStatus(stage);
         }
 
-        private void UpdateJobStatus(JobUpdatesStage stage)
+        private async Task UpdateJobStatus(JobUpdatesStage stage)
         {
             _jobStatus = stage.ToString();
-            _githubRepoFetcherNotifier.PushUpdate(_itemStatus, _jobStatus);
+            await _githubRepoFetcherNotifier.PushUpdate(_itemStatus, _jobStatus);
         }
     }
 }
