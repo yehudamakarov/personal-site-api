@@ -46,7 +46,7 @@ namespace Core.Job
             var timeStampedRepos = MarkWithTimestamp(reposList);
             var unused = await UploadPinnedReposAsCurrent(timeStampedRepos);
 
-            UpdateJobStatus(JobUpdatesStage.Done);
+            await UpdateJobStatus(JobUpdatesStage.Done);
             _logger.LogInformation("Completed job");
         }
 
@@ -92,6 +92,7 @@ namespace Core.Job
         {
             var repo = await uploadTask;
             await UpdateItemStatus(JobUpdatesStage.Done, repo);
+            await Task.Delay(400);
             return repo;
         }
 

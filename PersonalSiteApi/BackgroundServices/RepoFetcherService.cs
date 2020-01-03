@@ -24,7 +24,7 @@ namespace PersonalSiteApi.BackgroundServices
         {
             try
             {
-                _timer = new Timer(FetchAndUploadRepos, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+                _timer = new Timer(FetchAndUploadRepos, null, TimeSpan.FromSeconds(30), TimeSpan.FromHours(6));
                 return Task.CompletedTask;
             }
             catch (Exception exception)
