@@ -8,11 +8,11 @@ namespace Core.Job
 {
     public class CalculateTagCountsJob : ICalculateTagCountsJob
     {
-        private readonly ITagBL _tagBL;
-        private readonly IProjectBL _projectBL;
+        private const string JobName = nameof(CalculateTagCountsJob);
         private readonly IBlogPostBL _blogPostBL;
         private readonly ILogger<CalculateTagCountsJob> _logger;
-        private const string JobName = nameof(CalculateTagCountsJob);
+        private readonly IProjectBL _projectBL;
+        private readonly ITagBL _tagBL;
 
         public CalculateTagCountsJob(ITagBL tagBL, IProjectBL projectBL, IBlogPostBL blogPostBL,
             ILogger<CalculateTagCountsJob> logger)
@@ -28,16 +28,10 @@ namespace Core.Job
             _logger.LogInformation("Beginning {JobName}.", JobName);
             var tags = await _tagBL.GetAllTags();
             if (tags.Details.ResultStatus != ResultStatus.Success)
-            {
                 _logger.LogWarning("There was a problem retrieving tags in order to count them.");
-            }
             else
-            {
                 foreach (var tag in tags.Data)
-                {
                     await CalculateArticleCount(tag);
-                }
-            }
 
             _logger.LogInformation("Finished {JobName}.", JobName);
         }
@@ -70,13 +64,9 @@ namespace Core.Job
             }
 
             if (totalCount > 0)
-            {
                 await UpdateTag(tag, totalCount);
-            }
             else
-            {
                 await DeleteTag(tag);
-            }
         }
 
         private async Task DeleteTag(Tag tag)
@@ -98,19 +88,15 @@ namespace Core.Job
             tag.ArticleCount = totalCount;
             var updatedTag = await _tagBL.UpdateTag(tag);
             if (updatedTag.Details.ResultStatus == ResultStatus.Success)
-            {
                 _logger.LogInformation(
                     "Updated {tagId} articleCount from {initialTagArticleCount} to {updatedTagArticleCount}",
                     tag.TagId,
                     tag.ArticleCount,
                     updatedTag.Data.ArticleCount);
-            }
             else
-            {
                 _logger.LogWarning("There was a problem updating {@tag} with a count of {articleCount}",
                     tag,
                     totalCount);
-            }
         }
     }
 }

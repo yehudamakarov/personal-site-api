@@ -1,7 +1,4 @@
 namespace Core.Interfaces
 {
-    public interface ICalculateTagCountsJob : IJob
-    {
-        
-    }
+    public interface ICalculateTagCountsJob : IJob { }
 }

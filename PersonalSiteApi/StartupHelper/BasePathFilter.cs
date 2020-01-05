@@ -10,8 +10,16 @@ namespace PersonalSiteApi.StartupHelper
         {
             swaggerDoc.Servers = new List<OpenApiServer>
             {
-                new OpenApiServer { Url = "/api", Description = "Live deployment." },
-                new OpenApiServer { Url = "/", Description = "For local host." }
+                new OpenApiServer
+                {
+                    Url = "/api",
+                    Description = "Live deployment."
+                },
+                new OpenApiServer
+                {
+                    Url = "/",
+                    Description = "For local host."
+                }
             };
         }
     }

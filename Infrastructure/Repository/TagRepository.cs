@@ -43,13 +43,9 @@ namespace Infrastructure.Repository
         {
             var tag = await GetTagById(tagId);
             if (tag.ArticleCount != null)
-            {
                 tag.ArticleCount += amount;
-            }
             else
-            {
                 tag.ArticleCount = amount;
-            }
 
             return await UpdateTagById(tag);
         }
@@ -58,13 +54,9 @@ namespace Infrastructure.Repository
         {
             var tag = await GetTagById(tagId);
             if (tag.ArticleCount != null)
-            {
                 tag.ArticleCount -= amount;
-            }
             else
-            {
                 tag.ArticleCount = 0;
-            }
             return await UpdateTagById(tag);
         }
 

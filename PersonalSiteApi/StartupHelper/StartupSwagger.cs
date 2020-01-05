@@ -39,7 +39,8 @@ namespace PersonalSiteApi.StartupHelper
                                 {
                                     Reference = new OpenApiReference
                                     {
-                                        Type = ReferenceType.SecurityScheme, Id = "Bearer"
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
                                     }
                                 },
                                 new List<string>()

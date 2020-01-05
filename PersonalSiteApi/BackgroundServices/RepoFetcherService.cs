@@ -10,9 +10,9 @@ namespace PersonalSiteApi.BackgroundServices
 {
     public class RepoFetcherService : IHostedService
     {
+        private const string ServiceName = nameof(RepoFetcherService);
         private readonly ILogger<RepoFetcherService> _logger;
         private readonly IServiceProvider _services;
-        private const string ServiceName = nameof(RepoFetcherService);
 
         public RepoFetcherService(IServiceProvider services, ILogger<RepoFetcherService> logger)
         {

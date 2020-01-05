@@ -12,13 +12,6 @@ namespace Core.BL
 {
     public class TagBL : ITagBL
     {
-        #region Properties
-
-        private readonly ITagRepository _tagRepository;
-        private readonly ILogger<TagBL> _logger;
-
-        #endregion
-
         #region Constructors
 
         public TagBL(ITagRepository tagRepository, ILogger<TagBL> logger)
@@ -29,12 +22,19 @@ namespace Core.BL
 
         #endregion
 
+        #region Properties
+
+        private readonly ITagRepository _tagRepository;
+        private readonly ILogger<TagBL> _logger;
+
+        #endregion
+
         #region Public Methods
 
         public async Task<TagResult> CreateOrFindByTagId(string tagId)
         {
             var tag = await _tagRepository.CreateOrFindByTagId(new Tag { TagId = tagId });
-            return new TagResult()
+            return new TagResult
             {
                 Data = tag,
                 Details = new ResultDetails { ResultStatus = ResultStatus.Success }

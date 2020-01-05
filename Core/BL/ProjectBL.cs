@@ -6,7 +6,6 @@ using Core.Interfaces;
 using Core.Results;
 using Core.Types;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Core.BL
 {
@@ -32,13 +31,15 @@ namespace Core.BL
                     Data = results,
                     Details = new ResultDetails
                     {
-                        Message = "None were found.", ResultStatus = ResultStatus.Warning
+                        Message = "None were found.",
+                        ResultStatus = ResultStatus.Warning
                     }
                 };
 
             return new ProjectsResult
             {
-                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -58,7 +59,8 @@ namespace Core.BL
 
             return new ProjectResult
             {
-                Data = project, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = project,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -88,7 +90,8 @@ namespace Core.BL
                 }
                 : new ProjectResult
                 {
-                    Data = project, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                    Data = project,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
         }
 
@@ -101,7 +104,11 @@ namespace Core.BL
                 return new ProjectResult
                 {
                     Data = updatedProject,
-                    Details = new ResultDetails { Message = "Success", ResultStatus = ResultStatus.Success }
+                    Details = new ResultDetails
+                    {
+                        Message = "Success",
+                        ResultStatus = ResultStatus.Success
+                    }
                 };
             }
             catch (Exception exception)
@@ -111,7 +118,11 @@ namespace Core.BL
                 return new ProjectResult
                 {
                     Data = project,
-                    Details = new ResultDetails { Message = message, ResultStatus = ResultStatus.Failure }
+                    Details = new ResultDetails
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
                 };
             }
         }
@@ -123,12 +134,17 @@ namespace Core.BL
                 return new ProjectsResult
                 {
                     Data = results,
-                    Details = new ResultDetails { Message = "None were found", ResultStatus = ResultStatus.Warning }
+                    Details = new ResultDetails
+                    {
+                        Message = "None were found",
+                        ResultStatus = ResultStatus.Warning
+                    }
                 };
 
             return new ProjectsResult
             {
-                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 

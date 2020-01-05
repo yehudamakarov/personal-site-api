@@ -36,7 +36,8 @@ namespace Core.BL
                 {
                     Details = new ResultDetails
                     {
-                        ResultStatus = ResultStatus.Failure, Message = "There was no found admin record."
+                        ResultStatus = ResultStatus.Failure,
+                        Message = "There was no found admin record."
                     }
                 };
 
@@ -45,7 +46,8 @@ namespace Core.BL
                 {
                     Details = new ResultDetails
                     {
-                        ResultStatus = ResultStatus.Failure, Message = "The creation code was incorrect."
+                        ResultStatus = ResultStatus.Failure,
+                        Message = "The creation code was incorrect."
                     }
                 };
 
@@ -54,7 +56,8 @@ namespace Core.BL
                 {
                     Details = new ResultDetails
                     {
-                        ResultStatus = ResultStatus.Failure, Message = "The admin already exists."
+                        ResultStatus = ResultStatus.Failure,
+                        Message = "The admin already exists."
                     }
                 };
 
@@ -64,7 +67,8 @@ namespace Core.BL
             {
                 Details = new ResultDetails
                 {
-                    ResultStatus = ResultStatus.Success, Message = "Successfully created an admin user."
+                    ResultStatus = ResultStatus.Success,
+                    Message = "Successfully created an admin user."
                 },
                 Data = activatedAdmin
             };
@@ -80,7 +84,11 @@ namespace Core.BL
             if (admin == null)
                 return new AdminLoginResult
                 {
-                    Details = new ResultDetails { Message = "User not found.", ResultStatus = ResultStatus.Failure }
+                    Details = new ResultDetails
+                    {
+                        Message = "User not found.",
+                        ResultStatus = ResultStatus.Failure
+                    }
                 };
 
             if (adminLoginRequest.Password == null)
@@ -88,7 +96,8 @@ namespace Core.BL
                 {
                     Details = new ResultDetails
                     {
-                        Message = "Password was not provided.", ResultStatus = ResultStatus.Failure
+                        Message = "Password was not provided.",
+                        ResultStatus = ResultStatus.Failure
                     }
                 };
 
@@ -98,7 +107,8 @@ namespace Core.BL
                 {
                     Details = new ResultDetails
                     {
-                        Message = "The password was incorrect.", ResultStatus = ResultStatus.Failure
+                        Message = "The password was incorrect.",
+                        ResultStatus = ResultStatus.Failure
                     }
                 };
 
@@ -107,7 +117,11 @@ namespace Core.BL
             return new AdminLoginResult
             {
                 Data = token,
-                Details = new ResultDetails { Message = "Successful login.", ResultStatus = ResultStatus.Success }
+                Details = new ResultDetails
+                {
+                    Message = "Successful login.",
+                    ResultStatus = ResultStatus.Success
+                }
             };
         }
 

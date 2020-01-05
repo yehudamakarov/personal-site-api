@@ -10,12 +10,12 @@ namespace Core.Job
 {
     public class GithubRepoFetcherJob : IGithubRepoFetcherJob
     {
+        private const string JobName = nameof(GithubRepoFetcherJob);
         private readonly IGithubInfrastructure _githubInfrastructure;
         private readonly IGithubRepoFetcherNotifier _githubRepoFetcherNotifier;
         private readonly Dictionary<string, string> _itemStatus = new Dictionary<string, string>();
         private readonly ILogger<GithubRepoFetcherJob> _logger;
         private readonly IRepoRepository _repoRepository;
-        private const string JobName = nameof(GithubRepoFetcherJob);
 
         private string _jobStatus;
 

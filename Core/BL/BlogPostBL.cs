@@ -37,13 +37,15 @@ namespace Core.BL
                     Data = results,
                     Details = new ResultDetails
                     {
-                        Message = "None were found.", ResultStatus = ResultStatus.Warning
+                        Message = "None were found.",
+                        ResultStatus = ResultStatus.Warning
                     }
                 };
 
             return new BlogPostsResult
             {
-                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -63,7 +65,8 @@ namespace Core.BL
 
             return new BlogPostsResult
             {
-                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -96,7 +99,8 @@ namespace Core.BL
             var persistedBlogPost = await _blogPostRepository.AddBlogPost(blogPost);
             return new BlogPostResult
             {
-                Data = persistedBlogPost, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = persistedBlogPost,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -109,13 +113,15 @@ namespace Core.BL
                     Data = results,
                     Details = new ResultDetails
                     {
-                        Message = "None were found.", ResultStatus = ResultStatus.Warning
+                        Message = "None were found.",
+                        ResultStatus = ResultStatus.Warning
                     }
                 };
 
             return new BlogPostsResult
             {
-                Data = results, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = results,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -135,7 +141,8 @@ namespace Core.BL
 
             return new BlogPostResult
             {
-                Data = blogPost, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                Data = blogPost,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
@@ -150,7 +157,8 @@ namespace Core.BL
                     Data = updatedBlogPost,
                     Details = new ResultDetails
                     {
-                        Message = "Successfully updated.", ResultStatus = ResultStatus.Success
+                        Message = "Successfully updated.",
+                        ResultStatus = ResultStatus.Success
                     }
                 };
             }
@@ -161,7 +169,11 @@ namespace Core.BL
                 return new BlogPostResult
                 {
                     Data = blogPost,
-                    Details = new ResultDetails { Message = message, ResultStatus = ResultStatus.Failure }
+                    Details = new ResultDetails
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
                 };
             }
         }

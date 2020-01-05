@@ -16,7 +16,8 @@ namespace PersonalSiteApi
             var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
             var googleCloudLoggingConfig = new GoogleCloudLoggingSinkOptions
             {
-                ProjectId = config["GOOGLE_PROJECT_ID"], UseJsonOutput = true
+                ProjectId = config["GOOGLE_PROJECT_ID"],
+                UseJsonOutput = true
             };
             Log.Logger = new LoggerConfiguration().MinimumLevel.Information().Enrich.FromLogContext().WriteTo
                 .Console(

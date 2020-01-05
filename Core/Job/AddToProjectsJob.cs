@@ -9,10 +9,10 @@ namespace Core.Job
 {
     public class AddToProjectsJob : IAddToProjectsJob
     {
+        private const string JobName = nameof(AddToProjectsJob);
         private readonly ILogger<AddToProjectsJob> _logger;
         private readonly IProjectBL _projectBL;
         private readonly IRepoBL _repoBL;
-        private const string JobName = nameof(AddToProjectsJob);
 
         public AddToProjectsJob(IRepoBL repoBL, ILogger<AddToProjectsJob> logger, IProjectBL projectBL)
         {
@@ -56,8 +56,12 @@ namespace Core.Job
             // only merge by fields
             var mergeFields = new[]
             {
-                nameof(Project.ProjectName), nameof(Project.ProjectDescription), nameof(Project.IsPinnedRepo),
-                nameof(Project.GithubUrl), nameof(Project.UpdatedAt), nameof(Project.CreatedAt)
+                nameof(Project.ProjectName),
+                nameof(Project.ProjectDescription),
+                nameof(Project.IsPinnedRepo),
+                nameof(Project.GithubUrl),
+                nameof(Project.UpdatedAt),
+                nameof(Project.CreatedAt)
             };
             return (projects, mergeFields);
         }

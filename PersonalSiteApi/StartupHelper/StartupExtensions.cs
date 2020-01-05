@@ -41,7 +41,7 @@ namespace PersonalSiteApi.StartupHelper
             services.AddHostedService<RepoFetcherService>();
             services.AddHostedService<AddToProjectsService>();
             services.AddHostedService<CalculateTagCountsService>();
-            
+
             return services;
         }
     }
