@@ -9,23 +9,23 @@ using Microsoft.Extensions.Logging;
 
 namespace PersonalSiteApi.BackgroundServices
 {
-    public class AddToProjectsService : IHostedService
+    public class CalculateTagCountsService : IHostedService 
     {
-        private readonly ILogger<AddToProjectsService> _logger;
         private readonly IServiceProvider _services;
-        private const string ServiceName = nameof(AddToProjectsService);
+        private readonly ILogger<CalculateTagCountsService> _logger;
+        private const string ServiceName = nameof(CalculateTagCountsService);
 
-        public AddToProjectsService(IServiceProvider services, ILogger<AddToProjectsService> logger)
+        public CalculateTagCountsService(IServiceProvider services, ILogger<CalculateTagCountsService> logger)
         {
             _services = services;
             _logger = logger;
         }
-
+        
         public Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var unused = new Timer(AddPinnedReposToProjects, null, TimeSpan.FromSeconds(60), TimeSpan.FromHours(12));
+                var unused = new Timer(CalculateTagCounts, null, TimeSpan.FromSeconds(15), TimeSpan.FromHours(1));
                 return Task.CompletedTask;
             }
             catch (Exception exception)
@@ -35,19 +35,18 @@ namespace PersonalSiteApi.BackgroundServices
             }
         }
 
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void AddPinnedReposToProjects(object state)
+        private void CalculateTagCounts(object state)
         {
             using (var scope = _services.CreateScope())
             {
-                var addToProjectsJob = scope.ServiceProvider.GetRequiredService<IAddToProjectsJob>();
-                addToProjectsJob.BeginJobAsync();
+                var calculateTagCountsJob = scope.ServiceProvider.GetRequiredService<ICalculateTagCountsJob>();
+                calculateTagCountsJob.BeginJobAsync();
             }
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

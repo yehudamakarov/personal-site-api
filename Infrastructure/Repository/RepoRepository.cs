@@ -20,7 +20,6 @@ namespace Infrastructure.Repository
 
         public async Task<IList<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent)
         {
-            _logger.LogInformation("Retrieving 'current' repositories from Firestore.");
             var pinnedReposRef = Db.Collection("pinned-repositories");
             QuerySnapshot pinnedCurrentReposSnapshot;
             if (onlyCurrent)
@@ -38,8 +37,8 @@ namespace Infrastructure.Repository
         public async Task<PinnedRepo> UploadRepoAsync(PinnedRepo pinnedRepo)
         {
             _logger.LogInformation(
-                "Beginning upload of {databaseId}, with info of {@repo}",
-                pinnedRepo.DatabaseId,
+                "Beginning upload of {repoName}, with info of {@repo}",
+                pinnedRepo.Name,
                 pinnedRepo
             );
             var repoWithUtc = ConvertTimesToUtc(pinnedRepo);

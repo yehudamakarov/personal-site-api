@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Core.Job
 {
@@ -16,6 +15,7 @@ namespace Core.Job
         private readonly Dictionary<string, string> _itemStatus = new Dictionary<string, string>();
         private readonly ILogger<GithubRepoFetcherJob> _logger;
         private readonly IRepoRepository _repoRepository;
+        private const string JobName = nameof(GithubRepoFetcherJob);
 
         private string _jobStatus;
 
@@ -34,36 +34,34 @@ namespace Core.Job
 
         public async Task BeginJobAsync()
         {
+            _logger.LogInformation("Beginning {JobName}", JobName);
             await UpdateJobStatus(JobUpdatesStage.Fetching);
             var repos = await _githubInfrastructure.FetchPinnedReposAsync();
-            var reposList = repos.ToList();
 
-            _logger.LogInformation("Beginning job");
             await UpdateJobStatus(JobUpdatesStage.PreparingDatabase);
-            await MakeAllPinnedReposNonCurrent();
+            var unused = await MakeAllPinnedReposNonCurrent();
 
-            await UpdateAllItemsStatus(JobUpdatesStage.Uploading, reposList);
-            var timeStampedRepos = MarkWithTimestamp(reposList);
-            var unused = await UploadPinnedReposAsCurrent(timeStampedRepos);
+            await UpdateAllItemsStatus(JobUpdatesStage.Uploading, repos);
+            var timeStampedRepos = MarkWithTimestamp(repos);
+            var unused2 = await UploadPinnedReposAsCurrent(timeStampedRepos);
 
             await UpdateJobStatus(JobUpdatesStage.Done);
-            _logger.LogInformation("Completed job");
+            _logger.LogInformation("Completed {JobName}", JobName);
         }
 
-        private async Task<IEnumerable<PinnedRepo>> UploadPinnedReposAsCurrent(IEnumerable<PinnedRepo> repos)
+        private async Task<IList<PinnedRepo>> UploadPinnedReposAsCurrent(IList<PinnedRepo> repos)
         {
-            _logger.LogInformation("Setting pinned as current to Firestore.");
-            var reposList = repos.ToList();
-            foreach (var repo in reposList)
+            _logger.LogInformation("Setting pinned as current in the database.");
+            foreach (var repo in repos)
             {
-                _logger.LogInformation("Making {@repo} 'current'", repo);
+                _logger.LogInformation("Making {repoName} 'current'", repo.Name);
                 repo.Current = true;
             }
 
-            return await UploadReposAsync(reposList);
+            return await UploadReposAsync(repos);
         }
 
-        private async Task<IEnumerable<PinnedRepo>> UploadReposAsync(IEnumerable<PinnedRepo> reposList)
+        private async Task<IList<PinnedRepo>> UploadReposAsync(IEnumerable<PinnedRepo> repos)
         {
             // faster
             // var uploadTasks = reposList.Select(_repoRepository.UploadRepoAsync);
@@ -76,11 +74,12 @@ namespace Core.Job
             // );
             // return uploadedRepos;
             var uploadedRepos = new List<PinnedRepo>();
-            foreach (var pinnedRepo in reposList)
+            foreach (var pinnedRepo in repos)
             {
                 var result = await AwaitUploadAndSendUpdate(_repoRepository.UploadRepoAsync(pinnedRepo));
                 uploadedRepos.Add(result);
             }
+
             _logger.LogInformation(
                 "Completed uploading repos. {uploadedReposNames}",
                 string.Join(" | ", uploadedRepos.Select(repo => repo.Name))
@@ -100,21 +99,18 @@ namespace Core.Job
         {
             _logger.LogInformation("Making all pinned repositories un-pinned.");
             var currentPinnedRepos = await _repoRepository.GetPinnedReposAsync(true);
-            var currentPinnedReposList = currentPinnedRepos.ToList();
-            foreach (var currentPinnedRepo in currentPinnedReposList)
+            foreach (var currentPinnedRepo in currentPinnedRepos)
                 currentPinnedRepo.Current = false;
-            var nonCurrentRepos = await UploadReposAsync(currentPinnedReposList);
+            var nonCurrentRepos = await UploadReposAsync(currentPinnedRepos);
             _logger.LogInformation("Completed making all pinned repositories un-pinned.");
             return nonCurrentRepos;
         }
 
-        private static IEnumerable<PinnedRepo> MarkWithTimestamp(IEnumerable<PinnedRepo> items)
+        private static IList<PinnedRepo> MarkWithTimestamp(IList<PinnedRepo> items)
         {
-            IEnumerable<PinnedRepo> toMarkWithTimestamp = items.ToList();
             var timeFetched = DateTime.Now;
-            foreach (var item in toMarkWithTimestamp) item.TimeFetched = timeFetched;
-
-            return toMarkWithTimestamp;
+            foreach (var item in items) item.TimeFetched = timeFetched;
+            return items;
         }
 
         private async Task UpdateItemStatus(JobUpdatesStage stage, PinnedRepo pinnedRepo)

@@ -53,10 +53,7 @@ namespace Infrastructure.Infrastructure
                 respContent
             );
             var repos = ConvertRespToObjects(respContent);
-            _logger.LogInformation(
-                "Completed parsing respContent to objects. Produced {repos}.",
-                JsonConvert.SerializeObject(repos)
-            );
+            _logger.LogInformation("Completed parsing respContent to objects.");
             return repos;
         }
 
@@ -64,17 +61,19 @@ namespace Infrastructure.Infrastructure
         {
             _logger.LogInformation("Parsing respContent to objects.");
             var jObject = JObject.Parse(respContent);
-            var jsonRepos = jObject?["data"]?["user"]?["pinnedItems"]?["nodes"]?.Children().ToList();
-            var repos = new List<PinnedRepo>();
-            if (jsonRepos == null)
+            var jsonReposFromGithub = jObject?["data"]?["user"]?["pinnedItems"]?["nodes"]?.Children().ToList();
+            if (jsonReposFromGithub == null)
             {
                 _logger.LogError("There was a problem fetching repos.");
-                return repos;
+                return new List<PinnedRepo>();
             }
 
-            foreach (var repo in jsonRepos.Select(jsonRepo => jsonRepo.ToObject<PinnedRepo>()))
+            var repos = new List<PinnedRepo>();
+            foreach (var repo in jsonReposFromGithub.Select(jsonRepoFromGithub =>
+                jsonRepoFromGithub.ToObject<PinnedRepo>()))
             {
-                _logger.LogInformation("Parsed {@repo}", repo);
+                _logger.LogInformation("Parsed repo from Github with Id: {DatabaseId}. Details: {@repo}",
+                    repo.DatabaseId, repo);
                 repos.Add(repo);
             }
 

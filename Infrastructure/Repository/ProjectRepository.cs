@@ -42,19 +42,15 @@ namespace Infrastructure.Repository
         ///     if there are any null property values that should NOT overwrite fields on the
         ///     documents; specify the non-null properties in the <paramref name="mergeFields" />mergeFields> param.
         /// </param>
-        /// <param name="projectName"></param>
         /// <param name="githubDatabaseId"></param>
         /// <param name="mergeFields"></param>
         /// <returns></returns>
         public async Task<Project> UploadProjectAsync(
             Project project,
-            string projectName,
             string githubDatabaseId,
             string[] mergeFields
         )
         {
-            _logger.LogInformation("Beginning upload of {projectName}", projectName);
-
             // Make document ref in collection
             var projectRef = _projectCollection.Document(githubDatabaseId);
             // write / update in Db
@@ -77,7 +73,6 @@ namespace Infrastructure.Repository
         {
             return await UploadProjectAsync(
                 project,
-                project.ProjectName,
                 project.GithubRepoDatabaseId,
                 new[] { nameof(Project.DeploymentUrl), nameof(Project.TagIds), nameof(Project.ProjectTitle) }
             );

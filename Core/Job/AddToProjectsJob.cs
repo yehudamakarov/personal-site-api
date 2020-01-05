@@ -12,6 +12,7 @@ namespace Core.Job
         private readonly ILogger<AddToProjectsJob> _logger;
         private readonly IProjectBL _projectBL;
         private readonly IRepoBL _repoBL;
+        private const string JobName = nameof(AddToProjectsJob);
 
         public AddToProjectsJob(IRepoBL repoBL, ILogger<AddToProjectsJob> logger, IProjectBL projectBL)
         {
@@ -22,9 +23,11 @@ namespace Core.Job
 
         public async Task BeginJobAsync()
         {
+            _logger.LogInformation("Beginning {JobName}", JobName);
             var reposResult = await _repoBL.GetPinnedRepos(false);
             var projectsAndMergeFields = MakeReposIntoProjects(reposResult.Data);
             await _projectBL.UploadProjects(projectsAndMergeFields);
+            _logger.LogInformation("Finished {JobName}", JobName);
         }
 
         /// <summary>

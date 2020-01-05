@@ -10,7 +10,7 @@ using PersonalSiteApi.BackgroundServices;
 
 namespace PersonalSiteApi.StartupHelper
 {
-    public static class StartupExtension
+    public static class StartupExtensions
     {
         public static IServiceCollection AddSrc(this IServiceCollection services)
         {
@@ -36,11 +36,12 @@ namespace PersonalSiteApi.StartupHelper
 
             services.AddScoped<IGithubRepoFetcherJob, GithubRepoFetcherJob>();
             services.AddScoped<IAddToProjectsJob, AddToProjectsJob>();
+            services.AddScoped<ICalculateTagCountsJob, CalculateTagCountsJob>();
 
             services.AddHostedService<RepoFetcherService>();
             services.AddHostedService<AddToProjectsService>();
-
-
+            services.AddHostedService<CalculateTagCountsService>();
+            
             return services;
         }
     }

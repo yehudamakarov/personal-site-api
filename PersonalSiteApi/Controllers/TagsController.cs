@@ -33,7 +33,7 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(AddTagResult), 200)]
+        [ProducesResponseType(typeof(TagResult), 200)]
         [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> CreateOrFindByTagId([Required] string tagId)
         {

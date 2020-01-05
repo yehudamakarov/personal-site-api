@@ -65,12 +65,7 @@ namespace Core.BL
         public async Task<ProjectsResult> UploadProjects((List<Project>, string[]) projectsAndMergeFields)
         {
             var (projects, mergeFields) = projectsAndMergeFields;
-
             var uploadedProjects = await UploadProjects(projects, mergeFields);
-            _logger.LogInformation(
-                "Completed uploading projects. {uploadedProjects}",
-                JsonConvert.SerializeObject(uploadedProjects)
-            );
             return new ProjectsResult
             {
                 Data = new List<Project>(uploadedProjects),
@@ -152,9 +147,9 @@ namespace Core.BL
 
         private Task<Project> UploadProjectAsync(Project project, string[] mergeFields)
         {
+            _logger.LogInformation("Beginning upload of {projectName}", project.ProjectName);
             return _projectRepository.UploadProjectAsync(
                 project,
-                project.ProjectName,
                 project.GithubRepoDatabaseId,
                 mergeFields
             );

@@ -68,6 +68,21 @@ namespace Infrastructure.Repository
             return await UpdateTagById(tag);
         }
 
+        public async Task<Tag> UpdateTag(Tag tag)
+        {
+            var tagRef = _tagsCollection.Document(tag.TagId);
+            await tagRef.SetAsync(tag);
+            var snapshot = await tagRef.GetSnapshotAsync();
+            return snapshot.ConvertTo<Tag>();
+        }
+
+        public async Task<string> DeleteTag(string tagId)
+        {
+            var tagRef = _tagsCollection.Document(tagId);
+            await tagRef.DeleteAsync();
+            return tagId;
+        }
+
         private async Task<Tag> UpdateTagById(Tag tag)
         {
             var tagRef = _tagsCollection.Document(tag.TagId);

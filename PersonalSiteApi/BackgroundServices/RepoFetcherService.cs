@@ -12,7 +12,7 @@ namespace PersonalSiteApi.BackgroundServices
     {
         private readonly ILogger<RepoFetcherService> _logger;
         private readonly IServiceProvider _services;
-        private Timer _timer;
+        private const string ServiceName = nameof(RepoFetcherService);
 
         public RepoFetcherService(IServiceProvider services, ILogger<RepoFetcherService> logger)
         {
@@ -24,12 +24,12 @@ namespace PersonalSiteApi.BackgroundServices
         {
             try
             {
-                _timer = new Timer(FetchAndUploadRepos, null, TimeSpan.FromSeconds(30), TimeSpan.FromHours(6));
+                var unused = new Timer(FetchAndUploadRepos, null, TimeSpan.FromSeconds(30), TimeSpan.FromHours(6));
                 return Task.CompletedTask;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Job Failed!");
+                _logger.LogError(exception, "Job in {ServiceName} Failed!", ServiceName);
                 throw;
             }
         }

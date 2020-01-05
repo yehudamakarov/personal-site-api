@@ -11,5 +11,7 @@ namespace Core.Interfaces
         Task<Tag> GetTagById(string tagId);
         Task<Tag> IncrementTagCountById(string tagId, int amount);
         Task<Tag> DecrementTagCountById(string tagId, int amount);
+        Task<Tag> UpdateTag(Tag tag);
+        Task<string> DeleteTag(string tagId);
     }
 }

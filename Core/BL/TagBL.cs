@@ -6,6 +6,7 @@ using Core.Enums;
 using Core.Interfaces;
 using Core.Results;
 using Core.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Core.BL
 {
@@ -14,22 +15,30 @@ namespace Core.BL
         #region Properties
 
         private readonly ITagRepository _tagRepository;
+        private readonly ILogger<TagBL> _logger;
 
         #endregion
 
         #region Constructors
 
-        public TagBL(ITagRepository tagRepository)
+        public TagBL(ITagRepository tagRepository, ILogger<TagBL> logger)
         {
             _tagRepository = tagRepository;
+            _logger = logger;
         }
 
         #endregion
 
-        public async Task<AddTagResult> CreateOrFindByTagId(string tagId)
+        #region Public Methods
+
+        public async Task<TagResult> CreateOrFindByTagId(string tagId)
         {
             var tag = await _tagRepository.CreateOrFindByTagId(new Tag { TagId = tagId });
-            return new AddTagResult { Data = tag, Details = new ResultDetails { ResultStatus = ResultStatus.Success } };
+            return new TagResult()
+            {
+                Data = tag,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
         }
 
         public async Task<TagsResult> GetAllTags()
@@ -38,13 +47,18 @@ namespace Core.BL
             if (tags.Count != 0)
                 return new TagsResult
                 {
-                    Data = tags, Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                    Data = tags,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
                 };
 
             return new TagsResult
             {
                 Data = tags,
-                Details = new ResultDetails { Message = "None were found", ResultStatus = ResultStatus.Warning }
+                Details = new ResultDetails
+                {
+                    Message = "None were found",
+                    ResultStatus = ResultStatus.Warning
+                }
             };
         }
 
@@ -63,6 +77,64 @@ namespace Core.BL
                 (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
             await Task.WhenAll(initiatedCreateOrFindTagsTasks);
         }
+
+        public async Task<TagResult> UpdateTag(Tag tag)
+        {
+            try
+            {
+                var updatedTag = await _tagRepository.UpdateTag(tag);
+                return new TagResult
+                {
+                    Data = updatedTag,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                };
+            }
+            catch (Exception exception)
+            {
+                const string message = "This tag may have not been updated.";
+                _logger.LogError(exception, message + " {@tag}", tag);
+                return new TagResult
+                {
+                    Data = tag,
+                    Details = new ResultDetails
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+        }
+
+        public async Task<DeleteTagResult> DeleteTagByTagId(string tagId)
+        {
+            try
+            {
+                var deletedTagId = await _tagRepository.DeleteTag(tagId);
+                return new DeleteTagResult
+                {
+                    Data = deletedTagId,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                };
+            }
+            catch (Exception exception)
+            {
+                const string message = "There was a problem deleting this Tag.";
+                _logger.LogError(exception, message + " {tagId}", tagId);
+                return new DeleteTagResult
+                {
+                    Data = tagId,
+                    Details = new ResultDetails
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
 
         private async Task UpdateTagCount(IEnumerable<string> tagIds, TagCountUpdates direction, int amount)
         {
@@ -104,11 +176,16 @@ namespace Core.BL
                     Data = null,
                     Details = new ResultDetails
                     {
-                        Message = $"No tag with id {tagId} was found.", ResultStatus = ResultStatus.Failure
+                        Message = $"No tag with id {tagId} was found.",
+                        ResultStatus = ResultStatus.Failure
                     }
                 };
 
-            return new TagResult { Data = tag, Details = new ResultDetails { ResultStatus = ResultStatus.Success } };
+            return new TagResult
+            {
+                Data = tag,
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
         }
 
         private async Task DecrementTagAmounts(IEnumerable<string> tagIds, int amount)
@@ -120,5 +197,7 @@ namespace Core.BL
         {
             foreach (var tagId in tagIds) await _tagRepository.IncrementTagCountById(tagId, amount);
         }
+
+        #endregion
     }
 }

@@ -11,7 +11,6 @@ namespace Core.Interfaces
 
         Task<Project> UploadProjectAsync(
             Project project,
-            string projectName,
             string githubDatabaseId,
             string[] mergeFields
         );
