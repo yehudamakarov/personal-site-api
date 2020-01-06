@@ -13,18 +13,23 @@ namespace PersonalSiteApi.BackgroundServices
         private const string ServiceName = nameof(RepoFetcherService);
         private readonly ILogger<RepoFetcherService> _logger;
         private readonly IServiceProvider _services;
+        private TimeSpan Interval { get; set; }
+        private TimeSpan InitialWait { get; set; }
+
 
         public RepoFetcherService(IServiceProvider services, ILogger<RepoFetcherService> logger)
         {
             _services = services;
             _logger = logger;
+            InitialWait = TimeSpan.FromSeconds(30);
+            Interval = TimeSpan.FromSeconds(30);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var unused = new Timer(FetchAndUploadRepos, null, TimeSpan.FromSeconds(30), TimeSpan.FromHours(6));
+                var unused = new Timer(FetchAndUploadRepos, null, InitialWait,Interval);
                 return Task.CompletedTask;
             }
             catch (Exception exception)

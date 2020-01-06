@@ -13,7 +13,7 @@ namespace Core.Job
         private const string JobName = nameof(GithubRepoFetcherJob);
         private readonly IGithubInfrastructure _githubInfrastructure;
 
-        private readonly Dictionary<string, GithubRepoFetcherJobStage> _itemStatus =
+        private Dictionary<string, GithubRepoFetcherJobStage> _itemStatus =
             new Dictionary<string, GithubRepoFetcherJobStage>();
 
         private readonly IJobStatusNotifier _jobStatusNotifier;
@@ -49,7 +49,17 @@ namespace Core.Job
             var unused2 = await UploadPinnedReposAsCurrent(timeStampedRepos);
 
             await UpdateJobStatus(GithubRepoFetcherJobStage.Done);
+            await FinishJob();
+            
+        }
+
+        private async Task FinishJob()
+        {
             _logger.LogInformation("Completed {JobName}", JobName);
+            await Task.Delay(5000);
+            _jobStatus = GithubRepoFetcherJobStage.None;
+            _itemStatus = new Dictionary<string, GithubRepoFetcherJobStage>();
+            await UpdateJobStatus(_jobStatus);
         }
 
         private async Task<IList<PinnedRepo>> UploadPinnedReposAsCurrent(IList<PinnedRepo> repos)
