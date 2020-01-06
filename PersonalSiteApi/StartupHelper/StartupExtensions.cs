@@ -3,7 +3,7 @@ using Core.Interfaces;
 using Core.Job;
 using Core.Manager;
 using Infrastructure.Infrastructure;
-using Infrastructure.Notification.RepoSync;
+using Infrastructure.Notification.JobStatus;
 using Infrastructure.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using PersonalSiteApi.BackgroundServices;
@@ -32,7 +32,7 @@ namespace PersonalSiteApi.StartupHelper
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<ITagManager, TagManager>();
 
-            services.AddScoped<IGithubRepoFetcherNotifier, GithubRepoFetcherNotifier>();
+            services.AddScoped<IJobStatusNotifier, JobStatusNotifier>();
 
             services.AddScoped<IGithubRepoFetcherJob, GithubRepoFetcherJob>();
             services.AddScoped<IAddToProjectsJob, AddToProjectsJob>();

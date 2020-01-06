@@ -1,11 +1,12 @@
 namespace Core
 {
-    public enum JobUpdatesStage
+    public enum GithubRepoFetcherJobStage
     {
+        None,
         PreparingDatabase,
         Fetching,
         Uploading,
         Done,
-        Errored
+        Error
     }
 }

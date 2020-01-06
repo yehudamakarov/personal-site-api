@@ -1,4 +1,4 @@
-﻿using Infrastructure.Notification.RepoSync;
+﻿using Infrastructure.Notification.JobStatus;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -39,10 +39,10 @@ namespace PersonalSiteApi
                 app.UseHsts();
 
             app.UseCors("SignalRPolicy");
-            app.UseSignalR(
-                hubRouteBuilder => { hubRouteBuilder.MapHub<RepoSyncNotificationHub>("/hubs/repoSyncJobUpdates"); }
-            );
             app.UseAuthentication();
+            app.UseSignalR(
+                hubRouteBuilder => { hubRouteBuilder.MapHub<JobStatusUpdatesHub>("/hubs/JobStatusUpdates"); }
+            );
             app.UseSwagger();
             app.UseSwaggerUI(
                 options =>
