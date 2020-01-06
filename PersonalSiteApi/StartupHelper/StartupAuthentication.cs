@@ -33,9 +33,7 @@ namespace PersonalSiteApi.StartupHelper
                             var path = context.Request.Path;
                             if (!string.IsNullOrEmpty(accessToken) &&
                                 path.StartsWithSegments("/hubs/JobStatusUpdates"))
-                            {
                                 context.Token = accessToken;
-                            }
 
                             return Task.CompletedTask;
                         }

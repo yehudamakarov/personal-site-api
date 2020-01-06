@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Types;
 using Microsoft.AspNetCore.Authorization;

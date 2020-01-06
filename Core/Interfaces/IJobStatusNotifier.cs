@@ -5,6 +5,7 @@ namespace Core.Interfaces
 {
     public interface IJobStatusNotifier
     {
-        Task PushGithubRepoFetcherJobStatusUpdate(Dictionary<string, GithubRepoFetcherJobStage> itemStatus, GithubRepoFetcherJobStage jobStatus);
+        Task PushGithubRepoFetcherJobStatusUpdate(Dictionary<string, GithubRepoFetcherJobStage> itemStatus,
+            GithubRepoFetcherJobStage jobStatus);
     }
 }
