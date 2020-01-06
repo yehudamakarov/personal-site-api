@@ -40,6 +40,7 @@ namespace Core.Job
             _logger.LogInformation("Beginning {JobName}", JobName);
             await UpdateJobStatus(GithubRepoFetcherJobStage.Fetching);
             var repos = await _githubInfrastructure.FetchPinnedReposAsync();
+            await Task.Delay(400);
 
             await UpdateJobStatus(GithubRepoFetcherJobStage.PreparingDatabase);
             var unused = await MakeAllPinnedReposNonCurrent();
