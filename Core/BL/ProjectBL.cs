@@ -174,8 +174,10 @@ namespace Core.BL
         private async Task UpdateTagIdsOfProject(Project newProject)
         {
             var currentProject = await _projectRepository.GetProjectById(newProject.GithubRepoDatabaseId);
+            // todo move create or find tags INTO update tag counts. if there is a null tag, we want to create it... maybe.
+            // then it will keep getting created as it's progressively being deleted. that's not good
             await _tagBL.CreateOrFindTags(newProject.TagIds);
-            await _tagBL.UpdateTagCounts(currentProject.TagIds, newProject.TagIds);
+            await _tagBL.AdjustTagCounts(currentProject.TagIds, newProject.TagIds);
         }
     }
 }

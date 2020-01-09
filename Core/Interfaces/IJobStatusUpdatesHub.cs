@@ -6,11 +6,17 @@ namespace Core.Interfaces
     public interface IJobStatusUpdatesHub
     {
         Task PushGithubRepoFetcherJobStatusUpdate(GithubRepoFetcherJobStatus status);
+        Task PushCalculateTagCountsJobStatusUpdate(CalculateTagCountsJobStatus status);
+    }
+
+    public class CalculateTagCountsJobStatus
+    {
+        public JobStage JobStage { get; set; }
     }
 
     public class GithubRepoFetcherJobStatus
     {
-        public Dictionary<string, GithubRepoFetcherJobStage> ItemStatus { get; set; }
-        public GithubRepoFetcherJobStage JobStatus { get; set; }
+        public Dictionary<string, JobStage> ItemStatus { get; set; }
+        public JobStage JobStage { get; set; }
     }
 }

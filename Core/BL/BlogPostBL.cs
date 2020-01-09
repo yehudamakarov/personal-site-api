@@ -182,7 +182,7 @@ namespace Core.BL
         {
             var currentBlogPost = await _blogPostRepository.GetBlogPostById(newBlogPost.Id);
             await _tagBL.CreateOrFindTags(newBlogPost.TagIds);
-            await _tagBL.UpdateTagCounts(currentBlogPost.TagIds, newBlogPost.TagIds);
+            await _tagBL.AdjustTagCounts(currentBlogPost.TagIds, newBlogPost.TagIds);
         }
     }
 }

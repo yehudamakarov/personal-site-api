@@ -12,15 +12,12 @@ namespace Core.Job
     {
         private const string JobName = nameof(GithubRepoFetcherJob);
         private readonly IGithubInfrastructure _githubInfrastructure;
-
-        private Dictionary<string, GithubRepoFetcherJobStage> _itemStatus =
-            new Dictionary<string, GithubRepoFetcherJobStage>();
-
+        private Dictionary<string, JobStage> _itemStatus =
+            new Dictionary<string, JobStage>();
         private readonly IJobStatusNotifier _jobStatusNotifier;
         private readonly ILogger<GithubRepoFetcherJob> _logger;
         private readonly IRepoRepository _repoRepository;
-
-        private GithubRepoFetcherJobStage _jobStatus;
+        private JobStage _jobStatus;
 
         public GithubRepoFetcherJob(
             IGithubInfrastructure githubInfrastructure,
@@ -38,18 +35,18 @@ namespace Core.Job
         public async Task BeginJobAsync()
         {
             _logger.LogInformation("Beginning {JobName}", JobName);
-            await UpdateJobStatus(GithubRepoFetcherJobStage.Fetching);
+            await UpdateJobStatus(JobStage.FetchingFromGithub);
             var repos = await _githubInfrastructure.FetchPinnedReposAsync();
             await Task.Delay(400);
 
-            await UpdateJobStatus(GithubRepoFetcherJobStage.PreparingDatabase);
+            await UpdateJobStatus(JobStage.PreparingDatabase);
             var unused = await MakeAllPinnedReposNonCurrent();
 
-            await UpdateAllItemsStatus(GithubRepoFetcherJobStage.Uploading, repos);
+            await UpdateAllItemsStatus(JobStage.UploadingToDatabase, repos);
             var timeStampedRepos = MarkWithTimestamp(repos);
             var unused2 = await UploadPinnedReposAsCurrent(timeStampedRepos);
 
-            await UpdateJobStatus(GithubRepoFetcherJobStage.Done);
+            await UpdateJobStatus(JobStage.Done);
             await FinishJob();
             
         }
@@ -58,8 +55,8 @@ namespace Core.Job
         {
             _logger.LogInformation("Completed {JobName}", JobName);
             await Task.Delay(5000);
-            _jobStatus = GithubRepoFetcherJobStage.None;
-            _itemStatus = new Dictionary<string, GithubRepoFetcherJobStage>();
+            _jobStatus = JobStage.None;
+            _itemStatus = new Dictionary<string, JobStage>();
             await UpdateJobStatus(_jobStatus);
         }
 
@@ -104,7 +101,7 @@ namespace Core.Job
         private async Task<PinnedRepo> AwaitUploadAndSendUpdate(Task<PinnedRepo> uploadTask)
         {
             var repo = await uploadTask;
-            await UpdateItemStatus(GithubRepoFetcherJobStage.Done, repo);
+            await UpdateItemStatus(JobStage.Done, repo);
             await Task.Delay(400);
             return repo;
         }
@@ -127,19 +124,19 @@ namespace Core.Job
             return items;
         }
 
-        private async Task UpdateItemStatus(GithubRepoFetcherJobStage stage, PinnedRepo pinnedRepo)
+        private async Task UpdateItemStatus(JobStage stage, PinnedRepo pinnedRepo)
         {
             _itemStatus[pinnedRepo.DatabaseId] = stage;
             await _jobStatusNotifier.PushGithubRepoFetcherJobStatusUpdate(_itemStatus, _jobStatus);
         }
 
-        private async Task UpdateAllItemsStatus(GithubRepoFetcherJobStage stage, IEnumerable<PinnedRepo> repos)
+        private async Task UpdateAllItemsStatus(JobStage stage, IEnumerable<PinnedRepo> repos)
         {
             foreach (var repo in repos) _itemStatus[repo.DatabaseId] = stage;
             await UpdateJobStatus(stage);
         }
 
-        private async Task UpdateJobStatus(GithubRepoFetcherJobStage stage)
+        private async Task UpdateJobStatus(JobStage stage)
         {
             _jobStatus = stage;
             await _jobStatusNotifier.PushGithubRepoFetcherJobStatusUpdate(_itemStatus, _jobStatus);

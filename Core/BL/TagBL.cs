@@ -62,13 +62,15 @@ namespace Core.BL
             };
         }
 
-        public async Task UpdateTagCounts(
+        public async Task AdjustTagCounts(
             IReadOnlyCollection<string> currentTagIds,
             IReadOnlyCollection<string> newTagIds
         )
         {
-            await AdjustTagCounts(currentTagIds, newTagIds);
-        }
+            var toIncrement = newTagIds.Except(currentTagIds).ToList();
+            var toDecrement = currentTagIds.Except(newTagIds).ToList();
+            await UpdateTagCount(toIncrement, TagCountUpdates.Increment, 1);
+            await UpdateTagCount(toDecrement, TagCountUpdates.Decrement, 1);        }
 
         public async Task CreateOrFindTags(IEnumerable<string> tagIds)
         {
@@ -131,7 +133,7 @@ namespace Core.BL
                 };
             }
         }
-
+        
         #endregion
 
         #region Private Methods
@@ -149,17 +151,6 @@ namespace Core.BL
                 default:
                     throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
-        }
-
-        private async Task AdjustTagCounts(
-            IReadOnlyCollection<string> currentProjectTagIds,
-            IReadOnlyCollection<string> newProjectTagIds
-        )
-        {
-            var toIncrement = newProjectTagIds.Except(currentProjectTagIds).ToList();
-            var toDecrement = currentProjectTagIds.Except(newProjectTagIds).ToList();
-            await UpdateTagCount(toIncrement, TagCountUpdates.Increment, 1);
-            await UpdateTagCount(toDecrement, TagCountUpdates.Decrement, 1);
         }
 
         private static async Task<T> AwaitTask<T>(Task<T> task)
@@ -190,12 +181,20 @@ namespace Core.BL
 
         private async Task DecrementTagAmounts(IEnumerable<string> tagIds, int amount)
         {
-            foreach (var tagId in tagIds) await _tagRepository.DecrementTagCountById(tagId, amount);
+            foreach (var tagId in tagIds)
+            {
+                var tag = await CreateOrFindByTagId(tagId);
+                await _tagRepository.DecrementTagCountById(tagId, amount);
+            }
         }
 
         private async Task IncrementTagAmounts(IEnumerable<string> tagIds, int amount)
         {
-            foreach (var tagId in tagIds) await _tagRepository.IncrementTagCountById(tagId, amount);
+            foreach (var tagId in tagIds)
+            {
+                var tag = await CreateOrFindByTagId(tagId);
+                await _tagRepository.IncrementTagCountById(tagId, amount);
+            }
         }
 
         #endregion

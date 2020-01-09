@@ -13,19 +13,22 @@ namespace Core.Job
         private readonly ILogger<CalculateTagCountsJob> _logger;
         private readonly IProjectBL _projectBL;
         private readonly ITagBL _tagBL;
+        private readonly IJobStatusNotifier _jobStatusNotifier;
 
         public CalculateTagCountsJob(ITagBL tagBL, IProjectBL projectBL, IBlogPostBL blogPostBL,
-            ILogger<CalculateTagCountsJob> logger)
+            ILogger<CalculateTagCountsJob> logger, IJobStatusNotifier jobStatusNotifier)
         {
             _tagBL = tagBL;
             _projectBL = projectBL;
             _blogPostBL = blogPostBL;
             _logger = logger;
+            _jobStatusNotifier = jobStatusNotifier;
         }
 
         public async Task BeginJobAsync()
         {
             _logger.LogInformation("Beginning {JobName}.", JobName);
+            await _jobStatusNotifier.PushCalculateTagCountsJobStatusUpdate(JobStage.CountingTagged);
             var tags = await _tagBL.GetAllTags();
             if (tags.Details.ResultStatus != ResultStatus.Success)
                 _logger.LogWarning("There was a problem retrieving tags in order to count them.");
@@ -33,7 +36,10 @@ namespace Core.Job
                 foreach (var tag in tags.Data)
                     await CalculateArticleCount(tag);
 
+            await _jobStatusNotifier.PushCalculateTagCountsJobStatusUpdate(JobStage.Done);
             _logger.LogInformation("Finished {JobName}.", JobName);
+            await Task.Delay(5000);
+            await _jobStatusNotifier.PushCalculateTagCountsJobStatusUpdate(JobStage.None);
         }
 
         private async Task CalculateArticleCount(Tag tag)

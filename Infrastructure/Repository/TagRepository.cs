@@ -47,7 +47,7 @@ namespace Infrastructure.Repository
             else
                 tag.ArticleCount = amount;
 
-            return await UpdateTagById(tag);
+            return await UpdateTag(tag);
         }
 
         public async Task<Tag> DecrementTagCountById(string tagId, int amount)
@@ -57,7 +57,7 @@ namespace Infrastructure.Repository
                 tag.ArticleCount -= amount;
             else
                 tag.ArticleCount = 0;
-            return await UpdateTagById(tag);
+            return await UpdateTag(tag);
         }
 
         public async Task<Tag> UpdateTag(Tag tag)
@@ -73,14 +73,6 @@ namespace Infrastructure.Repository
             var tagRef = _tagsCollection.Document(tagId);
             await tagRef.DeleteAsync();
             return tagId;
-        }
-
-        private async Task<Tag> UpdateTagById(Tag tag)
-        {
-            var tagRef = _tagsCollection.Document(tag.TagId);
-            await tagRef.SetAsync(tag);
-            var snapShot = await tagRef.GetSnapshotAsync();
-            return snapShot.ConvertTo<Tag>();
         }
     }
 }

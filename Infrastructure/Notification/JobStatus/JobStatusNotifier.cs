@@ -8,25 +8,33 @@ namespace Infrastructure.Notification.JobStatus
 {
     public class JobStatusNotifier : IJobStatusNotifier
     {
-        private readonly IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> _githubRepoFetcherHubContext;
+        private readonly IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> _hubContext;
 
         public JobStatusNotifier(
-            IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> githubRepoFetcherHubContext
+            IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> hubContext
         )
         {
-            _githubRepoFetcherHubContext = githubRepoFetcherHubContext;
+            _hubContext = hubContext;
         }
 
 
-        public async Task PushGithubRepoFetcherJobStatusUpdate(Dictionary<string, GithubRepoFetcherJobStage> itemStatus,
-            GithubRepoFetcherJobStage jobStatus)
+        public async Task PushGithubRepoFetcherJobStatusUpdate(Dictionary<string, JobStage> itemStatus,
+            JobStage jobStage)
         {
-            await _githubRepoFetcherHubContext.Clients.All.PushGithubRepoFetcherJobStatusUpdate(
+            await _hubContext.Clients.All.PushGithubRepoFetcherJobStatusUpdate(
                 new GithubRepoFetcherJobStatus
                 {
                     ItemStatus = itemStatus,
-                    JobStatus = jobStatus
-                });
+                    JobStage = jobStage
+                }
+            );
+        }
+
+        public async Task PushCalculateTagCountsJobStatusUpdate(JobStage jobStage)
+        {
+            await _hubContext.Clients.All.PushCalculateTagCountsJobStatusUpdate(
+                new CalculateTagCountsJobStatus { JobStage = jobStage }
+            );
         }
     }
 }

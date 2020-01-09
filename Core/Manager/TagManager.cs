@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Requests.Tags;
+using Core.Results;
 using Microsoft.Extensions.Logging;
 
 namespace Core.Manager
@@ -39,19 +40,53 @@ namespace Core.Manager
                 return false;
             }
         }
+        
+        public async Task<TagResult> RenameTagById(string currentTagId,string newTagId )
+        {
+            try
+            {
+                var tag = await _tagBL.CreateOrFindByTagId(currentTagId);
+                await RenameTagInProjects(currentTagId, newTagId);
+                // todo continue
+                var blogPosts = await _blogPostBL.GetBlogPostsByTagId(currentTagId);
+                
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                throw;
+            }
+        }
 
         #endregion
 
         #region Properties
 
         private readonly ILogger<TagManager> _logger;
+
         private readonly IProjectBL _projectBL;
+
         private readonly IBlogPostBL _blogPostBL;
+
         private readonly ITagBL _tagBL;
 
         #endregion
 
         #region Private Methods
+
+        private async Task RenameTagInProjects(string currentTagId, string newTagId)
+        {
+            var projectsResult = await _projectBL.GetProjectsByTagId(currentTagId);
+            if (projectsResult.Details.ResultStatus == ResultStatus.Failure)
+            {
+                foreach (var project in projectsResult.Data)
+                {
+                    project.TagIds.Remove(currentTagId);
+                    project.TagIds.Add(newTagId);
+                    var updatedProject = await _projectBL.UpdateProject(project);
+                }
+            }
+        }
 
         private async Task MapTagToBlogPosts(IEnumerable<Facade> facadesToMap, string tagId)
         {
