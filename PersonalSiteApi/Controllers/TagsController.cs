@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Requests.Tags;
@@ -51,9 +52,10 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public async Task<IActionResult> RenameTag(string existingTagId, string newTagId)
+        public IActionResult RenameTag(string existingTagId, string newTagId)
         {
-            return Ok();
+            _tagManager.RenameTagById(existingTagId, newTagId);
+            return new StatusCodeResult((int) HttpStatusCode.Accepted);
         }
 
         [HttpPost]

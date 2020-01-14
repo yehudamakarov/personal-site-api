@@ -40,21 +40,33 @@ namespace Core.Manager
                 return false;
             }
         }
-        
-        public async Task<TagResult> RenameTagById(string currentTagId,string newTagId )
+
+        public async void RenameTagById(string currentTagId, string newTagId)
         {
             try
             {
-                var tag = await _tagBL.CreateOrFindByTagId(currentTagId);
-                await RenameTagInProjects(currentTagId, newTagId);
-                // todo continue
-                var blogPosts = await _blogPostBL.GetBlogPostsByTagId(currentTagId);
+                // below is only needed if the current tag is null (not in DB) for some reason. update Projects / Blog Posts createsOrFinds any NEW tag
+                var currentTagResult = await _tagBL.CreateOrFindByTagId(currentTagId);
+                var currentTagCount = currentTagResult.Data.TagId;
+
+                var projectsChangedCount = await RenameTagInProjects(currentTagId, newTagId);
+                var blogPostsChangedCount = await RenameTagInBlogPosts(currentTagId, newTagId);
+                var newTagResult = await _tagBL.CreateOrFindByTagId(newTagId);
+                newTagResult.Details.Message =
+                    $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
                 
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
-                throw;
+                _logger.LogError(exception, "There was a problem renaming {tagId}", currentTagId);
+                var result =  new TagResult
+                {
+                    Details = new ResultDetails
+                    {
+                        ResultStatus = ResultStatus.Failure,
+                        Message = $"There was a problem renaming {currentTagId} to {newTagId}."
+                    }
+                };
             }
         }
 
@@ -74,18 +86,32 @@ namespace Core.Manager
 
         #region Private Methods
 
-        private async Task RenameTagInProjects(string currentTagId, string newTagId)
+        private async Task<int> RenameTagInBlogPosts(string currentTagId, string newTagId)
+        {
+            var blogPostsResult = await _blogPostBL.GetBlogPostsByTagId(currentTagId);
+            if (blogPostsResult.Details.ResultStatus == ResultStatus.Failure) return 0;
+            foreach (var blogPost in blogPostsResult.Data)
+            {
+                blogPost.TagIds.Remove(currentTagId);
+                blogPost.TagIds.Add(newTagId);
+                var updatedBlogPost = await _blogPostBL.UpdateBlogPost(blogPost);
+            }
+
+            return blogPostsResult.Data.Count;
+        }
+
+        private async Task<int> RenameTagInProjects(string currentTagId, string newTagId)
         {
             var projectsResult = await _projectBL.GetProjectsByTagId(currentTagId);
-            if (projectsResult.Details.ResultStatus == ResultStatus.Failure)
+            if (projectsResult.Details.ResultStatus == ResultStatus.Failure) return 0;
+            foreach (var project in projectsResult.Data)
             {
-                foreach (var project in projectsResult.Data)
-                {
-                    project.TagIds.Remove(currentTagId);
-                    project.TagIds.Add(newTagId);
-                    var updatedProject = await _projectBL.UpdateProject(project);
-                }
+                project.TagIds.Remove(currentTagId);
+                project.TagIds.Add(newTagId);
+                var updatedProject = await _projectBL.UpdateProject(project);
             }
+
+            return projectsResult.Data.Count;
         }
 
         private async Task MapTagToBlogPosts(IEnumerable<Facade> facadesToMap, string tagId)
