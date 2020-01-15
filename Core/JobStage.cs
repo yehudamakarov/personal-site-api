@@ -9,5 +9,6 @@ namespace Core
         UploadingToDatabase,
         Done,
         Error,
+        InProgress
     }
 }

@@ -17,6 +17,7 @@ namespace PersonalSiteApi.Controllers
         private readonly ILogger<TagsController> _logger;
         private readonly ITagBL _tagBL;
         private readonly ITagManager _tagManager;
+        private const string UpdatesWillBeBroadcastOverAWebsocket = "Updates will be broadcast over a websocket.";
 
         public TagsController(ILogger<TagsController> logger, ITagBL tagBL, ITagManager tagManager)
         {
@@ -44,10 +45,11 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public async Task<IActionResult> MapTag(MapTagRequest mapTagRequest)
+        public IActionResult MapTag(MapTagRequest mapTagRequest)
         {
-            var result = await _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
-            return Ok(result);
+            _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
+            
+            return StatusCode((int) HttpStatusCode.Accepted, mapTagRequest.TagId);
         }
 
         [HttpPost]
@@ -55,7 +57,7 @@ namespace PersonalSiteApi.Controllers
         public IActionResult RenameTag(string existingTagId, string newTagId)
         {
             _tagManager.RenameTagById(existingTagId, newTagId);
-            return new StatusCodeResult((int) HttpStatusCode.Accepted);
+            return StatusCode((int) HttpStatusCode.Accepted, existingTagId);
         }
 
         [HttpPost]

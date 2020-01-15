@@ -13,31 +13,32 @@ namespace Core.Manager
     {
         #region Constructors
 
-        public TagManager(IProjectBL projectBL, IBlogPostBL blogPostBL, ITagBL tagBL, ILogger<TagManager> logger)
+        public TagManager(IProjectBL projectBL, IBlogPostBL blogPostBL, ITagBL tagBL, ILogger<TagManager> logger,
+            IJobStatusNotifier jobStatusNotifier)
         {
             _projectBL = projectBL;
             _blogPostBL = blogPostBL;
             _tagBL = tagBL;
             _logger = logger;
+            _jobStatusNotifier = jobStatusNotifier;
         }
 
         #endregion
 
         #region Public Methods
 
-        public async Task<bool> MapTag(IEnumerable<Facade> facadesToMap, string tagId)
+        public async void MapTag(IEnumerable<Facade> facadesToMap, string tagId)
         {
             try
             {
+                // await _jobStatusNotifier.PushMapTagJobStatusUpdate(new TagResult(), JobStage.InProgress);
                 var toMap = facadesToMap.ToList();
                 await MapTagToProjects(toMap, tagId);
                 await MapTagToBlogPosts(toMap, tagId);
-                return true;
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "There was a problem mapping {tagId}", tagId);
-                return false;
             }
         }
 
@@ -54,12 +55,11 @@ namespace Core.Manager
                 var newTagResult = await _tagBL.CreateOrFindByTagId(newTagId);
                 newTagResult.Details.Message =
                     $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
-                
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "There was a problem renaming {tagId}", currentTagId);
-                var result =  new TagResult
+                var result = new TagResult
                 {
                     Details = new ResultDetails
                     {
@@ -75,11 +75,9 @@ namespace Core.Manager
         #region Properties
 
         private readonly ILogger<TagManager> _logger;
-
+        private readonly IJobStatusNotifier _jobStatusNotifier;
         private readonly IProjectBL _projectBL;
-
         private readonly IBlogPostBL _blogPostBL;
-
         private readonly ITagBL _tagBL;
 
         #endregion

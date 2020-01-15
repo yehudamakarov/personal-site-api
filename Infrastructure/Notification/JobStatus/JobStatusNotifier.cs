@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core;
 using Core.Interfaces;
+using Core.Results;
+using Core.Types;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.Notification.JobStatus
@@ -35,6 +37,15 @@ namespace Infrastructure.Notification.JobStatus
             await _hubContext.Clients.All.PushCalculateTagCountsJobStatusUpdate(
                 new CalculateTagCountsJobStatus { JobStage = jobStage }
             );
+        }
+
+        public async Task PushMapTagJobStatusUpdate(TagResult tagResult, JobStage jobStage)
+        {
+            await _hubContext.Clients.All.PushMapTagJobStatusUpdate(new MapTagJobStatus
+            {
+                TagResult = tagResult,
+                JobStage = jobStage
+            });
         }
     }
 }

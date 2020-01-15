@@ -7,7 +7,7 @@ namespace Core.Interfaces
 {
     public interface ITagManager
     {
-        Task<bool> MapTag(IEnumerable<Facade> facadesToMap, string tagId);
+        void MapTag(IEnumerable<Facade> facadesToMap, string tagId);
         void RenameTagById(string currentTagId, string newTagId);
     }
 }
