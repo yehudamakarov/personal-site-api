@@ -93,7 +93,8 @@ namespace Core.Manager
                 var toMap = facadesToMap.ToList();
                 await MapTagToProjects(toMap, tagId);
                 await MapTagToBlogPosts(toMap, tagId);
-                await _jobStatusNotifier.PushMapTagJobStatusUpdate(workingTag, JobStage.Done);
+                var updatedTag = await _tagBL.CreateOrFindByTagId(tagId);
+                await _jobStatusNotifier.PushMapTagJobStatusUpdate(updatedTag, JobStage.Done);
             }
             catch (Exception exception)
             {

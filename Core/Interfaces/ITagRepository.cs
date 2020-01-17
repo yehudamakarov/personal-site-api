@@ -6,7 +6,7 @@ namespace Core.Interfaces
 {
     public interface ITagRepository
     {
-        Task<Tag> CreateOrFindByTagId(Tag tag);
+        Task<Tag> CreateOrFindByTagId(string tag);
         Task<IList<Tag>> GetAllTags();
         Task<Tag> GetTagById(string tagId);
         Task<Tag> IncrementTagCountById(string tagId, int amount);

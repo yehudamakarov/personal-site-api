@@ -17,12 +17,18 @@ namespace Infrastructure.Repository
             _tagsCollection = Db.Collection("tags");
         }
 
-        public async Task<Tag> CreateOrFindByTagId(Tag tag)
+        public async Task<Tag> CreateOrFindByTagId(string tagId)
         {
-            var tagRef = _tagsCollection.Document(tag.TagId);
-            var unused = await tagRef.SetAsync(tag, SetOptions.MergeAll);
+            var tagRef = _tagsCollection.Document(tagId);
             var snapshot = await tagRef.GetSnapshotAsync();
-            return snapshot.ConvertTo<Tag>();
+            if (snapshot.Exists)
+            {
+                return snapshot.ConvertTo<Tag>();
+            }
+
+            var newTag = new Tag { TagId = tagId };
+            await tagRef.SetAsync(newTag);
+            return newTag;
         }
 
         public async Task<IList<Tag>> GetAllTags()

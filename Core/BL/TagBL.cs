@@ -33,7 +33,7 @@ namespace Core.BL
 
         public async Task<TagResult> CreateOrFindByTagId(string tagId)
         {
-            var tag = await _tagRepository.CreateOrFindByTagId(new Tag { TagId = tagId });
+            var tag = await _tagRepository.CreateOrFindByTagId(tagId);
             return new TagResult
             {
                 Data = tag,
