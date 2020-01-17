@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Requests.Tags;
 using Core.Results;
+using Core.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Core.Manager
@@ -27,19 +28,15 @@ namespace Core.Manager
 
         #region Public Methods
 
-        public async void MapTag(IEnumerable<Facade> facadesToMap, string tagId)
+        public async Task<MapTagJobStatus> MapTag(IEnumerable<Facade> facadesToMap, string tagId)
         {
-            try
+            var workingTag = await _tagBL.CreateOrFindByTagId(tagId);
+            MapTagJobAsync(facadesToMap, workingTag);
+            return new MapTagJobStatus
             {
-                // await _jobStatusNotifier.PushMapTagJobStatusUpdate(new TagResult(), JobStage.InProgress);
-                var toMap = facadesToMap.ToList();
-                await MapTagToProjects(toMap, tagId);
-                await MapTagToBlogPosts(toMap, tagId);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "There was a problem mapping {tagId}", tagId);
-            }
+                JobStage = JobStage.InProgress,
+                Item = workingTag
+            };
         }
 
         public async void RenameTagById(string currentTagId, string newTagId)
@@ -75,14 +72,36 @@ namespace Core.Manager
         #region Properties
 
         private readonly ILogger<TagManager> _logger;
+
         private readonly IJobStatusNotifier _jobStatusNotifier;
+
         private readonly IProjectBL _projectBL;
+
         private readonly IBlogPostBL _blogPostBL;
+
         private readonly ITagBL _tagBL;
 
         #endregion
 
         #region Private Methods
+
+        private async void MapTagJobAsync(IEnumerable<Facade> facadesToMap, TagResult workingTag)
+        {
+            try
+            {
+                var tagId = workingTag.Data.TagId;
+                var toMap = facadesToMap.ToList();
+                await MapTagToProjects(toMap, tagId);
+                await MapTagToBlogPosts(toMap, tagId);
+                await _jobStatusNotifier.PushMapTagJobStatusUpdate(workingTag, JobStage.Done);
+            }
+            catch (Exception exception)
+            {
+                var tagId = workingTag.Data.TagId;
+                _logger.LogError(exception, "There was a problem during {JobName} for {tagId}", nameof(MapTagJobAsync),
+                    tagId);
+            }
+        }
 
         private async Task<int> RenameTagInBlogPosts(string currentTagId, string newTagId)
         {

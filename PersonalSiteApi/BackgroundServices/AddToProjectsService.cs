@@ -27,7 +27,7 @@ namespace PersonalSiteApi.BackgroundServices
             try
             {
                 _timer = new Timer(AddPinnedReposToProjects, null, TimeSpan.FromSeconds(60),
-                    TimeSpan.FromHours(12));
+                    TimeSpan.FromSeconds(600));
                 return Task.CompletedTask;
             }
             catch (Exception exception)

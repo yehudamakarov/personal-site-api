@@ -1,6 +1,8 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using Core;
 using Core.Interfaces;
 using Core.Requests.Tags;
 using Core.Results;
@@ -45,11 +47,19 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public IActionResult MapTag(MapTagRequest mapTagRequest)
+        public async Task<IActionResult> MapTag(MapTagRequest mapTagRequest)
         {
-            _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
-            
-            return StatusCode((int) HttpStatusCode.Accepted, mapTagRequest.TagId);
+            try
+            {
+                var mapTagJobStatus = await _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
+                return Ok(mapTagJobStatus);
+            }
+            catch (Exception exception)
+            {
+                var mapTagJobStatus = new MapTagJobStatus(mapTagRequest.TagId, JobStage.Error);
+                _logger.LogError(exception, "There was a problem mapping {tagId}", mapTagRequest.TagId);
+                return StatusCode((int) HttpStatusCode.InternalServerError, mapTagJobStatus);
+            }
         }
 
         [HttpPost]

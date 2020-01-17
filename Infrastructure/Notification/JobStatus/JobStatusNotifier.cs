@@ -26,7 +26,7 @@ namespace Infrastructure.Notification.JobStatus
             await _hubContext.Clients.All.PushGithubRepoFetcherJobStatusUpdate(
                 new GithubRepoFetcherJobStatus
                 {
-                    ItemStatus = itemStatus,
+                    Item = itemStatus,
                     JobStage = jobStage
                 }
             );
@@ -43,7 +43,7 @@ namespace Infrastructure.Notification.JobStatus
         {
             await _hubContext.Clients.All.PushMapTagJobStatusUpdate(new MapTagJobStatus
             {
-                TagResult = tagResult,
+                Item = tagResult,
                 JobStage = jobStage
             });
         }

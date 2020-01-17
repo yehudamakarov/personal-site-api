@@ -12,20 +12,43 @@ namespace Core.Interfaces
         Task PushMapTagJobStatusUpdate(MapTagJobStatus mapTagJobStatus);
     }
 
-    public class CalculateTagCountsJobStatus : JobStatus { }
-
-    public class JobStatus
+    public class CalculateTagCountsJobStatus : IJobStatus<TagResult>
     {
         public JobStage JobStage { get; set; }
+        public TagResult Item { get; set; }
     }
 
-    public class GithubRepoFetcherJobStatus
+    public interface IJobStatus<T>
     {
-        public Dictionary<string, JobStage> ItemStatus { get; set; }
-        public JobStage JobStage { get; set; }
+        JobStage JobStage { get; set; }
+        T Item { get; set; }
     }
 
-    public class MapTagJobStatus : JobStatus {
-        public TagResult TagResult { get; set; }
+    public class GithubRepoFetcherJobStatus : IJobStatus<Dictionary<string, JobStage>>
+    {
+        public JobStage JobStage { get; set; }
+        public Dictionary<string, JobStage> Item { get; set; }
+    }
+
+    public class MapTagJobStatus : IJobStatus<TagResult>
+    {
+        public JobStage JobStage { get; set; }
+        public TagResult Item { get; set; }
+
+        public MapTagJobStatus() { }
+
+        public MapTagJobStatus(string tagId, JobStage jobStage)
+        {
+            JobStage = JobStage.Error;
+            Item = new TagResult
+            {
+                Data = new Tag { TagId = tagId },
+                Details = new ResultDetails
+                {
+                    Message = $"There was a problem mapping {tagId}",
+                    ResultStatus = ResultStatus.Failure
+                }
+            };
+        }
     }
 }
