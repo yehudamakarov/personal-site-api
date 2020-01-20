@@ -7,8 +7,9 @@ namespace Core
         FetchingFromGithub,
         CountingTagged,
         UploadingToDatabase,
+        InProgress,
         Done,
+        Warning,
         Error,
-        InProgress
     }
 }

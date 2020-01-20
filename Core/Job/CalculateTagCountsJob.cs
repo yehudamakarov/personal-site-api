@@ -38,8 +38,6 @@ namespace Core.Job
 
             await _jobStatusNotifier.PushCalculateTagCountsJobStatusUpdate(JobStage.Done);
             _logger.LogInformation("Finished {JobName}.", JobName);
-            await Task.Delay(5000);
-            await _jobStatusNotifier.PushCalculateTagCountsJobStatusUpdate(JobStage.None);
         }
 
         private async Task CalculateArticleCount(Tag tag)

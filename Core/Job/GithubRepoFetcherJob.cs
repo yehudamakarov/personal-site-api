@@ -45,8 +45,7 @@ namespace Core.Job
             await UpdateAllItemsStatus(JobStage.UploadingToDatabase, repos);
             var timeStampedRepos = MarkWithTimestamp(repos);
             var unused2 = await UploadPinnedReposAsCurrent(timeStampedRepos);
-
-            await UpdateJobStatus(JobStage.Done);
+            
             await FinishJob();
             
         }
@@ -54,8 +53,7 @@ namespace Core.Job
         private async Task FinishJob()
         {
             _logger.LogInformation("Completed {JobName}", JobName);
-            await Task.Delay(5000);
-            _jobStatus = JobStage.None;
+            _jobStatus = JobStage.Done;
             _itemStatus = new Dictionary<string, JobStage>();
             await UpdateJobStatus(_jobStatus);
         }
