@@ -13,11 +13,6 @@ namespace Core.Interfaces
         Task PushRenameTagJobStatusUpdate(RenameTagJobStatus renameTagJobStatus);
     }
 
-    public class RenameTagJobStatus: IJobStatus<TagResult> {
-        public JobStage JobStage { get; set; }
-        public TagResult Item { get; set; }
-    }
-
     public class CalculateTagCountsJobStatus : IJobStatus<TagResult>
     {
         public JobStage JobStage { get; set; }
@@ -34,6 +29,12 @@ namespace Core.Interfaces
     {
         public JobStage JobStage { get; set; }
         public Dictionary<string, JobStage> Item { get; set; }
+    }
+    
+    public class RenameTagJobStatus : IJobStatus<TagResult>
+    {
+        public JobStage JobStage { get; set; }
+        public TagResult Item { get; set; }
     }
 
     public class MapTagJobStatus : IJobStatus<TagResult>

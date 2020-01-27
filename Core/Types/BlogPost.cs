@@ -18,7 +18,6 @@ namespace Core.Types
 
         [FirestoreProperty] public string Slug => string.Join("-", Title.ToLower().Trim().Split(" "));
 
-
         [FirestoreProperty] public List<string> TagIds { get; set; }
     }
 }

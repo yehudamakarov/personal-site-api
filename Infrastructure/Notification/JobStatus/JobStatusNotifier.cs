@@ -12,23 +12,19 @@ namespace Infrastructure.Notification.JobStatus
     {
         private readonly IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> _hubContext;
 
-        public JobStatusNotifier(
-            IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> hubContext
-        )
+        public JobStatusNotifier(IHubContext<JobStatusUpdatesHub, IJobStatusUpdatesHub> hubContext)
         {
             _hubContext = hubContext;
         }
 
 
-        public async Task PushGithubRepoFetcherJobStatusUpdate(Dictionary<string, JobStage> itemStatus,
-            JobStage jobStage)
+        public async Task PushGithubRepoFetcherJobStatusUpdate(
+            Dictionary<string, JobStage> itemStatus,
+            JobStage jobStage
+        )
         {
             await _hubContext.Clients.All.PushGithubRepoFetcherJobStatusUpdate(
-                new GithubRepoFetcherJobStatus
-                {
-                    Item = itemStatus,
-                    JobStage = jobStage
-                }
+                new GithubRepoFetcherJobStatus { Item = itemStatus, JobStage = jobStage }
             );
         }
 
@@ -41,11 +37,16 @@ namespace Infrastructure.Notification.JobStatus
 
         public async Task PushMapTagJobStatusUpdate(TagResult tagResult, JobStage jobStage)
         {
-            await _hubContext.Clients.All.PushMapTagJobStatusUpdate(new MapTagJobStatus
-            {
-                Item = tagResult,
-                JobStage = jobStage
-            });
+            await _hubContext.Clients.All.PushMapTagJobStatusUpdate(
+                new MapTagJobStatus { Item = tagResult, JobStage = jobStage }
+            );
+        }
+
+        public async Task PushRenameTagJobStatusUpdate(TagResult tagResult, JobStage jobStage)
+        {
+            await _hubContext.Clients.All.PushRenameTagJobStatusUpdate(
+                new RenameTagJobStatus { Item = tagResult, JobStage = jobStage }
+            );
         }
 
         public async Task PushRenameTagJobStatusUpdate(TagResult result, JobStage jobStage)

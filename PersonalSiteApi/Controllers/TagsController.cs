@@ -64,10 +64,26 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public IActionResult RenameTag(string existingTagId, string newTagId)
+        public async Task<IActionResult> RenameTag(string existingTagId, string newTagId)
         {
-            _tagManager.RenameTagById(existingTagId, newTagId);
-            return StatusCode((int) HttpStatusCode.Accepted, existingTagId);
+            try
+            {
+                var renameTagStatus = await _tagManager.RenameTagById(existingTagId, newTagId);
+                return Ok(renameTagStatus);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "There was a problem renaming {tagId}", existingTagId);
+                var renameTagStatus = new TagResult
+                {
+                    Details = new ResultDetails
+                    {
+                        ResultStatus = ResultStatus.Failure,
+                        Message = $"There was a problem renaming {existingTagId} to {newTagId}."
+                    }
+                };
+                return StatusCode((int) HttpStatusCode.InternalServerError, renameTagStatus);
+            }
         }
 
         [HttpPost]
