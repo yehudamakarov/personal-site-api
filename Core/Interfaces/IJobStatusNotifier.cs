@@ -11,5 +11,6 @@ namespace Core.Interfaces
             JobStage jobStage);
         Task PushCalculateTagCountsJobStatusUpdate(JobStage jobStage);
         Task PushMapTagJobStatusUpdate(TagResult tagResult, JobStage jobStage);
+        Task PushRenameTagJobStatusUpdate(TagResult tagResult, JobStage jobStage);
     }
 }

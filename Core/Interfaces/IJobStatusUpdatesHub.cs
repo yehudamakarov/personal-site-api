@@ -10,6 +10,12 @@ namespace Core.Interfaces
         Task PushGithubRepoFetcherJobStatusUpdate(GithubRepoFetcherJobStatus status);
         Task PushCalculateTagCountsJobStatusUpdate(CalculateTagCountsJobStatus status);
         Task PushMapTagJobStatusUpdate(MapTagJobStatus mapTagJobStatus);
+        Task PushRenameTagJobStatusUpdate(RenameTagJobStatus renameTagJobStatus);
+    }
+
+    public class RenameTagJobStatus: IJobStatus<TagResult> {
+        public JobStage JobStage { get; set; }
+        public TagResult Item { get; set; }
     }
 
     public class CalculateTagCountsJobStatus : IJobStatus<TagResult>
