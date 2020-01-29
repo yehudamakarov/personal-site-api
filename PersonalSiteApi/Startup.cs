@@ -42,7 +42,7 @@ namespace PersonalSiteApi
             lifetime.ApplicationStarted.Register(() => {
                 TraceManager.SamplingRate = 1.0f;
                 var logger = new TracingLogger(loggerFactory, "zipkin4net");
-                var httpSender = new HttpZipkinSender("zipkin-service", "application/json");
+                var httpSender = new HttpZipkinSender("zipkin-service.default.svc.cluster.local", "application/json");
                 var tracer = new ZipkinTracer(httpSender, new JSONSpanSerializer());
                 TraceManager.RegisterTracer(tracer);
                 TraceManager.Start(logger);
