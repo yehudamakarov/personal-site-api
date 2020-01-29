@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Core;
@@ -32,6 +33,7 @@ namespace PersonalSiteApi.Controllers
         [ProducesResponseType(typeof(TagsResult), 200)]
         public async Task<IActionResult> AllTags()
         {
+            var headers = HttpContext.Request.Headers;
             var result = await _tagBL.GetAllTags();
             return Ok(result);
         }

@@ -48,10 +48,5 @@ namespace Infrastructure.Notification.JobStatus
                 new RenameTagJobStatus { Item = tagResult, JobStage = jobStage }
             );
         }
-
-        public async Task PushRenameTagJobStatusUpdate(TagResult result, JobStage jobStage)
-        {
-            await _hubContext.Clients.All.PushRenameTagJobStatusUpdate(new RenameTagJobStatus { JobStage = jobStage });
-        }
     }
 }
