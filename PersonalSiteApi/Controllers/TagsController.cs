@@ -43,7 +43,7 @@ namespace PersonalSiteApi.Controllers
             var spanIdBefore = _managedTracer.GetCurrentSpanId();
             var traceIdBefore = _managedTracer.GetCurrentTraceId();
             _logger.LogInformation(
-                "headers: {@headersAfter}, spanIdBefore: {@spanIdAfter}, traceIdBefore: {@traceIdAfter}",
+                "headers: {@HeadersBefore}, spanIdBefore: {@SpanIdBefore}, traceIdBefore: {@TraceIdBefore}",
                  headers, spanIdBefore, traceIdBefore);
             using (var span = _managedTracer.StartSpan(nameof(AllTags)))
             {
@@ -53,7 +53,7 @@ namespace PersonalSiteApi.Controllers
                 var traceIdAfter = _managedTracer.GetCurrentTraceId();
 
                 _logger.LogInformation(
-                    "span: {@span}, headersAfter: {@headersAfter}, spanIdAfter: {@spanIdAfter}, traceIdAfter: {@traceIdAfter}",
+                    "span: {@Span}, headersAfter: {@HeadersAfter}, spanIdAfter: {@SpanIdAfter}, traceIdAfter: {@TraceIdAfter}",
                     span, headersAfter, spanIdAfter, traceIdAfter);
                 // var traceHeaderHandler = new TraceHeaderPropagatingHandler(() => _managedTracer);
                 var result = await _tagBL.GetAllTags();
