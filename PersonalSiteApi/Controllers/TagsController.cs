@@ -38,9 +38,11 @@ namespace PersonalSiteApi.Controllers
         [ProducesResponseType(typeof(TagsResult), 200)]
         public async Task<IActionResult> AllTags()
         {
+            var headers = HttpContext.Request.Headers;
+            _logger.LogInformation("These are headers to look for B3 in: {@headers}", headers);
             using (_managedTracer.StartSpan(nameof(AllTags)))
             {
-                var headers = HttpContext.Request.Headers;
+                
                 // var traceHeaderHandler = new TraceHeaderPropagatingHandler(() => _managedTracer);
                 var result = await _tagBL.GetAllTags();
                 return Ok(result);
