@@ -41,7 +41,6 @@ namespace PersonalSiteApi
                 options.ProjectId = Configuration["GOOGLE_PROJECT_ID"];
                 options.Options = TraceOptions.Create(
                     bufferOptions: BufferOptions.NoBuffer());
-                options.TraceFallbackPredicate = TraceDecisionPredicate.Create(request => false);
             });
 
             services.ConfigureCors();
