@@ -54,4 +54,9 @@ spec:
                 secretKeyRef:
                   name: api-deployment-secret
                   key: GITHUB_ACCESS_TOKEN 
+                  
+            - name: SERVICE_NAME
+              value: personal-site-api
                 
+            - name: SERVICE_VERSION
+              value: "0.770"

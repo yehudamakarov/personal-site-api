@@ -8,8 +8,10 @@ using Core.Interfaces;
 using Core.Requests.Tags;
 using Core.Results;
 using Core.Types;
+using Google.Cloud.Diagnostics.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace PersonalSiteApi.Controllers
@@ -20,22 +22,29 @@ namespace PersonalSiteApi.Controllers
         private readonly ILogger<TagsController> _logger;
         private readonly ITagBL _tagBL;
         private readonly ITagManager _tagManager;
+        private readonly IManagedTracer _managedTracer;
         private const string UpdatesWillBeBroadcastOverAWebsocket = "Updates will be broadcast over a websocket.";
 
-        public TagsController(ILogger<TagsController> logger, ITagBL tagBL, ITagManager tagManager)
+        public TagsController(ILogger<TagsController> logger, ITagBL tagBL, ITagManager tagManager,
+            IManagedTracer managedTracer)
         {
             _logger = logger;
             _tagBL = tagBL;
             _tagManager = tagManager;
+            _managedTracer = managedTracer;
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(TagsResult), 200)]
         public async Task<IActionResult> AllTags()
         {
-            var headers = HttpContext.Request.Headers;
-            var result = await _tagBL.GetAllTags();
-            return Ok(result);
+            using (_managedTracer.StartSpan(nameof(AllTags)))
+            {
+                var headers = HttpContext.Request.Headers;
+                // var traceHeaderHandler = new TraceHeaderPropagatingHandler(() => _managedTracer);
+                var result = await _tagBL.GetAllTags();
+                return Ok(result);
+            }
         }
 
         [HttpPost]
