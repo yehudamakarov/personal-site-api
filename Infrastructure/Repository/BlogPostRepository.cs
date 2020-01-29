@@ -35,6 +35,27 @@ namespace Infrastructure.Repository
             return snapshot.ConvertTo<BlogPost>();
         }
 
+        public async Task<BlogPost> GetBlogPostById(string blogPostId)
+        {
+            var reference = _blogPostsCollection.Document(blogPostId);
+            var documentSnapshot = await reference.GetSnapshotAsync();
+            return documentSnapshot?.ConvertTo<BlogPost>();
+        }
+
+        public async Task<BlogPost> UpdateBlogPost(BlogPost blogPost)
+        {
+            var blogPostRef = _blogPostsCollection.Document(blogPost.Id);
+            await blogPostRef.SetAsync(blogPost);
+            var snapshot = await blogPostRef.GetSnapshotAsync();
+            return snapshot.ConvertTo<BlogPost>();
+        }
+
+        public async Task<IList<BlogPost>> GetBlogPostsByTagId(string tagId)
+        {
+            var snapshot = await _blogPostsCollection.WhereArrayContains(nameof(BlogPost.TagIds), tagId)
+                .GetSnapshotAsync();
+            return snapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<BlogPost>()).ToList();
+        }
 
         public async Task<IList<BlogPost>> GetBlogPostsByProjectId(string projectId)
         {

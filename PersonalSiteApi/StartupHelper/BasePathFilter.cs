@@ -6,10 +6,7 @@ namespace PersonalSiteApi.StartupHelper
 {
     public class BasePathFilter : IDocumentFilter
     {
-        public void Apply(
-            OpenApiDocument swaggerDoc,
-            DocumentFilterContext context
-        )
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
             swaggerDoc.Servers = new List<OpenApiServer>
             {

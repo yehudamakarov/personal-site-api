@@ -32,8 +32,7 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public async Task<IActionResult> AddBlogPost(string title, string description, string content,
-            string projectId)
+        public async Task<IActionResult> AddBlogPost(string title, string description, string content, string projectId)
         {
             var result = await _blogPostBL.AddBlogPost(title, description, content, projectId);
             return Ok(result);

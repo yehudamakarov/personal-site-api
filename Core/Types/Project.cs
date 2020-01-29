@@ -1,13 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Google.Cloud.Firestore;
 
 namespace Core.Types
 {
     [FirestoreData] public class Project
     {
+        private string _projectTitle;
+
+        public Project()
+        {
+            ProjectHighlights = new List<ProjectHighlight>();
+            ProjectPictures = new List<ProjectPicture>();
+            TagIds = new List<string>();
+        }
+
         [FirestoreDocumentId] public string GithubRepoDatabaseId { get; set; }
 
         [Description("Controlled by Github")] [FirestoreProperty]
@@ -28,8 +36,6 @@ namespace Core.Types
 
         [Description("Controlled by Github")] [FirestoreProperty]
         public DateTime UpdatedAt { get; set; }
-
-        private string _projectTitle;
 
         [FirestoreProperty] public string ProjectTitle
         {
@@ -52,7 +58,6 @@ namespace Core.Types
         [Description("Editable")] [FirestoreProperty]
         public List<string> TagIds { get; set; }
 
-        [FirestoreProperty]
-        public string Slug => string.Join("-", ProjectTitle.ToLower().Trim().Split(" "));
+        [FirestoreProperty] public string Slug => string.Join("-", ProjectTitle.ToLower().Trim().Split(" "));
     }
 }

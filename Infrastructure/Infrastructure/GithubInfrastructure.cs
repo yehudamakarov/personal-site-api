@@ -10,7 +10,6 @@ using Core.Types;
 using Infrastructure.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Infrastructure.Infrastructure
@@ -20,26 +19,20 @@ namespace Infrastructure.Infrastructure
         private readonly HttpClient _githubHttpClient;
         private readonly ILogger<GithubInfrastructure> _logger;
 
-        public GithubInfrastructure(
-            IConfiguration configuration, ILogger<GithubInfrastructure> logger) : base(
+        public GithubInfrastructure(IConfiguration configuration, ILogger<GithubInfrastructure> logger) : base(
             configuration
         )
         {
             _logger = logger;
             var githubPrivateAccessToken = configuration["GITHUB_ACCESS_TOKEN"];
             if (githubPrivateAccessToken == null)
-                throw new InvalidCredentialException(
-                    "You need to set an environment variable of GITHUB_ACCESS_TOKEN"
-                );
+                throw new InvalidCredentialException("You need to set an environment variable of GITHUB_ACCESS_TOKEN");
             _githubHttpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api.github.com"),
                 DefaultRequestHeaders =
                 {
-                    Authorization = new AuthenticationHeaderValue(
-                        "Bearer",
-                        githubPrivateAccessToken
-                    ),
+                    Authorization = new AuthenticationHeaderValue("Bearer", githubPrivateAccessToken),
                     UserAgent =
                     {
                         new ProductInfoHeaderValue(
@@ -50,7 +43,7 @@ namespace Infrastructure.Infrastructure
             };
         }
 
-        public async Task<IEnumerable<PinnedRepo>> FetchPinnedReposAsync()
+        public async Task<IList<PinnedRepo>> FetchPinnedReposAsync()
         {
             _logger.LogInformation("Fetching pinned repositories from Github.");
             var respContent = await FetchPinnedReposRespContent();
@@ -59,31 +52,27 @@ namespace Infrastructure.Infrastructure
                 respContent
             );
             var repos = ConvertRespToObjects(respContent);
-            _logger.LogInformation(
-                "Completed parsing respContent to objects. Produced {repos}.",
-                JsonConvert.SerializeObject(repos)
-            );
+            _logger.LogInformation("Completed parsing respContent to objects.");
             return repos;
         }
 
-        private IEnumerable<PinnedRepo> ConvertRespToObjects(string respContent)
+        private IList<PinnedRepo> ConvertRespToObjects(string respContent)
         {
             _logger.LogInformation("Parsing respContent to objects.");
             var jObject = JObject.Parse(respContent);
-            var jsonRepos = jObject?["data"]?["user"]?["pinnedItems"]?["nodes"]?
-                .Children()
-                .ToList();
-            var repos = new List<PinnedRepo>();
-            if (jsonRepos == null)
+            var jsonReposFromGithub = jObject?["data"]?["user"]?["pinnedItems"]?["nodes"]?.Children().ToList();
+            if (jsonReposFromGithub == null)
             {
                 _logger.LogError("There was a problem fetching repos.");
-                return repos;
+                return new List<PinnedRepo>();
             }
 
-            foreach (var jsonRepo in jsonRepos)
+            var repos = new List<PinnedRepo>();
+            foreach (var repo in jsonReposFromGithub.Select(jsonRepoFromGithub =>
+                jsonRepoFromGithub.ToObject<PinnedRepo>()))
             {
-                var repo = jsonRepo.ToObject<PinnedRepo>();
-                _logger.LogInformation("Parsed {@repo}", repo);
+                _logger.LogInformation("Parsed repo from Github with Id: {DatabaseId}. Details: {@repo}",
+                    repo.DatabaseId, repo);
                 repos.Add(repo);
             }
 
@@ -96,9 +85,7 @@ namespace Infrastructure.Infrastructure
                 "{\"query\":\"{\\n  user(login: \\\"yehudamakarov\\\") {\\n    pinnedItems(types: REPOSITORY, first: 6) {\\n      nodes {\\n      \\t... on Repository {\\n          name\\n          description\\n          databaseId\\n          url\\n          createdAt\\n          updatedAt\\n        }\\n      }\\n    }\\n  }\\n}\\n\"}";
             var resp = await _githubHttpClient.PostAsync("/graphql", new StringContent(query));
             if (!resp.IsSuccessStatusCode)
-                throw new HttpRequestException(
-                    "The request to fetch repositories from GitHub failed."
-                );
+                throw new HttpRequestException("The request to fetch repositories from GitHub failed.");
             var respContent = await resp.Content.ReadAsStringAsync();
             return respContent;
         }

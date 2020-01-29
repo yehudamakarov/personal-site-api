@@ -1,40 +1,167 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Core.Enums;
 using Core.Interfaces;
 using Core.Results;
 using Core.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Core.BL
 {
     public class TagBL : ITagBL
     {
-        private readonly ITagRepository _tagRepository;
+        #region Constructors
 
-        public TagBL(ITagRepository tagRepository)
+        public TagBL(ITagRepository tagRepository, ILogger<TagBL> logger)
         {
             _tagRepository = tagRepository;
+            _logger = logger;
         }
 
-        public async Task<AddTagResult> CreateOrFindByTagId(string tagId)
+        #endregion
+
+        #region Properties
+
+        private readonly ITagRepository _tagRepository;
+        private readonly ILogger<TagBL> _logger;
+
+        #endregion
+
+        #region Public Methods
+
+        public async Task<TagResult> CreateOrFindByTagId(string tagId)
         {
-            var tag = await _tagRepository.CreateOrFindByTagId(new Tag() {TagId = tagId});
-            return new AddTagResult()
+            var tag = await _tagRepository.CreateOrFindByTagId(tagId);
+            return new TagResult
             {
                 Data = tag,
-                Details = new ResultDetails()
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+            };
+        }
+
+        public async Task<TagsResult> GetAllTags()
+        {
+            var tags = await _tagRepository.GetAllTags();
+            if (tags.Count != 0)
+                return new TagsResult
                 {
-                    ResultStatus = ResultStatus.Success
+                    Data = tags,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                };
+
+            return new TagsResult
+            {
+                Data = tags,
+                Details = new ResultDetails
+                {
+                    Message = "None were found",
+                    ResultStatus = ResultStatus.Warning
                 }
             };
+        }
+
+        public async Task AdjustTagCounts(
+            IReadOnlyCollection<string> currentTagIds,
+            IReadOnlyCollection<string> newTagIds
+        )
+        {
+            var toIncrement = newTagIds.Except(currentTagIds).ToList();
+            var toDecrement = currentTagIds.Except(newTagIds).ToList();
+            await UpdateTagCount(toIncrement, TagCountUpdates.Increment, 1);
+            await UpdateTagCount(toDecrement, TagCountUpdates.Decrement, 1);        }
+
+        public async Task CreateOrFindTags(IEnumerable<string> tagIds)
+        {
+            var createOrFindTagTasks = tagIds.Select(CreateOrFindByTagId);
+            var initiatedCreateOrFindTagsTasks =
+                (from findTagsTask in createOrFindTagTasks select AwaitTask(findTagsTask)).ToArray();
+            await Task.WhenAll(initiatedCreateOrFindTagsTasks);
+        }
+
+        public async Task<TagResult> UpdateTag(Tag tag)
+        {
+            try
+            {
+                var updatedTag = await _tagRepository.UpdateTag(tag);
+                return new TagResult
+                {
+                    Data = updatedTag,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                };
+            }
+            catch (Exception exception)
+            {
+                const string message = "This tag may have not been updated.";
+                _logger.LogError(exception, message + " {@tag}", tag);
+                return new TagResult
+                {
+                    Data = tag,
+                    Details = new ResultDetails
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+        }
+
+        public async Task<DeleteTagResult> DeleteTagByTagId(string tagId)
+        {
+            try
+            {
+                var deletedTagId = await _tagRepository.DeleteTag(tagId);
+                return new DeleteTagResult
+                {
+                    Data = deletedTagId,
+                    Details = new ResultDetails { ResultStatus = ResultStatus.Success }
+                };
+            }
+            catch (Exception exception)
+            {
+                const string message = "There was a problem deleting this Tag.";
+                _logger.LogError(exception, message + " {tagId}", tagId);
+                return new DeleteTagResult
+                {
+                    Data = tagId,
+                    Details = new ResultDetails
+                    {
+                        Message = message,
+                        ResultStatus = ResultStatus.Failure
+                    }
+                };
+            }
+        }
+        
+        #endregion
+
+        #region Private Methods
+
+        private async Task UpdateTagCount(IEnumerable<string> tagIds, TagCountUpdates direction, int amount)
+        {
+            switch (direction)
+            {
+                case TagCountUpdates.Increment:
+                    await IncrementTagAmounts(tagIds, amount);
+                    break;
+                case TagCountUpdates.Decrement:
+                    await DecrementTagAmounts(tagIds, amount);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+        }
+
+        private static async Task<T> AwaitTask<T>(Task<T> task)
+        {
+            return await task;
         }
 
         private async Task<TagResult> GetTagById(string tagId)
         {
             var tag = await _tagRepository.GetTagById(tagId);
             if (tag == null)
-            {
                 return new TagResult
                 {
                     Data = null,
@@ -44,56 +171,32 @@ namespace Core.BL
                         ResultStatus = ResultStatus.Failure
                     }
                 };
-            }
 
             return new TagResult
             {
                 Data = tag,
-                Details = new ResultDetails {ResultStatus = ResultStatus.Success}
+                Details = new ResultDetails { ResultStatus = ResultStatus.Success }
             };
         }
 
-        public async Task<TagsResult> GetAllTags()
-        {
-            var tags = await _tagRepository.GetAllTags();
-            if (tags.Count == 0)
-            {
-                return new TagsResult()
-                {
-                    Data = tags,
-                    Details = new ResultDetails()
-                    {
-                        Message = "None were found",
-                        ResultStatus = ResultStatus.Warning
-                    }
-                };
-            }
-
-            return new TagsResult()
-            {
-                Data = tags,
-                Details = new ResultDetails {ResultStatus = ResultStatus.Success}
-            };
-        }
-
-        public async Task<UpdateTagCountsResult> UpdateTagCounts(IList<string> tagIds, TagCountUpdates direction, int amount)
+        private async Task DecrementTagAmounts(IEnumerable<string> tagIds, int amount)
         {
             foreach (var tagId in tagIds)
             {
-                switch (direction)
-                {
-                    case TagCountUpdates.Increment:
-                        await _tagRepository.IncrementTagCountById(tagId, amount);
-                        break;
-                    case TagCountUpdates.Decrement:
-                        await _tagRepository.DecrementTagCountById(tagId, amount);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                }
+                var tag = await CreateOrFindByTagId(tagId);
+                await _tagRepository.DecrementTagCountById(tagId, amount);
             }
-
-            return new UpdateTagCountsResult() {AmountChanged = tagIds.Count, UpdateType = direction};
         }
+
+        private async Task IncrementTagAmounts(IEnumerable<string> tagIds, int amount)
+        {
+            foreach (var tagId in tagIds)
+            {
+                var tag = await CreateOrFindByTagId(tagId);
+                await _tagRepository.IncrementTagCountById(tagId, amount);
+            }
+        }
+
+        #endregion
     }
 }

@@ -11,9 +11,7 @@ namespace PersonalSiteApi.StartupHelper
                     "SignalRPolicy",
                     corsPolicyBuilder =>
                     {
-                        corsPolicyBuilder.AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .WithOrigins("http://localhost:3000")
+                        corsPolicyBuilder.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000")
                             .AllowCredentials();
                     }
                 )

@@ -21,11 +21,10 @@ namespace Infrastructure.Repository
             _logger = logger;
         }
 
-        public async Task<List<Project>> GetAllProjects()
+        public async Task<IList<Project>> GetAllProjects()
         {
             var query = await _projectCollection.GetSnapshotAsync();
-            var results = query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).ToList();
-            return results;
+            return query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).ToList();
         }
 
         public async Task<Project> GetProjectById(string projectId)
@@ -36,20 +35,22 @@ namespace Infrastructure.Repository
         }
 
         /// <summary>
-        /// we don't want to overwrite anything besides the fields we have on the class. Since some initialized
-        /// properties may be null, we specify merge fields.
+        ///     we don't want to overwrite anything besides the fields we have on the class. Since some initialized
+        ///     properties may be null, we specify merge fields.
         /// </summary>
-        /// <param name="project">if there are any null property values that should NOT overwrite fields on the
-        /// documents; specify the non-null properties in the <paramref name="mergeFields"/>mergeFields> param.</param>
-        /// <param name="projectName"></param>
+        /// <param name="project">
+        ///     if there are any null property values that should NOT overwrite fields on the
+        ///     documents; specify the non-null properties in the <paramref name="mergeFields" />mergeFields> param.
+        /// </param>
         /// <param name="githubDatabaseId"></param>
         /// <param name="mergeFields"></param>
         /// <returns></returns>
-        public async Task<Project> UploadProjectAsync(Project project, string projectName, string githubDatabaseId,
-            string[] mergeFields)
+        public async Task<Project> UploadProjectAsync(
+            Project project,
+            string githubDatabaseId,
+            string[] mergeFields
+        )
         {
-            _logger.LogInformation("Beginning upload of {projectName}", projectName);
-
             // Make document ref in collection
             var projectRef = _projectCollection.Document(githubDatabaseId);
             // write / update in Db
@@ -70,8 +71,18 @@ namespace Infrastructure.Repository
 
         public async Task<Project> UpdateProject(Project project)
         {
-            return await UploadProjectAsync(project, project.ProjectName, project.GithubRepoDatabaseId,
-                new[] { nameof(Project.DeploymentUrl), nameof(Project.TagIds), nameof(Project.ProjectTitle) });
+            return await UploadProjectAsync(
+                project,
+                project.GithubRepoDatabaseId,
+                new[] { nameof(Project.DeploymentUrl), nameof(Project.TagIds), nameof(Project.ProjectTitle) }
+            );
+        }
+
+        public async Task<IList<Project>> GetProjectsByTagId(string tagId)
+        {
+            var snapshot = await _projectCollection.WhereArrayContains(nameof(Project.TagIds), tagId)
+                .GetSnapshotAsync();
+            return snapshot.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Project>()).ToList();
         }
     }
 }

@@ -1,9 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Core.Enums.ResultReasons;
 using Core.Interfaces;
 using Core.Requests.Authentication;
-using Core.Responses.Authentication;
 using Core.Results;
 using Core.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -19,10 +17,7 @@ namespace PersonalSiteApi.Controllers
         private readonly IAuthenticationBL _authenticationBL;
         private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(
-            IAuthenticationBL authenticationBL,
-            ILogger<AuthenticationController> logger
-        )
+        public AuthenticationController(IAuthenticationBL authenticationBL, ILogger<AuthenticationController> logger)
         {
             _authenticationBL = authenticationBL;
             _logger = logger;
@@ -37,19 +32,17 @@ namespace PersonalSiteApi.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ActivateAdminResponse), 201)]
+        [ProducesResponseType(typeof(ActivateAdminResult), 201)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]
-        [ProducesResponseType(typeof(ActivateAdminResponse), 403)]
         public async Task<IActionResult> ActivateAdmin(CreateAdminRequest createAdminRequest)
         {
             var createAdminResult = await _authenticationBL.ActivateAdmin(createAdminRequest);
-            var createAdminResponse = new ActivateAdminResponse(createAdminResult);
 
             return StatusCode(
-                createAdminResult.Details.ResultStatus == ActivateAdminResultReason.AdminCreated
+                createAdminResult.Details.ResultStatus == ResultStatus.Success
                     ? StatusCodes.Status201Created
                     : StatusCodes.Status403Forbidden,
-                createAdminResponse
+                createAdminResult
             );
         }
 
@@ -63,7 +56,8 @@ namespace PersonalSiteApi.Controllers
                 var loginResult = await _authenticationBL.HandleAdminLoginRequest(adminLoginRequest);
                 return Ok(loginResult);
             }
-            catch (Exception exception){
+            catch (Exception exception)
+            {
                 const string message = "There was an error during login.";
                 _logger.LogError(exception, message);
                 return StatusCode(500, message);

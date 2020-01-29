@@ -13,17 +13,13 @@ namespace Infrastructure.Repository
     {
         private readonly ILogger<RepoRepository> _logger;
 
-        public RepoRepository(
-            IConfiguration configuration,
-            ILogger<RepoRepository> logger
-        ) : base(configuration)
+        public RepoRepository(IConfiguration configuration, ILogger<RepoRepository> logger) : base(configuration)
         {
             _logger = logger;
         }
 
-        public async Task<IEnumerable<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent)
+        public async Task<IList<PinnedRepo>> GetPinnedReposAsync(bool onlyCurrent)
         {
-            _logger.LogInformation("Retrieving 'current' repositories from Firestore.");
             var pinnedReposRef = Db.Collection("pinned-repositories");
             QuerySnapshot pinnedCurrentReposSnapshot;
             if (onlyCurrent)
@@ -32,16 +28,19 @@ namespace Infrastructure.Repository
             else
                 pinnedCurrentReposSnapshot = await pinnedReposRef.GetSnapshotAsync();
 
-            var pinnedCurrentRepos =
-                pinnedCurrentReposSnapshot.Documents.Select(docSnapshot => docSnapshot.ConvertTo<PinnedRepo>());
+            var pinnedCurrentRepos = pinnedCurrentReposSnapshot.Documents
+                .Select(docSnapshot => docSnapshot.ConvertTo<PinnedRepo>()).ToList();
 
             return pinnedCurrentRepos;
         }
 
         public async Task<PinnedRepo> UploadRepoAsync(PinnedRepo pinnedRepo)
         {
-            _logger.LogInformation("Beginning upload of {databaseId}, with info of {@repo}", pinnedRepo.DatabaseId,
-                pinnedRepo);
+            _logger.LogInformation(
+                "Beginning upload of {repoName}, with info of {@repo}",
+                pinnedRepo.Name,
+                pinnedRepo
+            );
             var repoWithUtc = ConvertTimesToUtc(pinnedRepo);
 
             // Get collection ref

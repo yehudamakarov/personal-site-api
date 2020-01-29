@@ -6,8 +6,7 @@ namespace Core.Interfaces
 {
     public interface IAuthenticationBL
     {
-        Task<ActivateAdminResult> ActivateAdmin(
-            CreateAdminRequest createAdminRequest);
+        Task<ActivateAdminResult> ActivateAdmin(CreateAdminRequest createAdminRequest);
 
         Task<AdminLoginResult> HandleAdminLoginRequest(AdminLoginRequest adminLoginRequest);
     }

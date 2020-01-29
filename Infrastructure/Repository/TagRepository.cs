@@ -17,19 +17,24 @@ namespace Infrastructure.Repository
             _tagsCollection = Db.Collection("tags");
         }
 
-        public async Task<Tag> CreateOrFindByTagId(Tag tag)
+        public async Task<Tag> CreateOrFindByTagId(string tagId)
         {
-            var tagRef = _tagsCollection.Document(tag.TagId);
-            var unused = await tagRef.SetAsync(tag, SetOptions.MergeAll);
+            var tagRef = _tagsCollection.Document(tagId);
             var snapshot = await tagRef.GetSnapshotAsync();
-            return snapshot.ConvertTo<Tag>();
+            if (snapshot.Exists)
+            {
+                return snapshot.ConvertTo<Tag>();
+            }
+
+            var newTag = new Tag { TagId = tagId };
+            await tagRef.SetAsync(newTag);
+            return newTag;
         }
 
         public async Task<IList<Tag>> GetAllTags()
         {
             var query = await _tagsCollection.GetSnapshotAsync();
-            var tagSnapshot = query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Tag>())
-                .ToList();
+            var tagSnapshot = query.Documents.Select(documentSnapshot => documentSnapshot.ConvertTo<Tag>()).ToList();
             return tagSnapshot;
         }
 
@@ -43,23 +48,37 @@ namespace Infrastructure.Repository
         public async Task<Tag> IncrementTagCountById(string tagId, int amount)
         {
             var tag = await GetTagById(tagId);
-            tag.ArticleCount += amount;
-            return await UpdateTagById(tag);
+            if (tag.ArticleCount != null)
+                tag.ArticleCount += amount;
+            else
+                tag.ArticleCount = amount;
+
+            return await UpdateTag(tag);
         }
 
         public async Task<Tag> DecrementTagCountById(string tagId, int amount)
         {
             var tag = await GetTagById(tagId);
-            tag.ArticleCount -= amount;
-            return await UpdateTagById(tag);
+            if (tag.ArticleCount != null)
+                tag.ArticleCount -= amount;
+            else
+                tag.ArticleCount = 0;
+            return await UpdateTag(tag);
         }
 
-        private async Task<Tag> UpdateTagById(Tag tag)
+        public async Task<Tag> UpdateTag(Tag tag)
         {
             var tagRef = _tagsCollection.Document(tag.TagId);
-            await tagRef.SetAsync(tag, SetOptions.MergeAll);
-            var snapShot = await tagRef.GetSnapshotAsync();
-            return snapShot.ConvertTo<Tag>();
+            await tagRef.SetAsync(tag);
+            var snapshot = await tagRef.GetSnapshotAsync();
+            return snapshot.ConvertTo<Tag>();
+        }
+
+        public async Task<string> DeleteTag(string tagId)
+        {
+            var tagRef = _tagsCollection.Document(tagId);
+            await tagRef.DeleteAsync();
+            return tagId;
         }
     }
 }
