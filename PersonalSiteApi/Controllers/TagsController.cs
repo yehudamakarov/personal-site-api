@@ -45,9 +45,9 @@ namespace PersonalSiteApi.Controllers
             _logger.LogInformation(
                 "headers: {@HeadersBefore}, spanIdBefore: {@SpanIdBefore}, traceIdBefore: {@TraceIdBefore}",
                  headers, spanIdBefore, traceIdBefore);
+            // var span = _managedTracer.StartSpan(nameof(AllTags))
             using (var span = _managedTracer.StartSpan(nameof(AllTags)))
             {
-                // span.AnnotateSpan();
                 var headersAfter = HttpContext.Request.Headers;
                 var spanIdAfter = _managedTracer.GetCurrentSpanId();
                 var traceIdAfter = _managedTracer.GetCurrentTraceId();
