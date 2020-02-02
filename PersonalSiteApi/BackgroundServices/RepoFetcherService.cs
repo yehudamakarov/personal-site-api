@@ -23,7 +23,7 @@ namespace PersonalSiteApi.BackgroundServices
             _services = services;
             _logger = logger;
             InitialWait = TimeSpan.FromSeconds(30);
-            Interval = TimeSpan.FromSeconds(600);
+            Interval = TimeSpan.FromHours(6);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
