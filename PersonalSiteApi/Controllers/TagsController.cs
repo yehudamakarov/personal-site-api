@@ -44,7 +44,7 @@ namespace PersonalSiteApi.Controllers
             var traceIdBefore = _managedTracer.GetCurrentTraceId();
             _logger.LogInformation(
                 "headers: {@HeadersBefore}, spanIdBefore: {@SpanIdBefore}, traceIdBefore: {@TraceIdBefore}",
-                 headers, spanIdBefore, traceIdBefore);
+                headers, spanIdBefore, traceIdBefore);
             // var span = _managedTracer.StartSpan(nameof(AllTags))
             using (var span = _managedTracer.StartSpan(nameof(AllTags)))
             {
@@ -89,22 +89,24 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public async Task<IActionResult> RenameTag(string existingTagId, string newTagId)
+        public async Task<IActionResult> RenameTag(RenameTagRequest renameTagRequest)
         {
             try
             {
-                var renameTagStatus = await _tagManager.RenameTagById(existingTagId, newTagId);
+                var renameTagStatus =
+                    await _tagManager.RenameTagById(renameTagRequest.ExistingTagId, renameTagRequest.NewTagId);
                 return Ok(renameTagStatus);
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "There was a problem renaming {tagId}", existingTagId);
+                _logger.LogError(exception, "There was a problem renaming {tagId}", renameTagRequest.ExistingTagId);
                 var renameTagStatus = new TagResult
                 {
                     Details = new ResultDetails
                     {
                         ResultStatus = ResultStatus.Failure,
-                        Message = $"There was a problem renaming {existingTagId} to {newTagId}."
+                        Message =
+                            $"There was a problem renaming {renameTagRequest.ExistingTagId} to {renameTagRequest.NewTagId}."
                     }
                 };
                 return StatusCode((int) HttpStatusCode.InternalServerError, renameTagStatus);

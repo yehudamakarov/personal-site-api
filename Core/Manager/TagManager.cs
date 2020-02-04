@@ -48,13 +48,13 @@ namespace Core.Manager
             {
                 // below is only needed if the current tag is null (not in DB) for some reason. update Projects / Blog Posts createsOrFinds any NEW tag
                 var currentTagResult = await _tagBL.CreateOrFindByTagId(currentTagId);
-                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(currentTagResult, JobStage.InProgress);
-                var currentTagCount = currentTagResult.Data.TagId;
+                
+                var currentTagCount = currentTagResult.Data.ArticleCount;
 
                 var projectsChangedCount = await RenameTagInProjects(currentTagId, newTagId);
                 var blogPostsChangedCount = await RenameTagInBlogPosts(currentTagId, newTagId);
                 var newTagResult = await _tagBL.CreateOrFindByTagId(newTagId);
-                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(newTagResult, JobStage.Done);
+                
                 newTagResult.Details.Message =
                     $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
             }
@@ -100,6 +100,7 @@ namespace Core.Manager
         {
             try
             {
+                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(workingTag, JobStage.InProgress);
                 // below is only needed if the current tag is null (not in DB) for some reason. update Projects / Blog Posts createsOrFinds any NEW tag
                 var currentTagId = workingTag.Data.TagId;
                 var currentTagCount = workingTag.Data.ArticleCount;
@@ -107,14 +108,24 @@ namespace Core.Manager
                 var projectsChangedCount = await RenameTagInProjects(currentTagId, newTagId);
                 var blogPostsChangedCount = await RenameTagInBlogPosts(currentTagId, newTagId);
                 var newTagResult = await _tagBL.CreateOrFindByTagId(newTagId);
-                newTagResult.Details.Message =
-                    $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
+                // newTagResult.Details.Message =
+                //     $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
+                newTagResult.Details.Message = workingTag.Data.TagId;
                 await _jobStatusNotifier.PushRenameTagJobStatusUpdate(newTagResult, JobStage.Done);
             }
             catch (Exception exception)
             {
                 var currentTagId = workingTag.Data.TagId;
                 _logger.LogError(exception, "There was a problem renaming {tagId}", currentTagId);
+                var result = new TagResult
+                {
+                    Details = new ResultDetails
+                    {
+                        ResultStatus = ResultStatus.Failure,
+                        Message = $"There was a problem renaming {currentTagId} to {newTagId}."
+                    }
+                };
+                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(result, JobStage.Error);
             }
         }
 

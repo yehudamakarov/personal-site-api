@@ -8,6 +8,12 @@ namespace Core.Requests.Tags
         public string TagId { get; set; }
     }
 
+    public class RenameTagRequest
+    {
+        public string ExistingTagId { get; set; }
+        public string NewTagId { get; set; }
+    }
+
     public class Facade
     {
         public Facade()
