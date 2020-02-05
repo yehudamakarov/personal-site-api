@@ -24,7 +24,11 @@ namespace Infrastructure.Notification.JobStatus
         )
         {
             await _hubContext.Clients.All.PushGithubRepoFetcherJobStatusUpdate(
-                new GithubRepoFetcherJobStatus { Item = itemStatus, JobStage = jobStage }
+                new GithubRepoFetcherJobStatus
+                {
+                    Item = itemStatus,
+                    JobStage = jobStage
+                }
             );
         }
 
@@ -35,17 +39,27 @@ namespace Infrastructure.Notification.JobStatus
             );
         }
 
-        public async Task PushMapTagJobStatusUpdate(TagResult tagResult, JobStage jobStage)
+        public async Task PushMapTagJobStatusUpdate(string uniqueKey, TagResult tagResult, JobStage jobStage)
         {
             await _hubContext.Clients.All.PushMapTagJobStatusUpdate(
-                new MapTagJobStatus { Item = tagResult, JobStage = jobStage }
+                new MapTagJobStatus
+                {
+                    UniqueKey = uniqueKey,
+                    Item = tagResult,
+                    JobStage = jobStage
+                }
             );
         }
 
-        public async Task PushRenameTagJobStatusUpdate(TagResult tagResult, JobStage jobStage)
+        public async Task PushRenameTagJobStatusUpdate(string uniqueKey, TagResult tagResult, JobStage jobStage)
         {
             await _hubContext.Clients.All.PushRenameTagJobStatusUpdate(
-                new RenameTagJobStatus { Item = tagResult, JobStage = jobStage }
+                new RenameTagJobStatus
+                {
+                    UniqueKey = uniqueKey,
+                    Item = tagResult,
+                    JobStage = jobStage
+                }
             );
         }
     }

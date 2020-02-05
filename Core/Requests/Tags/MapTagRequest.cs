@@ -4,12 +4,14 @@ namespace Core.Requests.Tags
 {
     public class MapTagRequest
     {
+        public string UniqueKey { get; set; }
         public IEnumerable<Facade> FacadesToMap { get; set; }
         public string TagId { get; set; }
     }
 
     public class RenameTagRequest
     {
+        public string UniqueKey { get; set; }
         public string ExistingTagId { get; set; }
         public string NewTagId { get; set; }
     }

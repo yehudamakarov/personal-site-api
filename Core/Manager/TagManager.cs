@@ -33,49 +33,30 @@ namespace Core.Manager
 
         #region Public Methods
 
-        public async Task<MapTagJobStatus> MapTag(IEnumerable<Facade> facadesToMap, string tagId)
+        public async Task<MapTagJobStatus> MapTag(string uniqueKey, IEnumerable<Facade> facadesToMap, string tagId)
         {
             var workingTag = await _tagBL.CreateOrFindByTagId(tagId);
 #pragma warning disable 4014
-            MapTagJobAsync(facadesToMap, workingTag);
+            MapTagJobAsync(uniqueKey, facadesToMap, workingTag);
 #pragma warning restore 4014
-            return new MapTagJobStatus { JobStage = JobStage.InProgress, Item = workingTag };
+            return new MapTagJobStatus
+            {
+                JobStage = JobStage.InProgress,
+                Item = workingTag
+            };
         }
 
-        public async Task<RenameTagJobStatus> RenameTagById(string currentTagId, string newTagId)
+        public async Task<RenameTagJobStatus> RenameTagById(string uniqueKey, string currentTagId, string newTagId)
         {
-            try
-            {
-                // below is only needed if the current tag is null (not in DB) for some reason. update Projects / Blog Posts createsOrFinds any NEW tag
-                var currentTagResult = await _tagBL.CreateOrFindByTagId(currentTagId);
-                
-                var currentTagCount = currentTagResult.Data.ArticleCount;
-
-                var projectsChangedCount = await RenameTagInProjects(currentTagId, newTagId);
-                var blogPostsChangedCount = await RenameTagInBlogPosts(currentTagId, newTagId);
-                var newTagResult = await _tagBL.CreateOrFindByTagId(newTagId);
-                
-                newTagResult.Details.Message =
-                    $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "There was a problem renaming {tagId}", currentTagId);
-                var result = new TagResult
-                {
-                    Details = new ResultDetails
-                    {
-                        ResultStatus = ResultStatus.Failure,
-                        Message = $"There was a problem renaming {currentTagId} to {newTagId}."
-                    }
-                };
-                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(result, JobStage.Error);
-            }
             var workingTag = await _tagBL.CreateOrFindByTagId(currentTagId);
 #pragma warning disable 4014
-            RenameTagJobAsync(workingTag, newTagId);
+            RenameTagJobAsync(uniqueKey, workingTag, newTagId);
 #pragma warning restore 4014
-            return new RenameTagJobStatus { Item = workingTag, JobStage = JobStage.InProgress };
+            return new RenameTagJobStatus
+            {
+                Item = workingTag,
+                JobStage = JobStage.InProgress
+            };
         }
 
         #endregion
@@ -96,11 +77,11 @@ namespace Core.Manager
 
         #region Private Methods
 
-        private async Task RenameTagJobAsync(TagResult workingTag, string newTagId)
+        private async Task RenameTagJobAsync(string uniqueKey, TagResult workingTag, string newTagId)
         {
             try
             {
-                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(workingTag, JobStage.InProgress);
+                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(uniqueKey, workingTag, JobStage.InProgress);
                 // below is only needed if the current tag is null (not in DB) for some reason. update Projects / Blog Posts createsOrFinds any NEW tag
                 var currentTagId = workingTag.Data.TagId;
                 var currentTagCount = workingTag.Data.ArticleCount;
@@ -111,7 +92,7 @@ namespace Core.Manager
                 // newTagResult.Details.Message =
                 //     $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";
                 newTagResult.Details.Message = workingTag.Data.TagId;
-                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(newTagResult, JobStage.Done);
+                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(uniqueKey, newTagResult, JobStage.Done);
             }
             catch (Exception exception)
             {
@@ -125,11 +106,11 @@ namespace Core.Manager
                         Message = $"There was a problem renaming {currentTagId} to {newTagId}."
                     }
                 };
-                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(result, JobStage.Error);
+                await _jobStatusNotifier.PushRenameTagJobStatusUpdate(uniqueKey, result, JobStage.Error);
             }
         }
 
-        private async Task MapTagJobAsync(IEnumerable<Facade> facadesToMap, TagResult workingTag)
+        private async Task MapTagJobAsync(string uniqueKey, IEnumerable<Facade> facadesToMap, TagResult workingTag)
         {
             try
             {
@@ -138,16 +119,17 @@ namespace Core.Manager
                 await MapTagToProjects(toMap, tagId);
                 await MapTagToBlogPosts(toMap, tagId);
                 var updatedTag = await _tagBL.CreateOrFindByTagId(tagId);
-                await _jobStatusNotifier.PushMapTagJobStatusUpdate(updatedTag, JobStage.Done);
+                updatedTag.Details.StaleEntity = new StaleEntity(tagId, updatedTag.Data.TagId, nameof(Tag.TagId));
+                await _jobStatusNotifier.PushMapTagJobStatusUpdate(uniqueKey, updatedTag, JobStage.Done);
             }
             catch (Exception exception)
             {
-                var tagId = workingTag.Data.TagId;
+                await _jobStatusNotifier.PushMapTagJobStatusUpdate(uniqueKey, workingTag, JobStage.Error);
                 _logger.LogError(
                     exception,
                     "There was a problem during {JobName} for {tagId}",
                     nameof(MapTagJobAsync),
-                    tagId
+                    workingTag.Data.TagId
                 );
             }
         }
@@ -274,5 +256,19 @@ namespace Core.Manager
         }
 
         #endregion
+    }
+
+    public class StaleEntity
+    {
+        public object PreviousData { get; }
+        public object NextData { get; }
+        public string PropertyName { get; }
+
+        public StaleEntity(object previousData, object nextData, string propertyName)
+        {
+            PreviousData = previousData;
+            NextData = nextData;
+            PropertyName = propertyName;
+        }
     }
 }

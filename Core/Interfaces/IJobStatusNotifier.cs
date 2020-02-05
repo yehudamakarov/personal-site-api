@@ -9,8 +9,9 @@ namespace Core.Interfaces
     {
         Task PushGithubRepoFetcherJobStatusUpdate(Dictionary<string, JobStage> itemStatus,
             JobStage jobStage);
+
         Task PushCalculateTagCountsJobStatusUpdate(JobStage jobStage);
-        Task PushMapTagJobStatusUpdate(TagResult tagResult, JobStage jobStage);
-        Task PushRenameTagJobStatusUpdate(TagResult tagResult, JobStage jobStage);
+        Task PushMapTagJobStatusUpdate(string uniqueKey, TagResult tagResult, JobStage jobStage);
+        Task PushRenameTagJobStatusUpdate(string uniqueKey, TagResult tagResult, JobStage jobStage);
     }
 }

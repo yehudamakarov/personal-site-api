@@ -76,7 +76,7 @@ namespace PersonalSiteApi.Controllers
         {
             try
             {
-                var mapTagJobStatus = await _tagManager.MapTag(mapTagRequest.FacadesToMap, mapTagRequest.TagId);
+                var mapTagJobStatus = await _tagManager.MapTag(mapTagRequest.UniqueKey, mapTagRequest.FacadesToMap, mapTagRequest.TagId);
                 return Ok(mapTagJobStatus);
             }
             catch (Exception exception)
@@ -94,7 +94,7 @@ namespace PersonalSiteApi.Controllers
             try
             {
                 var renameTagStatus =
-                    await _tagManager.RenameTagById(renameTagRequest.ExistingTagId, renameTagRequest.NewTagId);
+                    await _tagManager.RenameTagById(renameTagRequest.UniqueKey, renameTagRequest.ExistingTagId, renameTagRequest.NewTagId);
                 return Ok(renameTagStatus);
             }
             catch (Exception exception)
