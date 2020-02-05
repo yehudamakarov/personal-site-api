@@ -14,18 +14,18 @@ namespace Core.Interfaces
         Task PushRenameTagJobStatusUpdate(RenameTagJobStatus renameTagJobStatus);
     }
 
-    public class CalculateTagCountsJobStatus : IJobStatus<TagResult>
-    {
-        public string UniqueKey { get; set; }
-        public JobStage JobStage { get; set; }
-        public TagResult Item { get; set; }
-    }
-
     public interface IJobStatus<T>
     {
         string UniqueKey { get; set; }
         JobStage JobStage { get; set; }
         T Item { get; set; }
+    }
+
+    public class CalculateTagCountsJobStatus : IJobStatus<TagResult>
+    {
+        public string UniqueKey { get; set; }
+        public JobStage JobStage { get; set; }
+        public TagResult Item { get; set; }
     }
 
     public class GithubRepoFetcherJobStatus : IJobStatus<Dictionary<string, JobStage>>
