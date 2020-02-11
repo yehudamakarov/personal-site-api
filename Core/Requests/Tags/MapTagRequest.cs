@@ -1,19 +1,25 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Core.Requests.Tags
 {
-    public class MapTagRequest
+    public class MapTagRequest : IJobRequest
     {
-        public string UniqueKey { get; set; }
-        public IEnumerable<Facade> FacadesToMap { get; set; }
+        [Required] public IEnumerable<Facade> FacadesToMap { get; set; }
         public string TagId { get; set; }
+        public string UniqueKey { get; set; }
     }
 
-    public class RenameTagRequest
+    public class RenameTagRequest : IJobRequest
     {
-        public string UniqueKey { get; set; }
+        [Required] public string UniqueKey { get; set; }
         public string ExistingTagId { get; set; }
         public string NewTagId { get; set; }
+    }
+
+    public interface IJobRequest
+    {
+        string UniqueKey { get; set; }
     }
 
     public class Facade

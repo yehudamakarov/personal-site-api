@@ -30,7 +30,7 @@ namespace PersonalSiteApi.BackgroundServices
         {
             try
             {
-                _timer = new Timer(FetchAndUploadRepos, null, InitialWait,Interval);
+                // _timer = new Timer(FetchAndUploadRepos, null, InitialWait,Interval);
                 return Task.CompletedTask;
             }
             catch (Exception exception)

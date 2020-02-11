@@ -88,6 +88,7 @@ namespace Core.Manager
 
                 var projectsChangedCount = await RenameTagInProjects(currentTagId, newTagId);
                 var blogPostsChangedCount = await RenameTagInBlogPosts(currentTagId, newTagId);
+                var deletedTagId = await _tagBL.DeleteTagByTagId(currentTagId);
                 var newTagResult = await _tagBL.CreateOrFindByTagId(newTagId);
                 // newTagResult.Details.Message =
                 //     $@"{currentTagId} with {currentTagCount} articles was renamed to {newTagId}. It now has {newTagResult.Data.ArticleCount} articles. Projects count: {projectsChangedCount}. Blog Posts count: {blogPostsChangedCount}.";

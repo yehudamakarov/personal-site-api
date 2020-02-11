@@ -25,7 +25,7 @@ namespace PersonalSiteApi.BackgroundServices
         {
             try
             {
-                _timer = new Timer(CalculateTagCounts, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(45));
+                // _timer = new Timer(CalculateTagCounts, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(45));
                 return Task.CompletedTask;
             }
             catch (Exception exception)
