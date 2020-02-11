@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,18 +15,22 @@ namespace PersonalSiteApi.BackgroundServices
         private readonly ILogger<CalculateTagCountsService> _logger;
         private readonly IServiceProvider _services;
         private Timer _timer;
+        private TimeSpan Interval { get; }
 
-        public CalculateTagCountsService(IServiceProvider services, ILogger<CalculateTagCountsService> logger)
+
+        public CalculateTagCountsService(IServiceProvider services, ILogger<CalculateTagCountsService> logger, IConfiguration configuration)
         {
             _services = services;
             _logger = logger;
+            var parsed = double.TryParse(configuration["RECURRING_JOB_TIME_INTERVAL_IN_SECONDS"], out var seconds);
+            Interval = TimeSpan.FromSeconds(parsed ? seconds : 43200);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                // _timer = new Timer(CalculateTagCounts, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(45));
+                _timer = new Timer(CalculateTagCounts, null, TimeSpan.FromSeconds(15), Interval);
                 return Task.CompletedTask;
             }
             catch (Exception exception)

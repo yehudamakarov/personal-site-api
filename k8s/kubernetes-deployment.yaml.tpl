@@ -27,6 +27,9 @@ spec:
           env:
             - name: ASPNETCORE_URLS
               value: "http://*:5000"
+              
+            - name: RECURRING_JOB_TIME_INTERVAL_IN_SECONDS
+              value: '21600'
 
             - name: JWT_SIGNING_KEY
               valueFrom:

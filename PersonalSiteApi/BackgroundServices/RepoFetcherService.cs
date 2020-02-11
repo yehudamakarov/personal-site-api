@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,31 +15,33 @@ namespace PersonalSiteApi.BackgroundServices
         private readonly ILogger<RepoFetcherService> _logger;
         private readonly IServiceProvider _services;
         private Timer _timer;
-        private TimeSpan Interval { get; set; }
-        private TimeSpan InitialWait { get; set; }
+        private TimeSpan Interval { get; }
+        private TimeSpan InitialWait { get; }
 
 
-        public RepoFetcherService(IServiceProvider services, ILogger<RepoFetcherService> logger)
+        public RepoFetcherService(IServiceProvider services, ILogger<RepoFetcherService> logger,
+            IConfiguration configuration)
         {
             _services = services;
             _logger = logger;
             InitialWait = TimeSpan.FromSeconds(30);
-            Interval = TimeSpan.FromSeconds(45);
+            var parsed = double.TryParse(configuration["RECURRING_JOB_TIME_INTERVAL_IN_SECONDS"], out var seconds);
+            Interval = TimeSpan.FromSeconds(parsed ? seconds : 43200);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                // _timer = new Timer(FetchAndUploadRepos, null, InitialWait,Interval);
+                _timer = new Timer(FetchAndUploadRepos, null, InitialWait, Interval);
                 return Task.CompletedTask;
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Job in {ServiceName} Failed!", ServiceName);
             }
+
             return Task.CompletedTask;
-             
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -61,7 +64,6 @@ namespace PersonalSiteApi.BackgroundServices
             catch (Exception exception)
             {
                 _logger.LogCritical(exception, $"{ServiceName} is encountering an  issue.");
-                
             }
         }
 
