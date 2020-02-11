@@ -115,7 +115,7 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public async Task<IActionResult> DeleteTag()
+        public async Task<IActionResult> DeleteTag(string tagId)
         {
             return Ok();
         }
