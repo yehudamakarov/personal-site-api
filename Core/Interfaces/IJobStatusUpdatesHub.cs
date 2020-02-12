@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Manager;
 using Core.Results;
 using Core.Types;
 
@@ -12,6 +13,7 @@ namespace Core.Interfaces
         Task PushCalculateTagCountsJobStatusUpdate(CalculateTagCountsJobStatus status);
         Task PushMapTagJobStatusUpdate(MapTagJobStatus mapTagJobStatus);
         Task PushRenameTagJobStatusUpdate(RenameTagJobStatus renameTagJobStatus);
+        Task PushDeleteTagJobStatusUpdate(DeleteTagJobStatus deleteTagJobStatus);
     }
 
     public interface IJobStatus<T>

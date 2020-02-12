@@ -6,6 +6,5 @@ namespace Core.Results
     {
         public ResultStatus ResultStatus { get; set; }
         public string Message { get; set; }
-        public StaleEntity StaleEntity { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Core;
 using Core.Interfaces;
+using Core.Manager;
 using Core.Requests.Tags;
 using Core.Results;
 using Core.Types;
@@ -23,7 +24,6 @@ namespace PersonalSiteApi.Controllers
         private readonly ITagBL _tagBL;
         private readonly ITagManager _tagManager;
         private readonly IManagedTracer _managedTracer;
-        private const string UpdatesWillBeBroadcastOverAWebsocket = "Updates will be broadcast over a websocket.";
 
         public TagsController(ILogger<TagsController> logger, ITagBL tagBL, ITagManager tagManager,
             IManagedTracer managedTracer)
@@ -76,7 +76,8 @@ namespace PersonalSiteApi.Controllers
         {
             try
             {
-                var mapTagJobStatus = await _tagManager.MapTag(mapTagRequest.UniqueKey, mapTagRequest.FacadesToMap, mapTagRequest.TagId);
+                var mapTagJobStatus = await _tagManager.MapTagProcess(mapTagRequest.UniqueKey,
+                    mapTagRequest.FacadesToMap, mapTagRequest.TagId);
                 return Ok(mapTagJobStatus);
             }
             catch (Exception exception)
@@ -94,20 +95,26 @@ namespace PersonalSiteApi.Controllers
             try
             {
                 var renameTagStatus =
-                    await _tagManager.RenameTagById(renameTagRequest.UniqueKey, renameTagRequest.ExistingTagId, renameTagRequest.NewTagId);
+                    await _tagManager.RenameTagByIdProcess(renameTagRequest.UniqueKey, renameTagRequest.ExistingTagId,
+                        renameTagRequest.NewTagId);
                 return Ok(renameTagStatus);
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "There was a problem renaming {tagId}", renameTagRequest.ExistingTagId);
-                var renameTagStatus = new TagResult
+                var renameTagStatus = new MapTagJobStatus()
                 {
-                    Details = new ResultDetails
+                    Item = new TagResult()
                     {
-                        ResultStatus = ResultStatus.Failure,
-                        Message =
-                            $"There was a problem renaming {renameTagRequest.ExistingTagId} to {renameTagRequest.NewTagId}."
-                    }
+                        Details = new ResultDetails
+                        {
+                            ResultStatus = ResultStatus.Failure,
+                            Message =
+                                $"There was a problem renaming {renameTagRequest.ExistingTagId} to {renameTagRequest.NewTagId}."
+                        }
+                    },
+                    JobStage = JobStage.Error,
+                    UniqueKey = renameTagRequest.UniqueKey
                 };
                 return StatusCode((int) HttpStatusCode.InternalServerError, renameTagStatus);
             }
@@ -115,9 +122,30 @@ namespace PersonalSiteApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Administrator)]
-        public async Task<IActionResult> DeleteTag(string tagId)
+        public async Task<IActionResult> DeleteTag(DeleteTagRequest deleteTagRequest)
         {
-            return Ok();
+            try
+            {
+                var deleteTagStatus =
+                    await _tagManager.DeleteTagProcess(deleteTagRequest.UniqueKey, deleteTagRequest.TagId);
+                return Ok(deleteTagStatus);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "There was a problem deleting {tagId}", deleteTagRequest.TagId);
+                var deleteTagStatus = new DeleteTagJobStatus()
+                {
+                    Item = deleteTagRequest.TagId,
+                    JobStage = JobStage.Error
+                };
+                return StatusCode(500, deleteTagStatus);
+            }
         }
+    }
+
+    public class DeleteTagRequest : IJobRequest
+    {
+        public string UniqueKey { get; set; }
+        public string TagId { get; set; }
     }
 }

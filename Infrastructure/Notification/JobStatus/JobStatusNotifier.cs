@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core;
 using Core.Interfaces;
+using Core.Manager;
 using Core.Results;
 using Core.Types;
 using Microsoft.AspNetCore.SignalR;
@@ -61,6 +62,18 @@ namespace Infrastructure.Notification.JobStatus
                     JobStage = jobStage
                 }
             );
+        }
+
+        public async Task PushDeleteTagJobStatusUpdate(string uniqueKey, string tagId,
+            JobStage jobStage)
+        {
+            await _hubContext.Clients.All.PushDeleteTagJobStatusUpdate(
+                new DeleteTagJobStatus()
+                {
+                    Item = tagId,
+                    JobStage = jobStage,
+                    UniqueKey = uniqueKey
+                });
         }
     }
 }

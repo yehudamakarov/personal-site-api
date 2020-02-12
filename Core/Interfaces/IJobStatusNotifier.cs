@@ -13,5 +13,6 @@ namespace Core.Interfaces
         Task PushCalculateTagCountsJobStatusUpdate(JobStage jobStage);
         Task PushMapTagJobStatusUpdate(string uniqueKey, TagResult tagResult, JobStage jobStage);
         Task PushRenameTagJobStatusUpdate(string uniqueKey, TagResult tagResult, JobStage jobStage);
+        Task PushDeleteTagJobStatusUpdate(string uniqueKey, string tagId, JobStage jobStage);
     }
 }

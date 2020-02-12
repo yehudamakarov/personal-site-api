@@ -33,12 +33,11 @@ namespace Core.Manager
 
         #region Public Methods
 
-        public async Task<MapTagJobStatus> MapTag(string uniqueKey, IEnumerable<Facade> facadesToMap, string tagId)
+        public async Task<MapTagJobStatus> MapTagProcess(string uniqueKey, IEnumerable<Facade> facadesToMap,
+            string tagId)
         {
             var workingTag = await _tagBL.CreateOrFindByTagId(tagId);
-#pragma warning disable 4014
             MapTagJobAsync(uniqueKey, facadesToMap, workingTag);
-#pragma warning restore 4014
             return new MapTagJobStatus
             {
                 JobStage = JobStage.InProgress,
@@ -46,17 +45,66 @@ namespace Core.Manager
             };
         }
 
-        public async Task<RenameTagJobStatus> RenameTagById(string uniqueKey, string currentTagId, string newTagId)
+        public async Task<RenameTagJobStatus> RenameTagByIdProcess(string uniqueKey, string currentTagId,
+            string newTagId)
         {
             var workingTag = await _tagBL.CreateOrFindByTagId(currentTagId);
-#pragma warning disable 4014
             RenameTagJobAsync(uniqueKey, workingTag, newTagId);
-#pragma warning restore 4014
             return new RenameTagJobStatus
             {
                 Item = workingTag,
                 JobStage = JobStage.InProgress
             };
+        }
+
+        public async Task<DeleteTagJobStatus> DeleteTagProcess(string uniqueKey, string tagId)
+        {
+            var workingTagResult = await _tagBL.CreateOrFindByTagId(tagId);
+            if (workingTagResult.Details.ResultStatus == ResultStatus.Failure)
+            {
+                return new DeleteTagJobStatus()
+                {
+                    Item = tagId,
+                    UniqueKey = uniqueKey,
+                    JobStage = JobStage.Error
+                };
+            }
+
+            DeleteTagJobAsync(uniqueKey, tagId);
+            return new DeleteTagJobStatus()
+            {
+                Item = tagId,
+                JobStage = JobStage.InProgress,
+                UniqueKey = uniqueKey
+            };
+        }
+
+        private async Task DeleteTagJobAsync(string uniqueKey, string tagId)
+        {
+            try
+            {
+                var projectsResult = await _projectBL.GetProjectsByTagId(tagId);
+                foreach (var project in projectsResult.Data)
+                {
+                    project.TagIds.Remove(tagId);
+                    await _projectBL.UpdateProject(project);
+                }
+
+                var blogPosts = await _blogPostBL.GetBlogPostsByTagId(tagId);
+                foreach (var blogPost in blogPosts.Data)
+                {
+                    blogPost.TagIds.Remove(tagId);
+                    await _blogPostBL.UpdateBlogPost(blogPost);
+                }
+
+                await _tagBL.DeleteTagByTagId(tagId);
+                await _jobStatusNotifier.PushDeleteTagJobStatusUpdate(uniqueKey, tagId, JobStage.Done);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Deleting this Tag failed. Check the logs.");
+                await _jobStatusNotifier.PushDeleteTagJobStatusUpdate(uniqueKey, tagId, JobStage.Error);
+            }
         }
 
         #endregion
@@ -120,7 +168,6 @@ namespace Core.Manager
                 await MapTagToProjects(toMap, tagId);
                 await MapTagToBlogPosts(toMap, tagId);
                 var updatedTag = await _tagBL.CreateOrFindByTagId(tagId);
-                updatedTag.Details.StaleEntity = new StaleEntity(tagId, updatedTag.Data.TagId, nameof(Tag.TagId));
                 await _jobStatusNotifier.PushMapTagJobStatusUpdate(uniqueKey, updatedTag, JobStage.Done);
             }
             catch (Exception exception)
@@ -259,17 +306,10 @@ namespace Core.Manager
         #endregion
     }
 
-    public class StaleEntity
+    public class DeleteTagJobStatus : IJobStatus<string>
     {
-        public object PreviousData { get; }
-        public object NextData { get; }
-        public string PropertyName { get; }
-
-        public StaleEntity(object previousData, object nextData, string propertyName)
-        {
-            PreviousData = previousData;
-            NextData = nextData;
-            PropertyName = propertyName;
-        }
+        public string UniqueKey { get; set; }
+        public JobStage JobStage { get; set; }
+        public string Item { get; set; }
     }
 }
