@@ -19,11 +19,19 @@ namespace PersonalSiteApi
                 ProjectId = config["GOOGLE_PROJECT_ID"],
                 UseJsonOutput = true
             };
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Information().Enrich.FromLogContext().WriteTo
-                .Console(
+            Log.Logger = new LoggerConfiguration()
+                // ====  INFO  ================================================ // 
+                .MinimumLevel.Information()
+                // ====  context  ================================================ // 
+                .Enrich.FromLogContext()
+                // ====  console  ================================================ // 
+                .WriteTo.Console(
                     outputTemplate:
                     "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} -- Properties: {Properties:j} {NewLine}{Exception}"
-                ).WriteTo.GoogleCloudLogging(googleCloudLoggingConfig).CreateLogger();
+                )
+                // ====  google cloud logging  ================================================ // 
+                .WriteTo.GoogleCloudLogging(googleCloudLoggingConfig)
+                .CreateLogger();
             try
             {
                 Log.Information("Starting web host...");
